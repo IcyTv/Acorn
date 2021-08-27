@@ -1,0 +1,13 @@
+[submodule ".\\Acorn\\vendor\\ImGui"]
+	path = .\\Acorn\\vendor\\ImGui
+	url = https://github.com/TheCherno/imgui
+	branch = docking
+[submodule ".\\Acorn\\vendor\\ImNodes"]
+	path = .\\Acorn\\vendor\\ImNodes
+	url = https://github.com/IcyTv/ImNodes
+[submodule ".\\Acorn\\vendor\\ImPlot"]
+	path = .\\Acorn\\vendor\\ImPlot
+	url = https://github.com/IcyTv/implot
+[submodule ".\\Acorn\\vendor\\ImTerm"]
+	path = .\\Acorn\\vendor\\ImTerm
+	url = https://github.com/IcyTv/ImTerm.git
