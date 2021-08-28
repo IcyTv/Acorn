@@ -13,7 +13,8 @@ namespace Acorn::ext2d //Extension 2d
 		static void Init();
 		static void ShutDown();
 
-		static void BeginScene(const OrthographicCamera& camera);
+		static void BeginScene(const OrthographicCamera &camera); //TODO remove
+		static void BeginScene(const Camera &camera, const glm::mat4 &transform);
 		static void EndScene();
 		static void Flush();
 
@@ -22,29 +23,36 @@ namespace Acorn::ext2d //Extension 2d
 		//==========
 
 		//Quad
-		static void FillQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-		static void FillQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
-		static void FillQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& tint, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& tint, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& tint, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
-		static void FillQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& tint, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color);
+		static void FillQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color);
+		static void FillQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &tint, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &tint, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &tint, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &tint, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+
+		//Matrix Quad
+		static void FillQuad(const glm::mat4 &transform, const glm::vec4 &color);
+		static void FillQuad(const glm::mat4 &transform, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::mat4 &transform, const glm::vec4 &tint, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::mat4 &transform, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillQuad(const glm::mat4 &transform, const glm::vec4 &tint, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
 
 		//Rotated Quad
 
-		static void FillRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-		static void FillRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-		static void FillRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& tint, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& tint, const Ref<Texture2d>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& tint, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
-		static void FillRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& tint, const Ref<SubTexture>& texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color);
+		static void FillRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color);
+		static void FillRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, float rotation, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, float rotation, const glm::vec4 &tint, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &tint, const Ref<Texture2d> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, float rotation, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, float rotation, const glm::vec4 &tint, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
+		static void FillRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &tint, const Ref<SubTexture> &texture, float tilingfactor = 1.0f);
 
 		//Stats
 		struct Statistics

@@ -82,7 +82,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_BUILD_DLL;GLFW_INCLUDE_NONE;AC_DEBUG;PSNIP_DEBUG;AC_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\ImTerm\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_BUILD_DLL;GLFW_INCLUDE_NONE;AC_DEBUG;NDEBUG;AC_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\ImTerm\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -130,7 +130,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_BUILD_DLL;GLFW_INCLUDE_NONE;AC_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\ImTerm\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -161,13 +161,17 @@
     <ClInclude Include="src\core\Timestep.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\debug\Instrumentor.h" />
+    <ClInclude Include="src\ecs\Entity.h" />
+    <ClInclude Include="src\ecs\Scene.h" />
+    <ClInclude Include="src\ecs\components\Components.h" />
+    <ClInclude Include="src\ecs\components\SceneCamera.h" />
+    <ClInclude Include="src\ecs\components\ScriptableEntity.h" />
     <ClInclude Include="src\events\ApplicationEvent.h" />
     <ClInclude Include="src\events\Event.h" />
     <ClInclude Include="src\events\KeyEvent.h" />
     <ClInclude Include="src\events\MouseEvent.h" />
     <ClInclude Include="src\gui\ImGuiLayer.h" />
     <ClInclude Include="src\gui\nodes\ImGuiNodes.h" />
-    <ClInclude Include="src\gui\terminal\Terminal.h" />
     <ClInclude Include="src\input\Input.h" />
     <ClInclude Include="src\input\KeyCodes.h" />
     <ClInclude Include="src\input\MouseButtonCodes.h" />
@@ -205,6 +209,9 @@
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\core\Platform.cpp" />
     <ClCompile Include="src\core\Timestep.cpp" />
+    <ClCompile Include="src\ecs\Entity.cpp" />
+    <ClCompile Include="src\ecs\Scene.cpp" />
+    <ClCompile Include="src\ecs\components\SceneCamera.cpp" />
     <ClCompile Include="src\gui\ImGuiBuild.cpp" />
     <ClCompile Include="src\gui\ImGuiLayer.cpp" />
     <ClCompile Include="src\gui\nodes\ImGuiNodes.cpp" />

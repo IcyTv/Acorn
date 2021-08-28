@@ -20,6 +20,10 @@
 
 #include "templates/OrthographicCameraController.h"
 
+#include "ecs/Scene.h"
+#include "ecs/Entity.h"
+#include "ecs/components/ScriptableEntity.h"
+#include "ecs/components/Components.h"
 
 #include "input/Input.h"
 #include "input/KeyCodes.h"

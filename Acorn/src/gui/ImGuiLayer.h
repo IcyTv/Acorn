@@ -2,8 +2,8 @@
 
 #include "layer/Layer.h"
 
-#include "events/Event.h"
 #include "events/ApplicationEvent.h"
+#include "events/Event.h"
 #include "events/KeyEvent.h"
 #include "events/MouseEvent.h"
 
@@ -13,7 +13,7 @@ constexpr uint32_t MAX_FRAME_TIMES = 512;
 
 namespace Acorn
 {
-	class AC_API ImGuiLayer: public Layer
+	class AC_API ImGuiLayer : public Layer
 	{
 	public:
 		ImGuiLayer();
@@ -23,12 +23,15 @@ namespace Acorn
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender(Timestep timestep) override;
 		virtual void OnEvent(Event& e) override;
-		
+
 		void Begin();
 		void End();
 
 		void BlockEvents(bool val) { m_BlockEvents = val; }
+
 	private:
+		void SetDarkThemeColors();
+
 		bool OnKeyDown(KeyEvent& ev);
 
 	private:
@@ -36,4 +39,3 @@ namespace Acorn
 		float m_Time = 0.0f;
 	};
 }
-

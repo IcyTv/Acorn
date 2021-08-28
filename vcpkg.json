@@ -10,6 +10,7 @@
       "features": [ "gl-api-latest" ]
     },
     "glm",
-    "stb"
+    "stb",
+    "entt"
   ]
 }

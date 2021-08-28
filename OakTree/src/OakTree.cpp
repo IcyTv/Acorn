@@ -10,7 +10,7 @@ namespace Acorn
 	{
 	public:
 		OakTree()
-			: Application("OakTree")
+			: Application("OakTree", true)
 		{
 			//PushLayer(new ExampleLayer());
 			PushLayer(new OakLayer());
@@ -18,7 +18,6 @@ namespace Acorn
 
 		~OakTree()
 		{
-
 		}
 	};
 

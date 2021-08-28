@@ -8,6 +8,3 @@
 [submodule ".\\Acorn\\vendor\\ImPlot"]
 	path = .\\Acorn\\vendor\\ImPlot
 	url = https://github.com/IcyTv/implot
-[submodule ".\\Acorn\\vendor\\ImTerm"]
-	path = .\\Acorn\\vendor\\ImTerm
-	url = https://github.com/IcyTv/ImTerm.git

@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\michael\Programming\game-engine\game-engine\bin\Debug-windows-x86_64\OakTree\OakTree.exe</FullPath>
+      <FullPath>c:\Users\michael\Programming\game-engine\game-engine\bin\Debug-windows-x86_64\OakTree\OakTree.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

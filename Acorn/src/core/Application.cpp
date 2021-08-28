@@ -1,23 +1,24 @@
 #include "acpch.h"
 
 #include "Application.h"
-#include "renderer/Renderer.h"
 #include "Timestep.h"
 #include "core/Platform.h"
 #include "input/KeyCodes.h"
+#include "renderer/Renderer.h"
 
 #include <chrono>
 #include <iomanip>
 
 namespace Acorn
 {
-	Application::Application(const std::string& name)
+	Application::Application(const std::string& name, bool maximized)
 	{
 		AC_PROFILE_FUNCTION();
 		AC_CORE_ASSERT(!s_Instance, "Can only have one Application");
 		s_Instance = this;
 
 		WindowProps props(name);
+		props.Maximized = maximized;
 		m_Window = Scope<Window>(Window::Create(props));
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
@@ -49,7 +50,7 @@ namespace Acorn
 			{
 				{
 					AC_PROFILE_SCOPE("Application::Run::OnUpdate")
-					for (Layer *layer : m_LayerStack)
+					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(timestep);
 				}
 			}
@@ -57,12 +58,12 @@ namespace Acorn
 			{
 
 				AC_PROFILE_SCOPE("Application::Run::ImGui")
-					m_ImGuiLayer->Begin();
+				m_ImGuiLayer->Begin();
 
 				{
 					AC_PROFILE_SCOPE("Application::Run::OnImGuiRender")
-						for (Layer* layer : m_LayerStack)
-							layer->OnImGuiRender(timestep);
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender(timestep);
 				}
 
 				m_ImGuiLayer->End();
@@ -75,7 +76,7 @@ namespace Acorn
 		}
 	}
 
-	void Application::OnEvent(Event &e)
+	void Application::OnEvent(Event& e)
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -85,7 +86,7 @@ namespace Acorn
 
 		if (e.GetEventType() == EventType::KeyPressed)
 		{
-			KeyPressedEvent &ke = (KeyPressedEvent &)e;
+			KeyPressedEvent& ke = (KeyPressedEvent&)e;
 			if (ke.GetKeyCode() == AC_KEY_F6)
 			{
 				if (!m_IsProfiling && ke.GetRepeatCount() == 0)
@@ -122,13 +123,13 @@ namespace Acorn
 		}
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent &event)
+	bool Application::OnWindowClose(WindowCloseEvent& event)
 	{
 		m_Running = false;
 		return true;
 	}
 
-	bool Application::OnWindowResize(WindowResizeEvent &event)
+	bool Application::OnWindowResize(WindowResizeEvent& event)
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -145,12 +146,12 @@ namespace Acorn
 		return false;
 	}
 
-	void Application::PushLayer(Layer *layer)
+	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
 	}
 
-	void Application::PushOverlay(Layer *overlay)
+	void Application::PushOverlay(Layer* overlay)
 	{
 		m_LayerStack.PushOverlay(overlay);
 	}

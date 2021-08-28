@@ -19,6 +19,12 @@
     <Filter Include="src\debug">
       <UniqueIdentifier>{83B306B5-EF1D-BB2B-385C-6CD1A4059980}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ecs">
+      <UniqueIdentifier>{57FA2FA9-C3D9-AE44-CCF1-391B385015A6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ecs\components">
+      <UniqueIdentifier>{2C7F3358-1863-F4AD-81C3-EE006DC6DE2F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\events">
       <UniqueIdentifier>{91766759-7D2E-A9A6-E635-8202D20C4497}</UniqueIdentifier>
     </Filter>
@@ -27,9 +33,6 @@
     </Filter>
     <Filter Include="src\gui\nodes">
       <UniqueIdentifier>{C92B4912-35EC-C448-FE26-0EC66AA60925}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\gui\terminal">
-      <UniqueIdentifier>{CC82A59A-B87B-C4EC-E1AD-A971CD05A4F8}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\input">
       <UniqueIdentifier>{0C5966B5-78C3-1A2C-C101-CCD12DABF880}</UniqueIdentifier>
@@ -105,6 +108,21 @@
     <ClInclude Include="src\debug\Instrumentor.h">
       <Filter>src\debug</Filter>
     </ClInclude>
+    <ClInclude Include="src\ecs\Entity.h">
+      <Filter>src\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ecs\Scene.h">
+      <Filter>src\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ecs\components\Components.h">
+      <Filter>src\ecs\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ecs\components\SceneCamera.h">
+      <Filter>src\ecs\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ecs\components\ScriptableEntity.h">
+      <Filter>src\ecs\components</Filter>
+    </ClInclude>
     <ClInclude Include="src\events\ApplicationEvent.h">
       <Filter>src\events</Filter>
     </ClInclude>
@@ -122,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="src\gui\nodes\ImGuiNodes.h">
       <Filter>src\gui\nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gui\terminal\Terminal.h">
-      <Filter>src\gui\terminal</Filter>
     </ClInclude>
     <ClInclude Include="src\input\Input.h">
       <Filter>src\input</Filter>
@@ -226,6 +241,15 @@
     </ClCompile>
     <ClCompile Include="src\core\Timestep.cpp">
       <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecs\Entity.cpp">
+      <Filter>src\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecs\Scene.cpp">
+      <Filter>src\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecs\components\SceneCamera.cpp">
+      <Filter>src\ecs\components</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\ImGuiBuild.cpp">
       <Filter>src\gui</Filter>

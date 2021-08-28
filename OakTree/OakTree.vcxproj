@@ -83,7 +83,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\ImTerm\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -100,7 +100,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\ImTerm\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,7 +121,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\ImTerm\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -139,10 +139,35 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\OakLayer.h" />
+    <ClInclude Include="src\panels\LogPanel.h" />
+    <ClInclude Include="src\panels\SceneHierarchy.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OakLayer.cpp" />
     <ClCompile Include="src\OakTree.cpp" />
+    <ClCompile Include="src\panels\LogPanel.cpp" />
+    <ClCompile Include="src\panels\SceneHierarchy.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\fonts\Inconsolata-Black.ttf" />
+    <None Include="res\fonts\Inconsolata-Bold.ttf" />
+    <None Include="res\fonts\Inconsolata-ExtraBold.ttf" />
+    <None Include="res\fonts\Inconsolata-ExtraLight.ttf" />
+    <None Include="res\fonts\Inconsolata-Light.ttf" />
+    <None Include="res\fonts\Inconsolata-Medium.ttf" />
+    <None Include="res\fonts\Inconsolata-Regular.ttf" />
+    <None Include="res\fonts\Inconsolata-SemiBold.ttf" />
+    <None Include="res\fonts\Inconsolata.ttf" />
+    <None Include="res\fonts\OFL.txt" />
+    <None Include="res\shaders\Textured.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\textures\Checkerboard.png" />
+    <Image Include="res\textures\ChernoLogo.png" />
+    <Image Include="res\textures\RPGpack_sheet.png" />
+    <Image Include="res\textures\RPGpack_sheet_2X.png" />
+    <Image Include="res\textures\roguelikeSheet_magenta.png" />
+    <Image Include="res\textures\roguelikeSheet_transparent.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Acorn\Acorn.vcxproj">

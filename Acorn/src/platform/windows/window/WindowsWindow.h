@@ -2,10 +2,10 @@
 
 #include "core/Window.h"
 
-#include <GLFW/glfw3.h>
 #include "renderer/GraphicsContext.h"
+#include <GLFW/glfw3.h>
 
-namespace Acorn 
+namespace Acorn
 {
 	class WindowsWindow : public Window
 	{
@@ -22,11 +22,15 @@ namespace Acorn
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
+		virtual void Maximize() override;
+		virtual void UnMaximize() override;
+
 		inline virtual void* GetNativeWindow() const override { return (void*)m_Window; }
-	
+
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
+
 	private:
 		GLFWwindow* m_Window;
 		Scope<GraphicsContext> m_Context;
@@ -36,6 +40,7 @@ namespace Acorn
 			std::string Title;
 			uint32_t Width, Height;
 			bool VSync;
+			bool Maximized;
 
 			EventCallbackFn EventCallback;
 		};
@@ -43,4 +48,3 @@ namespace Acorn
 		WindowData m_Data;
 	};
 }
-

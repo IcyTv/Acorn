@@ -1,16 +1,17 @@
 #pragma once
 
-
 #include "Window.h"
-#include "layer/LayerStack.h"
-#include "events/Event.h"
 #include "events/ApplicationEvent.h"
+#include "events/Event.h"
 #include "gui/ImGuiLayer.h"
+#include "layer/LayerStack.h"
 
-namespace Acorn {
-	class Application {
+namespace Acorn
+{
+	class Application
+	{
 	public:
-		Application(const std::string& name = "Acorn App");
+		Application(const std::string& name = "Acorn App", bool maximized = false);
 		virtual ~Application();
 
 		void Run();
@@ -30,25 +31,23 @@ namespace Acorn {
 	private:
 		bool OnWindowClose(WindowCloseEvent& event);
 		bool OnWindowResize(WindowResizeEvent& event);
-	
+
 	private:
 		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
-		bool  m_Minimized = false;
+		bool m_Minimized = false;
 		LayerStack m_LayerStack;
 
 		float m_LastFrameTime = 0.0f;
 
 		bool m_IsProfiling = false;
 
-	private:		
+	private:
 		inline static Application* s_Instance = nullptr;
 	};
 
 	// To be defined in Client
 	Application* CreateApplication();
 
-
 }
-

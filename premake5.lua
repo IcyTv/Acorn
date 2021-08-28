@@ -58,13 +58,11 @@ IncludeDir = {}
 IncludeDir["ImGui"] = "Acorn/vendor/ImGui"
 IncludeDir["ImNodes"] = "Acorn/vendor/ImNodes"
 IncludeDir["ImPlot"] = "Acorn/vendor/ImPlot"
-IncludeDir["ImTerm"] = "Acorn/vendor/ImTerm/Include"
 
 group "Vendors"
     include "Acorn/vendor/ImGui"
     include "Acorn/vendor/ImNodes"
     include "Acorn/vendor/ImPlot"
-    include "Acorn/vendor/ImTerm"
 group ""
 
 project "Acorn"
@@ -104,7 +102,6 @@ project "Acorn"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImNodes}",
 		"%{IncludeDir.ImPlot}",
-		"%{IncludeDir.ImTerm}",
     }
 
     links
@@ -168,7 +165,6 @@ project "Sandbox"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImNodes}",
 		"%{IncludeDir.ImPlot}",
-		"%{IncludeDir.ImTerm}",
     }
 
     links
@@ -223,10 +219,10 @@ project "OakTree"
     {
         "Acorn/src",
         "Acorn/vendor",
+        "OakTree/src",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImNodes}",
 		"%{IncludeDir.ImPlot}",
-		"%{IncludeDir.ImTerm}",
     }
 
     links
