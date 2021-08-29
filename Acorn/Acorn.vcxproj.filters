@@ -4,6 +4,12 @@
     <Filter Include="..">
       <UniqueIdentifier>{61705900-4DFC-870B-B6AA-880BA255880B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="..\vendor">
+      <UniqueIdentifier>{9EAFE090-0A1A-9507-5358-46ADBF01735C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\vendor\ImGuizmo">
+      <UniqueIdentifier>{BE93E47A-AA77-A5D0-13D8-9F23FFDA8F52}</UniqueIdentifier>
+    </Filter>
     <Filter Include="res">
       <UniqueIdentifier>{4FA5880B-BBAE-887C-442A-9F7CB032947C}</UniqueIdentifier>
     </Filter>
@@ -61,6 +67,9 @@
     <Filter Include="src\renderer\2d">
       <UniqueIdentifier>{78B7F0C5-E442-5E8A-ED53-E17E595EBA8A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\serialize">
+      <UniqueIdentifier>{44B52BFF-B075-A735-79B0-F0B2E52FEC11}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\templates">
       <UniqueIdentifier>{6B44DA03-D704-563A-A03F-9FB70CBF9A16}</UniqueIdentifier>
     </Filter>
@@ -75,6 +84,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\vendor\ImGuizmo\ImGuizmo.h">
+      <Filter>..\vendor\ImGuizmo</Filter>
+    </ClInclude>
     <ClInclude Include="src\Acorn.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -219,14 +231,23 @@
     <ClInclude Include="src\renderer\VertexArray.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\serialize\Serializer.h">
+      <Filter>src\serialize</Filter>
+    </ClInclude>
     <ClInclude Include="src\templates\OrthographicCameraController.h">
       <Filter>src\templates</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\FixedQueue.h">
       <Filter>src\utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\PlatformUtils.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\vendor\ImGuizmo\ImGuizmo.cpp">
+      <Filter>..\vendor\ImGuizmo</Filter>
+    </ClCompile>
     <ClCompile Include="src\acpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -290,6 +311,9 @@
     <ClCompile Include="src\platform\windows\WindowsPlatform.cpp">
       <Filter>src\platform\windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\platform\windows\WindowsPlatformUtils.cpp">
+      <Filter>src\platform\windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\platform\windows\input\WindowsInput.cpp">
       <Filter>src\platform\windows\input</Filter>
     </ClCompile>
@@ -328,6 +352,9 @@
     </ClCompile>
     <ClCompile Include="src\renderer\VertexArray.cpp">
       <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serialize\Serializer.cpp">
+      <Filter>src\serialize</Filter>
     </ClCompile>
     <ClCompile Include="src\templates\OrthographicCameraController.cpp">
       <Filter>src\templates</Filter>

@@ -8,3 +8,12 @@
 [submodule ".\\Acorn\\vendor\\ImPlot"]
 	path = .\\Acorn\\vendor\\ImPlot
 	url = https://github.com/IcyTv/implot
+[submodule ".\\Acorn\\vendor\\yaml-cpp"]
+	path = .\\Acorn\\vendor\\yaml-cpp
+	url = https://github.com/TheCherno/yaml-cpp.git
+[submodule ".\\Acorn\\vendor\\nativefiledialog"]
+	path = .\\Acorn\\vendor\\nativefiledialog
+	url = https://github.com/mlabbe/nativefiledialog
+[submodule ".\\Acorn\\vendor\\ImGuizmo"]
+	path = .\\Acorn\\vendor\\ImGuizmo
+	url = https://github.com/TheCherno/ImGuizmo.git

@@ -10,7 +10,7 @@ namespace Acorn
 	{
 	public:
 		inline KeyCode GetKeyCode() const { return m_KeyCode; }
-		inline int GetmodKeys() const { return m_ModKeys; }
+		inline int GetModKeys() const { return m_ModKeys; }
 		inline bool IsModKeyPressed(ModifierKeys modKey) { return m_ModKeys & static_cast<int32_t>(modKey); }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)

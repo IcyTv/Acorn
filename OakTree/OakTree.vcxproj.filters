@@ -7,6 +7,9 @@
     <Filter Include="res\fonts">
       <UniqueIdentifier>{E81E0011-5489-B487-9DC7-652D097192DC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="res\scenes">
+      <UniqueIdentifier>{BFDB784E-AB93-BA9B-149B-93F70072558C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="res\shaders">
       <UniqueIdentifier>{4841F028-B4F6-681E-3DEB-62F5A99F5F22}</UniqueIdentifier>
     </Filter>
@@ -75,6 +78,18 @@
     </None>
     <None Include="res\fonts\OFL.txt">
       <Filter>res\fonts</Filter>
+    </None>
+    <None Include="res\scenes\Example.acorn">
+      <Filter>res\scenes</Filter>
+    </None>
+    <None Include="res\scenes\Example2.acorn">
+      <Filter>res\scenes</Filter>
+    </None>
+    <None Include="res\scenes\PinkCube.acorn">
+      <Filter>res\scenes</Filter>
+    </None>
+    <None Include="res\scenes\Test.acorn">
+      <Filter>res\scenes</Filter>
     </None>
     <None Include="res\shaders\Textured.shader">
       <Filter>res\shaders</Filter>

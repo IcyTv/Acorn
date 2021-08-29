@@ -3,29 +3,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
-static constexpr uint32_t s_MapWidth = 24;
-static const char* s_MapTiles =
-	"WWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWGGGGGWWWWWWWWWW"
-	"WWWWWWWWGGGGGGGWWWWWWWWW"
-	"WWWWWWWGGGGGGGGWWWWWWWWW"
-	"WWWWWWGGGGGGGGGGWWWWWWWW"
-	"WWWWWGGGWWGGGGGGGWWWWWWW"
-	"WWWWWGGGWWGGGGGGGGWWWWWW"
-	"WWWWWGGGGGGGGGGGGGGWWWWW"
-	"WWWWWWGGGGGGGGGGGGGWWWWW"
-	"WWWWWWGGGGGGGGGGGGGWWWWW"
-	"WWWWWWGGGGGGGGGGGGGWWWWW"
-	"WWWWWWWWWWGGGGGGGGGWWWWW"
-	"WWWWWWWWWWWWWWWGGGWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWW";
-
-size_t GetCoords(size_t x, size_t y, uint32_t width)
-{
-	return x + y * (size_t)width;
-}
+#include "serialize/Serializer.h"
+#include "utils/PlatformUtils.h"
 
 namespace Acorn
 {
@@ -39,33 +18,9 @@ namespace Acorn
 
 		m_Framebuffer = Framebuffer::Create({Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight()});
 
-		m_CheckerboardTexture = Texture2d::Create("res/textures/Checkerboard.png");
-		m_SpriteSheet = Texture2d::Create("res/textures/RPGpack_sheet_2X.png");
-
-		m_BarrelTexture = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {9, 0}, {128, 128});
-
-		m_MapWidth = s_MapWidth;
-		m_MapHeight = (uint32_t)strlen(s_MapTiles) / s_MapWidth;
-
-		m_TileMap['G'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {1, 11}, {128, 128});
-		m_TileMap['W'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {11, 11}, {128, 128});
-		m_TileMap['L'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {10, 11}, {128, 128});
-		m_TileMap['R'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {12, 11}, {128, 128});
-		m_TileMap['B'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {11, 10}, {128, 128});
-		m_TileMap['T'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {11, 12}, {128, 128});
-		m_TileMap['H'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {10, 10}, {128, 128});
-		m_TileMap['I'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {10, 12}, {128, 128});
-		m_TileMap['J'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {12, 10}, {128, 128});
-		m_TileMap['K'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {12, 12}, {128, 128});
-		m_TileMap['M'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {13, 11}, {128, 128});
-		m_TileMap['N'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {14, 11}, {128, 128});
-		m_TileMap['O'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {13, 12}, {128, 128});
-		m_TileMap['P'] = ext2d::SubTexture::CreateFromCoords(m_SpriteSheet, {14, 12}, {128, 128});
-
-		m_CameraController.SetZoomLevel(5.0f);
-
 		m_ActiveScene = CreateRef<Scene>();
 
+#if 0
 		auto square = m_ActiveScene->CreateEntity("Square");
 
 		square.AddComponent<Components::SpriteRenderer>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
@@ -121,6 +76,7 @@ namespace Acorn
 
 		m_Camera.AddComponent<Components::NativeScript>().Bind<CameraController>();
 
+#endif
 		//Panels
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
@@ -128,6 +84,9 @@ namespace Acorn
 		m_LogPanel = std::make_shared<LogPanel>();
 		m_LogPanel->set_pattern("%^[%=8n][%T][%l]: %v%$");
 		Log::AddSink(m_LogPanel);
+
+		SceneSerializer serializer(m_ActiveScene);
+		serializer.Deserialize("res/scenes/Example.acorn");
 	}
 
 	void OakLayer::OnDetach()
@@ -229,10 +188,25 @@ namespace Acorn
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				if (ImGui::MenuItem("New", "Ctrl+N"))
+				{
+					NewScene();
+				}
+				if (ImGui::MenuItem("Open...", "Ctrl+O"))
+				{
+					OpenScene();
+				}
+				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+				{
+					SaveSceneAs();
+				}
+				ImGui::Separator();
+
 				if (ImGui::MenuItem("Quit"))
 				{
 					Application::Get().Close();
 				}
+
 				ImGui::EndMenu();
 			}
 
@@ -294,7 +268,62 @@ namespace Acorn
 	void OakLayer::OnEvent(Event& e)
 	{
 		AC_PROFILE_FUNCTION();
-		m_CameraController.OnEvent(e);
+
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OakLayer::OnKeyPressed));
 	}
 
+	bool OakLayer::OnKeyPressed(KeyPressedEvent& e)
+	{
+		//Shortcuts
+		if (e.GetRepeatCount() > 0)
+			return false;
+
+		if (e.GetModKeys() & (int)ModifierKey::Control)
+		{
+			if (e.GetKeyCode() == KeyCode::N)
+			{
+				NewScene();
+			}
+			else if (e.GetKeyCode() == KeyCode::S)
+			{
+				if (e.GetModKeys() & (int)ModifierKey::Shift)
+				{
+					SaveSceneAs();
+				}
+			}
+			else if (e.GetKeyCode() == KeyCode::O)
+			{
+				OpenScene();
+			}
+		}
+		return true;
+	}
+
+	void OakLayer::NewScene()
+	{
+		m_ActiveScene = CreateRef<Scene>();
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+	}
+
+	void OakLayer::SaveSceneAs()
+	{
+		std::string filename = PlatformUtils::SaveFile("Acorn Scene (*.acorn)\0*.acorn\0");
+		if (!filename.empty())
+			SceneSerializer(m_ActiveScene).Serialize(filename);
+	}
+
+	void OakLayer::OpenScene()
+	{
+		std::string filename = PlatformUtils::OpenFile("Acorn Scene (*.acorn)\0*.acorn\0");
+		if (!filename.empty())
+		{
+			m_ActiveScene = CreateRef<Scene>();
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+			SceneSerializer(m_ActiveScene).Deserialize(filename);
+		}
+	}
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Acorn.h>
-#include "panels/SceneHierarchy.h"
 #include "panels/LogPanel.h"
+#include "panels/SceneHierarchy.h"
+#include <Acorn.h>
 
 namespace Acorn
 {
@@ -17,9 +17,15 @@ namespace Acorn
 
 		virtual void OnUpdate(Timestep ts) override;
 		virtual void OnImGuiRender(Timestep t) override;
-		virtual void OnEvent(Event &e) override;
+		virtual void OnEvent(Event& e) override;
 
 	private:
+		bool OnKeyPressed(KeyPressedEvent& e);
+
+		void NewScene();
+		void SaveSceneAs();
+		void OpenScene();
+
 	private:
 		struct WindowsOpen
 		{
@@ -34,10 +40,6 @@ namespace Acorn
 		Ref<Texture2d> m_CheckerboardTexture;
 		Ref<Texture2d> m_SpriteSheet;
 		Ref<Framebuffer> m_Framebuffer;
-
-		uint32_t m_MapWidth = 0, m_MapHeight = 0;
-		std::unordered_map<char, Ref<ext2d::SubTexture>> m_TileMap;
-		Ref<ext2d::SubTexture> m_BarrelTexture;
 
 		Ref<Scene> m_ActiveScene;
 		Entity m_Square;

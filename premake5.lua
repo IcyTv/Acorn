@@ -50,6 +50,17 @@ workspace "Acorn"
         "vcpkg_installed/x64-windows-static/lib"
     }
 
+    solution_items
+    {
+        "premake.lua",
+        "vcpkg.json"
+    }
+
+	flags
+	{
+		"MultiProcessorCompile"
+	}
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 
@@ -58,11 +69,15 @@ IncludeDir = {}
 IncludeDir["ImGui"] = "Acorn/vendor/ImGui"
 IncludeDir["ImNodes"] = "Acorn/vendor/ImNodes"
 IncludeDir["ImPlot"] = "Acorn/vendor/ImPlot"
+IncludeDir["yaml_cpp"] = "Acorn/vendor/yaml-cpp/include"
+IncludeDir["ImGuizmo"] = "Acorn/vendor/ImGuizmo"
 
 group "Vendors"
+    include "vendor/premake"
     include "Acorn/vendor/ImGui"
     include "Acorn/vendor/ImNodes"
     include "Acorn/vendor/ImPlot"
+    include "Acorn/vendor/yaml-cpp"
 group ""
 
 project "Acorn"
@@ -93,7 +108,10 @@ project "Acorn"
         "%{prj.name}/vendor/stb_image/stb_image.cpp",
         "vcpkg.json",
         "premake5.lua",
-        "cpp.hint"
+        "cpp.hint",
+
+		"vendor/ImGuizmo/ImGuizmo.h",
+		"vendor/ImGuizmo/ImGuizmo.cpp"
     }
 
     includedirs
@@ -102,6 +120,8 @@ project "Acorn"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImNodes}",
 		"%{IncludeDir.ImPlot}",
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}",
     }
 
     links
@@ -111,16 +131,20 @@ project "Acorn"
         "ImGui",
         "ImNodes",
         "ImPlot",
-		"opengl32"
+		"opengl32",
+        "yaml-cpp"
     }
+    
 
+    filter "files:vendor/ImGuizmo/**.cpp"
+        flags {"NoPCH"}
+    
     filter "system:windows"
         systemversion "latest"
 
         defines
         {
             "AC_PLATFORM_WINDOWS",
-            "AC_BUILD_DLL",
             "GLFW_INCLUDE_NONE"
         }
 
@@ -165,6 +189,8 @@ project "Sandbox"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImNodes}",
 		"%{IncludeDir.ImPlot}",
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}",
     }
 
     links
@@ -223,6 +249,8 @@ project "OakTree"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImNodes}",
 		"%{IncludeDir.ImPlot}",
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}",
     }
 
     links

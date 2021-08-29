@@ -1,0 +1,29 @@
+Scene: Untitled Scene
+Entities:
+  - Entity: 1234567890
+    Tag:
+      Tag: Square
+    Transform:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 0, 1]
+  - Entity: 1234567890
+    Tag:
+      Tag: Camera
+    Transform:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Camera:
+      SceneCamera:
+        Type: 1
+        OrthographicSize: 10
+        OrthographicNearClip: -1
+        OrthographicFarClip: 1
+        PerspectiveFov: 1.04719758
+        PerspectiveNearClip: 0.00999999978
+        PerspectiveFarClip: 1000
+      FixedAspectRatio: false
+      Primary: true

@@ -1,16 +1,18 @@
 {
-  "name": "game-engine",
-  "version": "0.1.0",
-  "dependencies": [
-    "spdlog",
-    "glfw3",
-    "portable-snippets",
-    {
-      "name": "glad",
-      "features": [ "gl-api-latest" ]
-    },
-    "glm",
-    "stb",
-    "entt"
-  ]
+	"name": "game-engine",
+	"version": "0.1.0",
+	"dependencies": [
+		"spdlog",
+		"glfw3",
+		"portable-snippets",
+		{
+			"name": "glad",
+			"features": [
+				"gl-api-latest"
+			]
+		},
+		"glm",
+		"stb",
+		"entt"
+	]
 }

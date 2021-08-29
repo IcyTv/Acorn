@@ -15,7 +15,7 @@
 #ifdef AC_BUILD_DLL
 #define AC_API __attribute__((visibility("default")))
 #else
-#define AC_API 
+#define AC_API
 #endif
 #else
 #define AC_API
@@ -25,40 +25,52 @@
 #define BIT(x) (1 << x)
 
 #ifdef AC_ENABLE_ASSERTS
-	#include "debug-trap/debug-trap.h"
-	#define AC_ASSERT(x, ...) {if (!(x)) {AC_ERROR(__VA_ARGS__); psnip_trap(); }}
-	#define AC_CORE_ASSERT(x, ...) {if (!(x)) {AC_CORE_ERROR(__VA_ARGS__); psnip_trap(); }}
+#include "debug-trap/debug-trap.h"
+#define AC_ASSERT(x, ...)          \
+	{                              \
+		if (!(x))                  \
+		{                          \
+			AC_ERROR(__VA_ARGS__); \
+			psnip_trap();          \
+		}                          \
+	}
+#define AC_CORE_ASSERT(x, ...)          \
+	{                                   \
+		if (!(x))                       \
+		{                               \
+			AC_CORE_ERROR(__VA_ARGS__); \
+			psnip_trap();               \
+		}                               \
+	}
 #else
-	#define AC_ASSERT(x, ...)
-	#define AC_CORE_ASSERT(x, ...)
+#define AC_ASSERT(x, ...)
+#define AC_CORE_ASSERT(x, ...)
 #endif
 
 #define DISABLE_ALL_WARNINGS_BEGIN \
-    __pragma(warning(push, 0))
+	__pragma(warning(push, 0))
 
 #define DISABLE_ALL_WARNINGS_END \
-    __pragma(warning(pop))
+	__pragma(warning(pop))
 
 namespace Acorn
 {
-	template<typename T>
+	template <typename T>
 	using Scope = std::unique_ptr<T>;
 
-	template<typename T, typename ... Args>
-	constexpr Scope<T> CreateScope(Args&& ... args)
+	template <typename T, typename... Args>
+	constexpr Scope<T> CreateScope(Args&&... args)
 	{
 		return std::make_unique<T>(std::forward<Args>(args)...);
 	}
 
-
-	template<typename T>
+	template <typename T>
 	using Ref = std::shared_ptr<T>;
 
-	template<typename T, typename ... Args>
-	constexpr Ref<T> CreateRef(Args&& ... args)
+	template <typename T, typename... Args>
+	constexpr Ref<T> CreateRef(Args&&... args)
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
-
 
 }

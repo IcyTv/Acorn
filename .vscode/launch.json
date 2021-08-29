@@ -11,7 +11,8 @@
             "program": "${command:msbuild-tools.debug}",
             "args": [],
             "cwd": "${workspaceRoot}/OakTree",
-            "console": "internalConsole"
+            "console": "internalConsole",
+            "preLaunchTask": "Premake"
         }
     ]
 }
