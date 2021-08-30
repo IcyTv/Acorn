@@ -2,9 +2,9 @@
 
 #include "Scene.h"
 
+#include "Entity.h"
 #include "components/Components.h"
 #include "renderer/2d/Renderer2D.h"
-#include "Entity.h"
 
 #include <glm/glm.hpp>
 
@@ -19,11 +19,11 @@ namespace Acorn
 	{
 	}
 
-	Entity Scene::CreateEntity(const std::string &name)
+	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = {m_Registry.create(), this};
 		entity.AddComponent<Components::Transform>();
-		auto &tag = entity.AddComponent<Components::Tag>();
+		auto& tag = entity.AddComponent<Components::Tag>();
 		tag.TagName = name.empty() ? "Entity" : name;
 
 		return entity;
@@ -39,7 +39,7 @@ namespace Acorn
 		//Update Scripts
 		{
 			m_Registry.view<Components::NativeScript>().each(
-				[=](auto entity, Components::NativeScript &nsc)
+				[=](auto entity, Components::NativeScript& nsc)
 				{
 					//TODO: Move to Scene::OnScenePlay
 					if (nsc.Instance == nullptr)
@@ -53,15 +53,15 @@ namespace Acorn
 				});
 		}
 		//Render 2D
-		Camera *mainCamera = nullptr;
+		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 		{
 			auto view = m_Registry.view<Components::CameraComponent, Components::Transform>();
 
 			for (auto entity : view)
 			{
-				auto &camera = view.get<Components::CameraComponent>(entity);
-				auto &transform = view.get<Components::Transform>(entity);
+				auto& camera = view.get<Components::CameraComponent>(entity);
+				auto& transform = view.get<Components::Transform>(entity);
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
@@ -75,7 +75,7 @@ namespace Acorn
 		{
 			ext2d::Renderer::BeginScene(*mainCamera, cameraTransform);
 			auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
-			for (auto &&[entity, transform, sprite] : group.each())
+			for (auto&& [entity, transform, sprite] : group.each())
 			{
 				ext2d::Renderer::FillQuad((glm::mat4)transform, sprite.Color);
 			}
@@ -90,7 +90,7 @@ namespace Acorn
 		m_ViewportHeight = height;
 
 		auto view = m_Registry.view<Components::CameraComponent>();
-		for (auto &&[entity, camera] : view.each())
+		for (auto&& [entity, camera] : view.each())
 		{
 			if (!camera.FixedAspectRatio)
 			{
@@ -99,35 +99,50 @@ namespace Acorn
 		}
 	}
 
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+
+		auto view = m_Registry.view<Components::CameraComponent>();
+		for (auto&& [entity, camera] : view.each())
+		{
+			if (camera.Primary)
+			{
+				return Entity{entity, this};
+			}
+		}
+
+		return {};
+	}
+
 	template <typename T>
-	void Scene::OnComponentAdded(Entity entity, T &component)
+	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
 		static_assert(false, "Component not supported");
 	}
 
 	template <>
-	void Scene::OnComponentAdded(Entity entity, Components::Transform &transform)
+	void Scene::OnComponentAdded(Entity entity, Components::Transform& transform)
 	{
 	}
 
 	template <>
-	void Scene::OnComponentAdded(Entity entity, Components::CameraComponent &camera)
+	void Scene::OnComponentAdded(Entity entity, Components::CameraComponent& camera)
 	{
 		camera.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
 	template <>
-	void Scene::OnComponentAdded(Entity entity, Components::SpriteRenderer &sprite)
+	void Scene::OnComponentAdded(Entity entity, Components::SpriteRenderer& sprite)
 	{
 	}
 
 	template <>
-	void Scene::OnComponentAdded(Entity entity, Components::NativeScript &nsc)
+	void Scene::OnComponentAdded(Entity entity, Components::NativeScript& nsc)
 	{
 	}
 
 	template <>
-	void Scene::OnComponentAdded(Entity entity, Components::Tag &component)
+	void Scene::OnComponentAdded(Entity entity, Components::Tag& component)
 	{
 	}
 }

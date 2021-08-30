@@ -2,6 +2,7 @@ project "ImGui"
 	kind "StaticLib"
 	language "C++"
     staticruntime "on"
+	vcpkg "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")

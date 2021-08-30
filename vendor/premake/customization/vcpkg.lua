@@ -1,7 +1,7 @@
 require('vstudio')
 
 premake.api.register {
-	name = "vspkg",
+	name = "vcpkg",
 	scope = "config",
 	kind = "boolean",
 }
@@ -13,7 +13,7 @@ local function premakeVersionComment(prj)
 end
 
 local function vcpkg(prj)
-    if prj.name == "Acorn" or prj.name == "Sandbox" or prj.name == "ImGui" or prj.name == "OakTree" then
+    if prj.vcpkg then
         premake.w('<VcpkgTriplet>x64-windows-static</VcpkgTriplet>')
         premake.w('<VcpkgEnabled>true</VcpkgEnabled>')
         premake.w('<VcpkgEnableManifest>true</VcpkgEnableManifest>')
@@ -24,18 +24,14 @@ local function vcpkg(prj)
 end
 
 premake.override(premake.vstudio.vc2010.elements, "project", function(base, prj)
-    if prj.vcpkg then
-        local calls = base(prj)
-        table.insertafter(calls, vs.xmlDeclaration, premakeVersionComment)
-        return calls
-    end
+    local calls = base(prj)
+    table.insertafter(calls, vs.xmlDeclaration, premakeVersionComment)
+    return calls
 end)
 
 
 premake.override(premake.vstudio.vc2010.elements, "globals", function(base, prj)
-    if prj.vcpkg then
-        local calls = base(prj)
-        table.insertafter(calls, vs.globals, vcpkg)
-        return calls
-    end
+    local calls = base(prj)
+    table.insertafter(calls, vs.globals, vcpkg)
+    return calls
 end)

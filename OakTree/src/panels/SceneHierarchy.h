@@ -6,22 +6,23 @@
 
 namespace Acorn
 {
-    class SceneHierarchyPanel
-    {
-    public:
-        SceneHierarchyPanel() = default;
-        SceneHierarchyPanel(const Ref<Scene> &context);
+	class SceneHierarchyPanel
+	{
+	public:
+		SceneHierarchyPanel() = default;
+		SceneHierarchyPanel(const Ref<Scene>& context);
 
-        void SetContext(const Ref<Scene> &context);
+		void SetContext(const Ref<Scene>& context);
+		inline Entity GetSelectedEntity() const { return m_SelectionContext; }
 
-        void OnImGuiRender();
+		void OnImGuiRender();
 
-    private:
-        void DrawEntityNode(Entity entity);
-        void DrawComponents(Entity entity);
+	private:
+		void DrawEntityNode(Entity entity);
+		void DrawComponents(Entity entity);
 
-    private:
-        Ref<Scene> m_Context;
-        Entity m_SelectionContext;
-    };
+	private:
+		Ref<Scene> m_Context;
+		Entity m_SelectionContext = {};
+	};
 }

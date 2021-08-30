@@ -1,10 +1,14 @@
 #include "OakLayer.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 
+#include "math/Math..h"
 #include "serialize/Serializer.h"
 #include "utils/PlatformUtils.h"
+
+#include <ImGuizmo.h>
 
 namespace Acorn
 {
@@ -86,7 +90,9 @@ namespace Acorn
 		Log::AddSink(m_LogPanel);
 
 		SceneSerializer serializer(m_ActiveScene);
-		serializer.Deserialize("res/scenes/Example.acorn");
+		std::string defaultProject = "res/scenes/PinkCube.acorn";
+		serializer.Deserialize(defaultProject);
+		m_CurrentFilePath = defaultProject;
 	}
 
 	void OakLayer::OnDetach()
@@ -196,6 +202,10 @@ namespace Acorn
 				{
 					OpenScene();
 				}
+				if (ImGui::MenuItem("Save", "Ctrl+S"))
+				{
+					SaveScene();
+				}
 				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
 				{
 					SaveSceneAs();
@@ -207,6 +217,27 @@ namespace Acorn
 					Application::Get().Close();
 				}
 
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Edit"))
+			{
+				if (ImGui::BeginMenu("Gizmo Type"))
+				{
+					if (ImGui::MenuItem("None", "Q", m_GizmoType == GizmoType::None))
+						m_GizmoType = GizmoType::None;
+
+					if (ImGui::MenuItem("Translate", "W", m_GizmoType == GizmoType::Translate))
+						m_GizmoType = GizmoType::Translate;
+
+					if (ImGui::MenuItem("Rotate", "E", m_GizmoType == GizmoType::Rotate))
+						m_GizmoType = GizmoType::Rotate;
+
+					if (ImGui::MenuItem("Scale", "R", m_GizmoType == GizmoType::Scale))
+						m_GizmoType = GizmoType::Scale;
+
+					ImGui::EndMenu();
+				}
 				ImGui::EndMenu();
 			}
 
@@ -248,7 +279,7 @@ namespace Acorn
 			{
 				m_ViewportFocused = ImGui::IsWindowFocused();
 				m_ViewportHovered = ImGui::IsWindowHovered();
-				Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+				Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
 
 				uint32_t viewportId = m_Framebuffer->GetColorAttachmentRendererId();
 				ImVec2 availableSize = ImGui::GetContentRegionAvail();
@@ -257,6 +288,57 @@ namespace Acorn
 
 				ImGui::Image((void*)(intptr_t)viewportId, availableSize, ImVec2{0, 1}, ImVec2{1, 0});
 			}
+
+			// Gizmos
+			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+			if (selectedEntity && m_GizmoType != GizmoType::None)
+			{
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+
+				float windowWidth = (float)ImGui::GetWindowWidth();
+				float windowHeight = (float)ImGui::GetWindowHeight();
+				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+				// Camera
+				auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+				const auto& camera = cameraEntity.GetComponent<Components::CameraComponent>().Camera;
+				const glm::mat4& cameraProjection = camera.GetProjection();
+				glm::mat4 cameraView = glm::inverse((glm::mat4)cameraEntity.GetComponent<Components::Transform>());
+
+				// Entity transform
+				auto& tc = selectedEntity.GetComponent<Components::Transform>();
+				glm::mat4 transform = tc;
+				glm::vec3 originalRotation = tc.Rotation;
+
+				//Snapping
+				bool snap = Input::IsKeyPressed(KeyCode::LeftControl);
+				float snapValue = 0.5f; //Snap to 0.5 for everything else
+				//Snap to 45 degrees for rotation
+				if (m_GizmoType == GizmoType::Rotate)
+				{
+					snapValue = 45.0f;
+				}
+
+				float snapValues[3] = {snapValue, snapValue, snapValue};
+				// Draw gizmos
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)(int)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+									 nullptr, snap ? snapValues : nullptr);
+
+				if (ImGuizmo::IsUsing())
+				{
+					glm::vec3 translation, scale, skew;
+					glm::vec4 perspective;
+					glm::quat orientation;
+					glm::decompose(transform, scale, orientation, translation, skew, perspective);
+
+					tc.Translation = translation;
+
+					tc.Rotation = glm::eulerAngles(orientation);
+					tc.Scale = scale;
+				}
+			}
+
 			ImGui::End();
 
 			ImGui::PopStyleVar();
@@ -279,25 +361,51 @@ namespace Acorn
 		if (e.GetRepeatCount() > 0)
 			return false;
 
-		if (e.GetModKeys() & (int)ModifierKey::Control)
+		if (e.GetModKeys() & (int)ModifierKey::Control && !ImGuizmo::IsUsing())
 		{
 			if (e.GetKeyCode() == KeyCode::N)
 			{
 				NewScene();
+				return true;
 			}
 			else if (e.GetKeyCode() == KeyCode::S)
 			{
 				if (e.GetModKeys() & (int)ModifierKey::Shift)
 				{
 					SaveSceneAs();
+					return true;
+				}
+				else
+				{
+					SaveScene();
+					return true;
 				}
 			}
 			else if (e.GetKeyCode() == KeyCode::O)
 			{
 				OpenScene();
+				return true;
 			}
 		}
-		return true;
+		else
+		{
+			switch (e.GetKeyCode())
+			{
+				case KeyCode::Q:
+					m_GizmoType = GizmoType::None;
+					return true;
+				case KeyCode::W:
+					m_GizmoType = GizmoType::Translate;
+					return true;
+				case KeyCode::E:
+					m_GizmoType = GizmoType::Rotate;
+					return true;
+				case KeyCode::R:
+					m_GizmoType = GizmoType::Scale;
+					return true;
+			}
+		}
+		return false;
 	}
 
 	void OakLayer::NewScene()
@@ -305,13 +413,31 @@ namespace Acorn
 		m_ActiveScene = CreateRef<Scene>();
 		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_CurrentFilePath = "";
+	}
+
+	void OakLayer::SaveScene()
+	{
+		if (!m_CurrentFilePath.empty())
+		{
+			AC_CORE_INFO("Saving Scene to {}", m_CurrentFilePath);
+			SceneSerializer(m_ActiveScene).Serialize(m_CurrentFilePath);
+		}
+		else
+		{
+			SaveSceneAs();
+		}
 	}
 
 	void OakLayer::SaveSceneAs()
 	{
 		std::string filename = PlatformUtils::SaveFile("Acorn Scene (*.acorn)\0*.acorn\0");
 		if (!filename.empty())
+		{
+			AC_CORE_INFO("Saving Scene to {}", filename);
+			m_CurrentFilePath = filename;
 			SceneSerializer(m_ActiveScene).Serialize(filename);
+		}
 	}
 
 	void OakLayer::OpenScene()
@@ -322,6 +448,7 @@ namespace Acorn
 			m_ActiveScene = CreateRef<Scene>();
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+			m_CurrentFilePath = filename;
 
 			SceneSerializer(m_ActiveScene).Deserialize(filename);
 		}

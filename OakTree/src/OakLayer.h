@@ -20,9 +20,19 @@ namespace Acorn
 		virtual void OnEvent(Event& e) override;
 
 	private:
+		enum class GizmoType : int
+		{
+			None = -1,
+			Translate = 0,
+			Rotate = 1,
+			Scale = 2,
+		};
+
+	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 
 		void NewScene();
+		void SaveScene();
 		void SaveSceneAs();
 		void OpenScene();
 
@@ -53,5 +63,9 @@ namespace Acorn
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		std::shared_ptr<LogPanel> m_LogPanel;
+
+		GizmoType m_GizmoType = GizmoType::Translate;
+
+		std::string m_CurrentFilePath = "";
 	};
 }

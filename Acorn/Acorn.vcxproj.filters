@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="..">
-      <UniqueIdentifier>{61705900-4DFC-870B-B6AA-880BA255880B}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="..\vendor">
-      <UniqueIdentifier>{9EAFE090-0A1A-9507-5358-46ADBF01735C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="..\vendor\ImGuizmo">
-      <UniqueIdentifier>{BE93E47A-AA77-A5D0-13D8-9F23FFDA8F52}</UniqueIdentifier>
-    </Filter>
     <Filter Include="res">
       <UniqueIdentifier>{4FA5880B-BBAE-887C-442A-9F7CB032947C}</UniqueIdentifier>
     </Filter>
@@ -46,6 +37,9 @@
     <Filter Include="src\layer">
       <UniqueIdentifier>{D9A595B5-4510-4A2C-8E4E-FBD1FAF72781}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{46A033CF-326D-8EDA-5B86-7C8247B2C368}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\platform">
       <UniqueIdentifier>{41663D6D-2DC9-CC11-D64E-05C8C2909894}</UniqueIdentifier>
     </Filter>
@@ -79,14 +73,14 @@
     <Filter Include="vendor">
       <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\ImGuizmo">
+      <UniqueIdentifier>{73BF7F4C-DF4A-ED10-E85B-700554664911}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendor\stb_image">
       <UniqueIdentifier>{0DA0BA59-F998-D9AB-22CB-BE300E23B9B7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\vendor\ImGuizmo\ImGuizmo.h">
-      <Filter>..\vendor\ImGuizmo</Filter>
-    </ClInclude>
     <ClInclude Include="src\Acorn.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -168,6 +162,9 @@
     <ClInclude Include="src\layer\LayerStack.h">
       <Filter>src\layer</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\Math..h">
+      <Filter>src\math</Filter>
+    </ClInclude>
     <ClInclude Include="src\platform\opengl\OpenGLBuffer.h">
       <Filter>src\platform\opengl</Filter>
     </ClInclude>
@@ -243,11 +240,11 @@
     <ClInclude Include="src\utils\PlatformUtils.h">
       <Filter>src\utils</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\ImGuizmo\ImGuizmo.h">
+      <Filter>vendor\ImGuizmo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\vendor\ImGuizmo\ImGuizmo.cpp">
-      <Filter>..\vendor\ImGuizmo</Filter>
-    </ClCompile>
     <ClCompile Include="src\acpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -286,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="src\layer\LayerStack.cpp">
       <Filter>src\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\Math.cpp">
+      <Filter>src\math</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\opengl\OpenGLBuffer.cpp">
       <Filter>src\platform\opengl</Filter>
@@ -359,20 +359,14 @@
     <ClCompile Include="src\templates\OrthographicCameraController.cpp">
       <Filter>src\templates</Filter>
     </ClCompile>
+    <ClCompile Include="vendor\ImGuizmo\ImGuizmo.cpp">
+      <Filter>vendor\ImGuizmo</Filter>
+    </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\cpp.hint">
-      <Filter>..</Filter>
-    </None>
-    <None Include="..\premake5.lua">
-      <Filter>..</Filter>
-    </None>
-    <None Include="..\vcpkg.json">
-      <Filter>..</Filter>
-    </None>
     <None Include="res\shaders\Basic.shader">
       <Filter>res\shaders</Filter>
     </None>

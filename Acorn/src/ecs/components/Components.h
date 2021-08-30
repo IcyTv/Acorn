@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "core/Core.h"
 #include "SceneCamera.h"
+#include "core/Core.h"
 
 #include "ScriptableEntity.h"
 #include "core/Timestep.h"
@@ -15,8 +15,8 @@ namespace Acorn::Components
 		std::string TagName;
 
 		Tag() = default;
-		Tag(const Tag &) = default;
-		Tag(const std::string &tag)
+		Tag(const Tag&) = default;
+		Tag(const std::string& tag)
 			: TagName(tag) {}
 	};
 
@@ -28,15 +28,14 @@ namespace Acorn::Components
 		glm::vec3 Scale = {1.0f, 1.0f, 1.0f};
 
 		Transform() = default;
-		Transform(const Transform &) = default;
+		Transform(const Transform&) = default;
 		Transform(glm::vec3 translation)
 			: Translation(translation) {}
 
 		operator glm::mat4() const
 		{
-			auto rotation = glm::rotate(glm::mat4(1.0f), Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)) *
-							glm::rotate(glm::mat4(1.0f), Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
-							glm::rotate(glm::mat4(1.0f), Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			auto rotation = glm::toMat4(glm::quat(Rotation));
+
 			auto transform = glm::translate(glm::mat4(1.0f), Translation) *
 							 rotation *
 							 glm::scale(glm::mat4(1.0f), Scale);
@@ -49,7 +48,7 @@ namespace Acorn::Components
 		glm::vec4 Color{1.0f};
 
 		SpriteRenderer() = default;
-		SpriteRenderer(const SpriteRenderer &) = default;
+		SpriteRenderer(const SpriteRenderer&) = default;
 		SpriteRenderer(glm::vec4 color)
 			: Color(color) {}
 	};
@@ -61,24 +60,24 @@ namespace Acorn::Components
 		bool FixedAspectRatio = false;
 
 		CameraComponent() = default;
-		CameraComponent(const CameraComponent &) = default;
+		CameraComponent(const CameraComponent&) = default;
 	};
 
 	struct NativeScript
 	{
-		ScriptableEntity *Instance = nullptr;
+		ScriptableEntity* Instance = nullptr;
 
-		ScriptableEntity *(*InstantiateScript)();
-		void (*DestroyScript)(NativeScript *);
+		ScriptableEntity* (*InstantiateScript)();
+		void (*DestroyScript)(NativeScript*);
 
 		template <typename T>
 		void Bind()
 		{
 			InstantiateScript = []()
 			{
-				return static_cast<ScriptableEntity *>(new T());
+				return static_cast<ScriptableEntity*>(new T());
 			};
-			DestroyScript = [](NativeScript *script)
+			DestroyScript = [](NativeScript* script)
 			{
 				delete script->Instance;
 				script->Instance = nullptr;
