@@ -15,28 +15,28 @@ namespace Acorn
 		float GetSeconds() const { return m_Time; }
 		float GetMilliseconds() const { return m_Time * 1000.0f; }
 
-		Timestep& operator+(const Timestep& t2)
+		const Timestep& operator+(const Timestep& t2)
 		{
 			return Timestep(m_Time + t2.m_Time);
 		}
 
-		Timestep& operator+=(const Timestep& t2)
+		const Timestep& operator+=(const Timestep& t2)
 		{
 			return Timestep(m_Time + t2.m_Time);
 		}
 
-		Timestep& operator-()
+		const Timestep& operator-()
 		{
 			return Timestep(-m_Time);
 		}
 
 
-		Timestep& operator-(const Timestep& t2)
+		const Timestep& operator-(const Timestep& t2)
 		{
 			return Timestep(m_Time - t2.m_Time);
 		}
 
-		Timestep& operator-=(const Timestep& t2)
+		const Timestep& operator-=(const Timestep& t2)
 		{
 			return Timestep(m_Time - t2.m_Time);
 		}

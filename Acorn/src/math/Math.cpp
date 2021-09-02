@@ -33,7 +33,7 @@ namespace Acorn::Math
 		translation = vec3(LocalMatrix[3]);
 		LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
 
-		vec3 Row[3], Pdum3;
+		vec3 Row[3];
 
 		// Now get scale and shear.
 		for (length_t i = 0; i < 3; ++i)
@@ -76,5 +76,18 @@ namespace Acorn::Math
 		}
 
 		return true;
+	}
+
+	glm::vec2 WorldToImGui(const glm::vec3& worldPos, const glm::mat4& viewProjection, const glm::vec2& position, const glm::vec2& size)
+	{
+		glm::vec4 transf = viewProjection * glm::vec4(worldPos, 1.0f);
+		transf *= 0.5f / transf.w;
+		transf += glm::vec4(0.5f, 0.5f, 0.0f, 0.0f);
+		transf.y = 1.0f - transf.y;
+		transf.x *= size.x;
+		transf.y *= size.y;
+		transf.x += position.x;
+		transf.y += position.y;
+		return glm::vec2(transf.x, transf.y);
 	}
 }

@@ -6,7 +6,8 @@ project "Premake"
 
 	files
 	{
-		"%{wks.location}/**premake5.lua"
+		"%{wks.location}/**premake5.lua",
+		"%{prj.location}/customization/**.lua"
 	}
 
 	postbuildmessage "Regenerating project files with Premake5!"

@@ -2,6 +2,9 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
+      <FullPath>c:\Users\michael\Programming\game-engine\game-engine\bin\Debug-windows-x86_64\Premake\Premake</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>c:\Users\michael\Programming\game-engine\game-engine\bin\Debug-windows-x86_64\OakTree\OakTree.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

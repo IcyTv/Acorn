@@ -1,10 +1,12 @@
 project "OakTree"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
-    staticruntime "on"
+    cppdialect "C++latest"
+    staticruntime "off"
 
     vcpkg "on"
+    
+    dependson { "Premake" }
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/build/" .. outputdir .. "/%{prj.name}")
@@ -28,6 +30,7 @@ project "OakTree"
 		"%{IncludeDir.ImPlot}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
+        "%{IncludeDir.VulkanSDK}",
     }
 
     links
@@ -47,6 +50,7 @@ project "OakTree"
         defines "AC_DEBUG"
         runtime "Debug"
         symbols "on"
+        ignoredefaultlibraries { "libcmt", "MSVCRT" }
 
     filter "configurations:Release"
         defines "AC_DEBUG"

@@ -8,10 +8,22 @@
 
 namespace Acorn
 {
+	struct ApplicationCommandLineArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			AC_CORE_ASSERT(index < Count, "Commandline arguments index out of range");
+			return Args[index];
+		}
+	};
+
 	class Application
 	{
 	public:
-		Application(const std::string& name = "Acorn App", bool maximized = false);
+		Application(const std::string& name = "Acorn App", ApplicationCommandLineArgs args = ApplicationCommandLineArgs(), bool maximized = false);
 		virtual ~Application();
 
 		void Run();
@@ -28,6 +40,8 @@ namespace Acorn
 
 		inline ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
+		inline const ApplicationCommandLineArgs& GetCommandLineArgs() const { return m_CommandLineArgs; }
+
 	private:
 		bool OnWindowClose(WindowCloseEvent& event);
 		bool OnWindowResize(WindowResizeEvent& event);
@@ -43,11 +57,13 @@ namespace Acorn
 
 		bool m_IsProfiling = false;
 
+		ApplicationCommandLineArgs m_CommandLineArgs;
+
 	private:
 		inline static Application* s_Instance = nullptr;
 	};
 
 	// To be defined in Client
-	Application* CreateApplication();
+	Application* CreateApplication(ApplicationCommandLineArgs args);
 
 }

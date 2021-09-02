@@ -3,11 +3,11 @@
 
 #include "Sandbox2D.h"
 
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include <imgui.h>
 
@@ -16,30 +16,48 @@
 class ExampleLayer : public Acorn::Layer
 {
 public:
-	ExampleLayer() : Layer("Example"), m_CameraController(16.0f/9.0f, true)
+	ExampleLayer()
+		: Layer("Example"), m_CameraController(16.0f / 9.0f, true)
 	{
 		m_VertexArray = Acorn::VertexArray::Create();
 
 		float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-			 0.0f,  0.5f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f,
+			-0.5f,
+			-0.5f,
+			0.0f,
+			1.0f,
+			0.0f,
+			0.0f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			0.0f,
+			0.0f,
+			1.0f,
+			0.0f,
+			1.0f,
+			0.0f,
+			0.5f,
+			0.0f,
+			0.0f,
+			0.0f,
+			1.0f,
+			1.0f,
 		};
 
 		Acorn::Ref<Acorn::VertexBuffer> vertexBuffer;
 		vertexBuffer = Acorn::VertexBuffer::Create(vertices, sizeof(vertices));
 
 		Acorn::BufferLayout layout = {
-			{ Acorn::ShaderDataType::Float3, "a_Position" },
-			{ Acorn::ShaderDataType::Float4, "a_Color" },
+			{Acorn::ShaderDataType::Float3, "a_Position"},
+			{Acorn::ShaderDataType::Float4, "a_Color"},
 		};
 		vertexBuffer->SetLayout(layout);
 
 		m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 		uint32_t indices[3] = {
-			0, 1, 2
-		};
+			0, 1, 2};
 
 		Acorn::Ref<Acorn::IndexBuffer> indexBuffer;
 		indexBuffer = Acorn::IndexBuffer::Create(indices, 3);
@@ -49,25 +67,23 @@ public:
 		m_SquaredVA = Acorn::VertexArray::Create();
 
 		float squareVertices[5 * 4] = {
-			 -0.75f, -0.75f, 0.0f, 0.0f, 0.0f,
-			  0.75f, -0.75f, 0.0f, 1.0f, 0.0f,
-			  0.75f,  0.75f, 0.0f, 1.0f, 1.0f,
-			 -0.75f,  0.75f, 0.0f, 0.0f, 1.0f
-		};
+			-0.75f, -0.75f, 0.0f, 0.0f, 0.0f,
+			0.75f, -0.75f, 0.0f, 1.0f, 0.0f,
+			0.75f, 0.75f, 0.0f, 1.0f, 1.0f,
+			-0.75f, 0.75f, 0.0f, 0.0f, 1.0f};
 
 		Acorn::Ref<Acorn::VertexBuffer> squaredVB;
 		squaredVB = Acorn::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 
 		squaredVB->SetLayout({
-			{ Acorn::ShaderDataType::Float3, "a_Position" },
-			{ Acorn::ShaderDataType::Float2, "a_TexCoord" },
-			});
+			{Acorn::ShaderDataType::Float3, "a_Position"},
+			{Acorn::ShaderDataType::Float2, "a_TexCoord"},
+		});
 
 		m_SquaredVA->AddVertexBuffer(squaredVB);
 
 		uint32_t squareIndices[6] = {
-			0, 1, 2, 2, 3, 0
-		};
+			0, 1, 2, 2, 3, 0};
 
 		Acorn::Ref<Acorn::IndexBuffer> squaredIB;
 		squaredIB = Acorn::IndexBuffer::Create(squareIndices, 6);
@@ -91,12 +107,11 @@ public:
 		if (Acorn::Input::IsKeyPressed(AC_KEY_TAB))
 			AC_TRACE("Tab pressed");
 
-		Acorn::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.2f, 1.0f });
+		Acorn::RenderCommand::SetClearColor({0.0f, 0.0f, 0.2f, 1.0f});
 		Acorn::RenderCommand::Clear();
 
-		m_SquareTransform = glm::rotate(m_SquareTransform, glm::radians(22.0f * timestep), { 0.0f, 0.0f, 1.0f });
+		m_SquareTransform = glm::rotate(m_SquareTransform, glm::radians(22.0f * timestep), {0.0f, 0.0f, 1.0f});
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
-
 
 		glm::vec4 redColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glm::vec4 blueColor(0.0f, 0.0f, 1.0f, 1.0f);
@@ -109,7 +124,6 @@ public:
 		{
 			glm::mat4 transform = glm::translate(glm::mat4(1.0), glm::vec3(0.2 * (i / 4) + 0.5, 0.2 * (i % 4), 0.0f));
 			Acorn::Renderer::Submit(m_ShaderLibrary["FlatColor"], m_SquaredVA, transform * scale * m_SquareTransform);
-
 		}
 
 		m_ShaderLibrary["Textured"]->Bind();
@@ -130,7 +144,6 @@ public:
 		//ImGui::Begin("Colors");
 		//ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
 		//ImGui::End();
-
 	}
 
 	void OnEvent(Acorn::Event& e) override
@@ -150,17 +163,18 @@ private:
 	Acorn::Ref<Acorn::VertexArray> m_SquaredVA;
 
 	glm::mat4 m_SquareTransform = glm::mat4(1.0f);
-	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.7f, 1.0f };
+	glm::vec4 m_SquareColor = {0.2f, 0.3f, 0.7f, 1.0f};
 
 	uint32_t m_Frame;
 
 	Acorn::OrthographicCameraController m_CameraController;
 };
 
-class Sandbox : public Acorn::Application 
+class Sandbox : public Acorn::Application
 {
 public:
-	Sandbox()
+	Sandbox(Acorn::ApplicationCommandLineArgs args)
+		: Acorn::Application("Sandbox", args)
 	{
 		//PushLayer(new ExampleLayer());
 		PushLayer(new Sandbox2D());
@@ -168,7 +182,6 @@ public:
 
 	~Sandbox()
 	{
-
 	}
 };
 

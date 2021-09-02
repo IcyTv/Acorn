@@ -14,7 +14,7 @@ end
 
 local function vcpkg(prj)
     if prj.vcpkg then
-        premake.w('<VcpkgTriplet>x64-windows-static</VcpkgTriplet>')
+        premake.w('<VcpkgTriplet>x64-windows</VcpkgTriplet>')
         premake.w('<VcpkgEnabled>true</VcpkgEnabled>')
         premake.w('<VcpkgEnableManifest>true</VcpkgEnableManifest>')
     else

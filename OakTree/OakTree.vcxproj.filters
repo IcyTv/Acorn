@@ -4,6 +4,15 @@
     <Filter Include="res">
       <UniqueIdentifier>{4FA5880B-BBAE-887C-442A-9F7CB032947C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="res\cache">
+      <UniqueIdentifier>{B2F7C110-1E62-7687-67A0-272DD34954DC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="res\cache\shaders">
+      <UniqueIdentifier>{AB467B3F-175D-79D5-60D4-04F7CC294A5D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="res\cache\shaders\opengl">
+      <UniqueIdentifier>{DF794BA4-CB9E-9A24-F4E9-7FB4E06D9942}</UniqueIdentifier>
+    </Filter>
     <Filter Include="res\fonts">
       <UniqueIdentifier>{E81E0011-5489-B487-9DC7-652D097192DC}</UniqueIdentifier>
     </Filter>
@@ -16,6 +25,12 @@
     <Filter Include="res\textures">
       <UniqueIdentifier>{227C1C83-0EDF-AB27-B764-E4DDA3A677AA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="res\textures\icons">
+      <UniqueIdentifier>{6D400C4C-5924-CDA1-C284-C7F4AE87B723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="res\textures\icons\appicns">
+      <UniqueIdentifier>{4A3E97E5-364E-43B6-9F07-A8D48B36324F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
     </Filter>
@@ -26,6 +41,9 @@
   <ItemGroup>
     <ClInclude Include="src\OakLayer.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\panels\ContentBrowser.h">
+      <Filter>src\panels</Filter>
     </ClInclude>
     <ClInclude Include="src\panels\LogPanel.h">
       <Filter>src\panels</Filter>
@@ -41,6 +59,9 @@
     <ClCompile Include="src\OakTree.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\panels\ContentBrowser.cpp">
+      <Filter>src\panels</Filter>
+    </ClCompile>
     <ClCompile Include="src\panels\LogPanel.cpp">
       <Filter>src\panels</Filter>
     </ClCompile>
@@ -49,6 +70,30 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_opengl.frag">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_opengl.vert">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_vulkan.frag">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_vulkan.vert">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_opengl.frag">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_opengl.vert">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_vulkan.frag">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_vulkan.vert">
+      <Filter>res\cache\shaders\opengl</Filter>
+    </None>
     <None Include="res\fonts\Inconsolata-Black.ttf">
       <Filter>res\fonts</Filter>
     </None>
@@ -79,6 +124,9 @@
     <None Include="res\fonts\OFL.txt">
       <Filter>res\fonts</Filter>
     </None>
+    <None Include="res\fonts\fontawesome-webfont.ttf">
+      <Filter>res\fonts</Filter>
+    </None>
     <None Include="res\scenes\Example.acorn">
       <Filter>res\scenes</Filter>
     </None>
@@ -91,8 +139,14 @@
     <None Include="res\scenes\Test.acorn">
       <Filter>res\scenes</Filter>
     </None>
+    <None Include="res\shaders\BIllboard.shader">
+      <Filter>res\shaders</Filter>
+    </None>
     <None Include="res\shaders\Textured.shader">
       <Filter>res\shaders</Filter>
+    </None>
+    <None Include="res\textures\icons\appicns\LICENSE.md">
+      <Filter>res\textures\icons\appicns</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -102,11 +156,443 @@
     <Image Include="res\textures\ChernoLogo.png">
       <Filter>res\textures</Filter>
     </Image>
+    <Image Include="res\textures\DirectoryIcon.png">
+      <Filter>res\textures</Filter>
+    </Image>
+    <Image Include="res\textures\FileIcon.png">
+      <Filter>res\textures</Filter>
+    </Image>
     <Image Include="res\textures\RPGpack_sheet.png">
       <Filter>res\textures</Filter>
     </Image>
     <Image Include="res\textures\RPGpack_sheet_2X.png">
       <Filter>res\textures</Filter>
+    </Image>
+    <Image Include="res\textures\icons\AcornFile.png">
+      <Filter>res\textures\icons</Filter>
+    </Image>
+    <Image Include="res\textures\icons\acorn.png">
+      <Filter>res\textures\icons</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_1Password.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AbletonLive.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_ActivityMonitor.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAcrobatPro.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAcrobatReader.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAfterEffects.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAudition.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeBridge.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeDreamweaver.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeAnimate.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeCode.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeInspect.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeReflow.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeFireworks.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeFlash.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeFlashBuilder.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeIllustrator.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeInCopy.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeInDesign.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeLightroom.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeMediaEncoder.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeMuse.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobePhotoshop.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobePrelude.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobePremierePro.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeScout.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AdobeSpeedgrade.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AirPortUtility.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Aperature.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_AppStore.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Automator.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Calculator.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Calendar.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_CalendarDock.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Coda.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_ColorSyncUtility.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Console.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Contacts.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DVDPlayer.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Dashboard.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceAirportDisk.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceCD.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceExternal.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceInternal.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceRemovable.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceServer.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DeviceTimeMachine.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Dictionary.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DigitalColorMeter.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_DiskUtility.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Dropbox.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Evernote.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Facetime.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FinalCutPro.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Finder.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Firefox.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Flint.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderApps.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderBurnable.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderDesktop.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderDeveloper.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderDocuments.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderDownloads.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderGeneric.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderGroup.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderHome.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderLibrary.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderMovies.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderMusic.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderPictures.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderPublic.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderServerApps.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderSharepoint.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderSites.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderSmart.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderSystem.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderUsers.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FolderUtilities.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_FontBook.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_GameCenter.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_GarageBand.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_GoogleChrome.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_GoogleDrive.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_HipChat.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_IconComposer.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_ImageCapture.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Keychain.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Keynote.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_LaunchPad.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_LiteIcon.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Mail.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MailboxApp.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Maps.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Messages.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftExcel.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftOutlook.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftPowerpoint.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftWord.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MigrationAssistant.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_MissionControl.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Notes.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Numbers.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_OtherAliasBadge.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_OtherApp.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_OtherDocument.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_OtherPrivateBadge.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_OtherReadOnlyBadge.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Pages.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Photobooth.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Photos.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_PlexMediaServer.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Preview.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Quicktime.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Rdio.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Reminders.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Safari.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Sketch.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Skype.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Slack.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Spotify.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Steam.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Stickies.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_SublimeText.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Sunrise.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_SystemPreferences.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Terminal.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_TextEdit.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_TimeMachine.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_TrashEmpty.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_TrashFull.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Tumblr.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Twitter.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_VLC.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Wunderlist.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_Xcode.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_iAWriter.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_iBooks.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_iMovie.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_iPhoto.png">
+      <Filter>res\textures\icons\appicns</Filter>
+    </Image>
+    <Image Include="res\textures\icons\appicns\appicns_iTunes.png">
+      <Filter>res\textures\icons\appicns</Filter>
     </Image>
     <Image Include="res\textures\roguelikeSheet_magenta.png">
       <Filter>res\textures</Filter>

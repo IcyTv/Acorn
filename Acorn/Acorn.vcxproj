@@ -21,7 +21,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Acorn</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
     <VcpkgEnabled>true</VcpkgEnabled>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
@@ -82,21 +82,22 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;GLFW_INCLUDE_NONE;AC_DEBUG;PSNIP_DEBUG;AC_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\yaml-cpp\include;vendor\ImGuizmo;C:\VulkanSDK\1.2.182.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;glad.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glad.lib;opengl32.lib;freetyped.lib;C:\VulkanSDK\1.2.182.0\Lib\shaderc_sharedd.lib;C:\VulkanSDK\1.2.182.0\Lib\spirv-cross-cored.lib;C:\VulkanSDK\1.2.182.0\Lib\spirv-cross-glsld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -106,15 +107,15 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;GLFW_INCLUDE_NONE;AC_DEBUG;NDEBUG;AC_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\yaml-cpp\include;vendor\ImGuizmo;C:\VulkanSDK\1.2.182.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,8 +123,9 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;glad.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glad.lib;opengl32.lib;freetype.lib;C:\VulkanSDK\1.2.182.0\Lib\shaderc_shared.lib;C:\VulkanSDK\1.2.182.0\Lib\spirv-cross-core.lib;C:\VulkanSDK\1.2.182.0\Lib\spirv-cross-glsl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -133,15 +135,15 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;GLFW_INCLUDE_NONE;AC_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\ImGui;vendor\ImNodes;vendor\ImPlot;vendor\yaml-cpp\include;vendor\ImGuizmo;C:\VulkanSDK\1.2.182.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -149,8 +151,9 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;glad.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glad.lib;opengl32.lib;freetype.lib;C:\VulkanSDK\1.2.182.0\Lib\shaderc_shared.lib;C:\VulkanSDK\1.2.182.0\Lib\spirv-cross-core.lib;C:\VulkanSDK\1.2.182.0\Lib\spirv-cross-glsl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -165,6 +168,7 @@
     <ClInclude Include="src\core\Timestep.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\debug\Instrumentor.h" />
+    <ClInclude Include="src\debug\Timer.h" />
     <ClInclude Include="src\ecs\Entity.h" />
     <ClInclude Include="src\ecs\Scene.h" />
     <ClInclude Include="src\ecs\components\Components.h" />
@@ -181,20 +185,25 @@
     <ClInclude Include="src\input\MouseButtonCodes.h" />
     <ClInclude Include="src\layer\Layer.h" />
     <ClInclude Include="src\layer\LayerStack.h" />
-    <ClInclude Include="src\math\Math..h" />
+    <ClInclude Include="src\math\Math.h" />
     <ClInclude Include="src\platform\opengl\OpenGLBuffer.h" />
     <ClInclude Include="src\platform\opengl\OpenGLContext.h" />
     <ClInclude Include="src\platform\opengl\OpenGLFrameBuffer.h" />
+    <ClInclude Include="src\platform\opengl\OpenGLPlatformCapabilities.h" />
     <ClInclude Include="src\platform\opengl\OpenGLRendererApi.h" />
     <ClInclude Include="src\platform\opengl\OpenGLTexture.h" />
+    <ClInclude Include="src\platform\opengl\OpenGLUniformBuffer.h" />
     <ClInclude Include="src\platform\opengl\OpenGLVertexArray.h" />
     <ClInclude Include="src\platform\opengl\OpenGlShader.h" />
     <ClInclude Include="src\platform\windows\WindowsPlatform.h" />
     <ClInclude Include="src\platform\windows\window\WindowsWindow.h" />
     <ClInclude Include="src\renderer\2d\Renderer2D.h" />
     <ClInclude Include="src\renderer\2d\SubTexture2d.h" />
+    <ClInclude Include="src\renderer\BatchRenderer.h" />
     <ClInclude Include="src\renderer\Buffer.h" />
     <ClInclude Include="src\renderer\Camera.h" />
+    <ClInclude Include="src\renderer\DebugRenderer.h" />
+    <ClInclude Include="src\renderer\EditorCamera.h" />
     <ClInclude Include="src\renderer\Framebuffer.h" />
     <ClInclude Include="src\renderer\GraphicsContext.h" />
     <ClInclude Include="src\renderer\RenderCommand.h" />
@@ -202,11 +211,16 @@
     <ClInclude Include="src\renderer\RendererApi.h" />
     <ClInclude Include="src\renderer\Shader.h" />
     <ClInclude Include="src\renderer\Texture.h" />
+    <ClInclude Include="src\renderer\UniformBuffer.h" />
     <ClInclude Include="src\renderer\VertexArray.h" />
     <ClInclude Include="src\serialize\Serializer.h" />
     <ClInclude Include="src\templates\OrthographicCameraController.h" />
+    <ClInclude Include="src\utils\FileUtils.h" />
     <ClInclude Include="src\utils\FixedQueue.h" />
+    <ClInclude Include="src\utils\PlatformCapabilities.h" />
     <ClInclude Include="src\utils\PlatformUtils.h" />
+    <ClInclude Include="src\utils\ThreadSafeQueue.h" />
+    <ClInclude Include="src\utils\fonts\IconsFontAwesome4.h" />
     <ClInclude Include="vendor\ImGuizmo\ImGuizmo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -229,8 +243,10 @@
     <ClCompile Include="src\platform\opengl\OpenGLBuffer.cpp" />
     <ClCompile Include="src\platform\opengl\OpenGLContext.cpp" />
     <ClCompile Include="src\platform\opengl\OpenGLFrameBuffer.cpp" />
+    <ClCompile Include="src\platform\opengl\OpenGLPlatformCapabilities.cpp" />
     <ClCompile Include="src\platform\opengl\OpenGLRendererApi.cpp" />
     <ClCompile Include="src\platform\opengl\OpenGLTexture.cpp" />
+    <ClCompile Include="src\platform\opengl\OpenGLUniformBuffer.cpp" />
     <ClCompile Include="src\platform\opengl\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\platform\opengl\OpenGlShader.cpp" />
     <ClCompile Include="src\platform\windows\WindowsPlatform.cpp" />
@@ -241,15 +257,20 @@
     <ClCompile Include="src\renderer\2d\SubTexture2d.cpp" />
     <ClCompile Include="src\renderer\Buffer.cpp" />
     <ClCompile Include="src\renderer\Camera.cpp" />
+    <ClCompile Include="src\renderer\DebugRenderer.cpp" />
+    <ClCompile Include="src\renderer\EditorCamera.cpp" />
     <ClCompile Include="src\renderer\Framebuffer.cpp" />
     <ClCompile Include="src\renderer\RenderCommand.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\renderer\RendererApi.cpp" />
     <ClCompile Include="src\renderer\Shader.cpp" />
     <ClCompile Include="src\renderer\Texture.cpp" />
+    <ClCompile Include="src\renderer\UniformBuffer.cpp" />
     <ClCompile Include="src\renderer\VertexArray.cpp" />
     <ClCompile Include="src\serialize\Serializer.cpp" />
     <ClCompile Include="src\templates\OrthographicCameraController.cpp" />
+    <ClCompile Include="src\utils\FileUtils.cpp" />
+    <ClCompile Include="src\utils\PlatformCapabilities.cpp" />
     <ClCompile Include="vendor\ImGuizmo\ImGuizmo.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>

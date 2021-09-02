@@ -1,11 +1,13 @@
 #pragma once
 
+#include "panels/ContentBrowser.h"
 #include "panels/LogPanel.h"
 #include "panels/SceneHierarchy.h"
 #include <Acorn.h>
 
 namespace Acorn
 {
+
 	class OakLayer : public Layer
 	{
 	public:
@@ -30,11 +32,13 @@ namespace Acorn
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
+		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
 		void NewScene();
 		void SaveScene();
 		void SaveSceneAs();
 		void OpenScene();
+		void OpenScene(const std::filesystem::path& path);
 
 	private:
 		struct WindowsOpen
@@ -45,7 +49,6 @@ namespace Acorn
 			bool Stats = true;
 			bool Logging = true;
 		};
-		OrthographicCameraController m_CameraController;
 
 		Ref<Texture2d> m_CheckerboardTexture;
 		Ref<Texture2d> m_SpriteSheet;
@@ -54,15 +57,20 @@ namespace Acorn
 		Ref<Scene> m_ActiveScene;
 		Entity m_Square;
 		Entity m_Camera;
+		Entity m_HoveredEntity;
+
+		EditorCamera m_EditorCamera;
 
 		WindowsOpen m_WindowsOpen;
 		bool m_ViewportFocused = false, m_ViewportHovered = false;
 
 		glm::vec2 m_ViewportSize{0.0f};
+		glm::vec2 m_ViewportBounds[2];
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		std::shared_ptr<LogPanel> m_LogPanel;
+		Ref<ContentBrowserPanel> m_ContentBrowserPanel;
 
 		GizmoType m_GizmoType = GizmoType::Translate;
 

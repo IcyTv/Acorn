@@ -13,6 +13,7 @@ namespace Acorn
 	public:
 		Entity() = default;
 		Entity(entt::entity handle, Scene *scene);
+		Entity(int handle, Scene *scene);
 		Entity(const Entity &other) = default;
 
 		template <typename T>

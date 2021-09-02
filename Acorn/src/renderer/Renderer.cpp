@@ -1,8 +1,9 @@
 #include "acpch.h"
 
-#include "Renderer.h"
-#include "RenderCommand.h"
 #include "2d/Renderer2D.h"
+#include "DebugRenderer.h"
+#include "RenderCommand.h"
+#include "Renderer.h"
 
 #include "platform/opengl/OpenGlShader.h"
 
@@ -15,6 +16,7 @@ namespace Acorn
 	{
 		RenderCommand::Init();
 		ext2d::Renderer::Init();
+		debug::Renderer::Init();
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)

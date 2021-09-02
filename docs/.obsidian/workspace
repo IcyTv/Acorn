@@ -1,0 +1,96 @@
+{
+  "main": {
+    "id": "a17fe8296e0a45ae",
+    "type": "split",
+    "children": [
+      {
+        "id": "bf4e671904ff505a",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Viewport Change Event.md",
+            "mode": "source"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "593a8ea7c5181b37",
+    "type": "split",
+    "children": [
+      {
+        "id": "263f36a0b8ccbd96",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b54af45a825f4e92",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "45992a451884c1d2",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "ade47c48ddfa1584",
+    "type": "split",
+    "children": [
+      {
+        "id": "54d4a84aeac20f21",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2deb61ec82db9354",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Viewport Change Event.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "bf4e671904ff505a",
+  "lastOpenFiles": [
+    "Viewport Change Event.md",
+    "Viewport Changes.md",
+    "README.md",
+    "Untitled.md"
+  ]
+}

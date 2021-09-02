@@ -1,7 +1,7 @@
 #include "SceneHierarchy.h"
 
+#include <filesystem>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <imgui_internal.h>
 
 namespace Acorn
@@ -382,9 +382,36 @@ namespace Acorn
 			"Sprite Renderer", entity,
 			[&](Components::SpriteRenderer& spriteRenderer)
 			{
-				ImGui::ColorEdit4("Color",
-								  glm::value_ptr(spriteRenderer.Color));
-				//
+				ImGui::ColorEdit4("Color", glm::value_ptr(spriteRenderer.Color));
+				//Texture
+				if (spriteRenderer.Texture)
+				{
+					ImGui::ImageButton((void*)(intptr_t)spriteRenderer.Texture->GetRendererId(), ImVec2{25.0f, 25.0f});
+				}
+				else
+				{
+					ImGui::Button("", ImVec2{25.0f, 25.0f});
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_ASSET");
+
+					if (payload != nullptr)
+					{
+						auto path = (const wchar_t*)payload->Data;
+						std::filesystem::path fsPath(path);
+						spriteRenderer.Texture = Texture2d::Create(fsPath.string());
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+
+				ImGui::SameLine();
+				ImGui::Text("Texture");
+
+				if (spriteRenderer.Texture)
+					ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 			});
 	}
 }

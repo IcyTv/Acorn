@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 
 #include "core/Timestep.h"
+#include "renderer/EditorCamera.h"
 
 namespace Acorn
 {
@@ -18,11 +19,23 @@ namespace Acorn
 		Entity CreateEntity(const std::string& name = "");
 		void DestroyEntity(Entity entity);
 
-		//!FIXME: Temp
-		entt::registry& Reg() { return m_Registry; }
-
-		void OnUpdate(Timestep ts);
+		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+		void OnUpdateRuntime(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
+
+		template <typename T>
+		std::vector<Entity> GetEntitiesWithComponent()
+		{
+			std::vector<Entity> entities;
+			entities.reserve(m_Registry.size());
+
+			for (auto entity : m_Registry.view<T>())
+			{
+				entities.push_back(Entity{entity, this});
+			}
+
+			return entities;
+		}
 
 		Entity GetPrimaryCameraEntity();
 

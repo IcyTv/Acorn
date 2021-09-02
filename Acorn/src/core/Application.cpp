@@ -6,16 +6,22 @@
 #include "input/KeyCodes.h"
 #include "renderer/Renderer.h"
 
+#include "utils/FileUtils.h"
+#include "utils/PlatformCapabilities.h"
+
 #include <chrono>
 #include <iomanip>
 
 namespace Acorn
 {
-	Application::Application(const std::string& name, bool maximized)
+	Application::Application(const std::string& name, ApplicationCommandLineArgs args, bool maximized)
+		: m_CommandLineArgs(args)
 	{
 		AC_PROFILE_FUNCTION();
 		AC_CORE_ASSERT(!s_Instance, "Can only have one Application");
 		s_Instance = this;
+
+		PlatformCapabilities::Init();
 
 		WindowProps props(name);
 		props.Maximized = maximized;
@@ -86,7 +92,7 @@ namespace Acorn
 
 		if (e.GetEventType() == EventType::KeyPressed)
 		{
-			KeyPressedEvent& ke = (KeyPressedEvent&)e;
+			KeyPressedEvent& ke = (KeyPressedEvent&)e; //TODO move to OakTree
 			if (ke.GetKeyCode() == AC_KEY_F6)
 			{
 				if (!m_IsProfiling && ke.GetRepeatCount() == 0)

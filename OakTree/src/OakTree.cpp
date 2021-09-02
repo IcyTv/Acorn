@@ -9,8 +9,8 @@ namespace Acorn
 	class OakTree : public Application
 	{
 	public:
-		OakTree()
-			: Application("OakTree", true)
+		OakTree(ApplicationCommandLineArgs args)
+			: Application("OakTree", args, true)
 		{
 			//PushLayer(new ExampleLayer());
 			PushLayer(new OakLayer());

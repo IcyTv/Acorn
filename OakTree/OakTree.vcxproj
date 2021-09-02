@@ -21,7 +21,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OakTree</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
     <VcpkgEnabled>true</VcpkgEnabled>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
@@ -83,18 +83,20 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\yaml-cpp\include;..\Acorn\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\yaml-cpp\include;..\Acorn\vendor\ImGuizmo;C:\VulkanSDK\1.2.182.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;MSVCRT.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>-IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -102,21 +104,22 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\yaml-cpp\include;..\Acorn\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\yaml-cpp\include;..\Acorn\vendor\ImGuizmo;C:\VulkanSDK\1.2.182.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -124,35 +127,46 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AC_PLATFORM_WINDOWS;AC_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\yaml-cpp\include;..\Acorn\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Acorn\src;..\Acorn\vendor;src;..\Acorn\vendor\ImGui;..\Acorn\vendor\ImNodes;..\Acorn\vendor\ImPlot;..\Acorn\vendor\yaml-cpp\include;..\Acorn\vendor\ImGuizmo;C:\VulkanSDK\1.2.182.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\vcpkg_installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>-IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\OakLayer.h" />
+    <ClInclude Include="src\panels\ContentBrowser.h" />
     <ClInclude Include="src\panels\LogPanel.h" />
     <ClInclude Include="src\panels\SceneHierarchy.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OakLayer.cpp" />
     <ClCompile Include="src\OakTree.cpp" />
+    <ClCompile Include="src\panels\ContentBrowser.cpp" />
     <ClCompile Include="src\panels\LogPanel.cpp" />
     <ClCompile Include="src\panels\SceneHierarchy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_opengl.frag" />
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_opengl.vert" />
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_vulkan.frag" />
+    <None Include="res\cache\shaders\opengl\Billboard.shader.cached_vulkan.vert" />
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_opengl.frag" />
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_opengl.vert" />
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_vulkan.frag" />
+    <None Include="res\cache\shaders\opengl\Textured.shader.cached_vulkan.vert" />
     <None Include="res\fonts\Inconsolata-Black.ttf" />
     <None Include="res\fonts\Inconsolata-Bold.ttf" />
     <None Include="res\fonts\Inconsolata-ExtraBold.ttf" />
@@ -163,17 +177,164 @@
     <None Include="res\fonts\Inconsolata-SemiBold.ttf" />
     <None Include="res\fonts\Inconsolata.ttf" />
     <None Include="res\fonts\OFL.txt" />
+    <None Include="res\fonts\fontawesome-webfont.ttf" />
     <None Include="res\scenes\Example.acorn" />
     <None Include="res\scenes\Example2.acorn" />
     <None Include="res\scenes\PinkCube.acorn" />
     <None Include="res\scenes\Test.acorn" />
+    <None Include="res\shaders\BIllboard.shader" />
     <None Include="res\shaders\Textured.shader" />
+    <None Include="res\textures\icons\appicns\LICENSE.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\Checkerboard.png" />
     <Image Include="res\textures\ChernoLogo.png" />
+    <Image Include="res\textures\DirectoryIcon.png" />
+    <Image Include="res\textures\FileIcon.png" />
     <Image Include="res\textures\RPGpack_sheet.png" />
     <Image Include="res\textures\RPGpack_sheet_2X.png" />
+    <Image Include="res\textures\icons\AcornFile.png" />
+    <Image Include="res\textures\icons\acorn.png" />
+    <Image Include="res\textures\icons\appicns\appicns_1Password.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AbletonLive.png" />
+    <Image Include="res\textures\icons\appicns\appicns_ActivityMonitor.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAcrobatPro.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAcrobatReader.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAfterEffects.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeAudition.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeBridge.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeDreamweaver.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeAnimate.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeCode.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeInspect.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeEdgeReflow.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeFireworks.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeFlash.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeFlashBuilder.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeIllustrator.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeInCopy.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeInDesign.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeLightroom.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeMediaEncoder.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeMuse.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobePhotoshop.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobePrelude.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobePremierePro.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeScout.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AdobeSpeedgrade.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AirPortUtility.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Aperature.png" />
+    <Image Include="res\textures\icons\appicns\appicns_AppStore.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Automator.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Calculator.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Calendar.png" />
+    <Image Include="res\textures\icons\appicns\appicns_CalendarDock.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Coda.png" />
+    <Image Include="res\textures\icons\appicns\appicns_ColorSyncUtility.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Console.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Contacts.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DVDPlayer.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Dashboard.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceAirportDisk.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceCD.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceExternal.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceInternal.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceRemovable.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceServer.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DeviceTimeMachine.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Dictionary.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DigitalColorMeter.png" />
+    <Image Include="res\textures\icons\appicns\appicns_DiskUtility.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Dropbox.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Evernote.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Facetime.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FinalCutPro.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Finder.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Firefox.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Flint.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderApps.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderBurnable.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderDesktop.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderDeveloper.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderDocuments.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderDownloads.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderGeneric.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderGroup.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderHome.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderLibrary.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderMovies.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderMusic.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderPictures.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderPublic.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderServerApps.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderSharepoint.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderSites.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderSmart.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderSystem.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderUsers.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FolderUtilities.png" />
+    <Image Include="res\textures\icons\appicns\appicns_FontBook.png" />
+    <Image Include="res\textures\icons\appicns\appicns_GameCenter.png" />
+    <Image Include="res\textures\icons\appicns\appicns_GarageBand.png" />
+    <Image Include="res\textures\icons\appicns\appicns_GoogleChrome.png" />
+    <Image Include="res\textures\icons\appicns\appicns_GoogleDrive.png" />
+    <Image Include="res\textures\icons\appicns\appicns_HipChat.png" />
+    <Image Include="res\textures\icons\appicns\appicns_IconComposer.png" />
+    <Image Include="res\textures\icons\appicns\appicns_ImageCapture.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Keychain.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Keynote.png" />
+    <Image Include="res\textures\icons\appicns\appicns_LaunchPad.png" />
+    <Image Include="res\textures\icons\appicns\appicns_LiteIcon.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Mail.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MailboxApp.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Maps.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Messages.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftExcel.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftOutlook.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftPowerpoint.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MicrosoftWord.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MigrationAssistant.png" />
+    <Image Include="res\textures\icons\appicns\appicns_MissionControl.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Notes.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Numbers.png" />
+    <Image Include="res\textures\icons\appicns\appicns_OtherAliasBadge.png" />
+    <Image Include="res\textures\icons\appicns\appicns_OtherApp.png" />
+    <Image Include="res\textures\icons\appicns\appicns_OtherDocument.png" />
+    <Image Include="res\textures\icons\appicns\appicns_OtherPrivateBadge.png" />
+    <Image Include="res\textures\icons\appicns\appicns_OtherReadOnlyBadge.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Pages.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Photobooth.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Photos.png" />
+    <Image Include="res\textures\icons\appicns\appicns_PlexMediaServer.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Preview.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Quicktime.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Rdio.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Reminders.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Safari.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Sketch.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Skype.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Slack.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Spotify.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Steam.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Stickies.png" />
+    <Image Include="res\textures\icons\appicns\appicns_SublimeText.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Sunrise.png" />
+    <Image Include="res\textures\icons\appicns\appicns_SystemPreferences.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Terminal.png" />
+    <Image Include="res\textures\icons\appicns\appicns_TextEdit.png" />
+    <Image Include="res\textures\icons\appicns\appicns_TimeMachine.png" />
+    <Image Include="res\textures\icons\appicns\appicns_TrashEmpty.png" />
+    <Image Include="res\textures\icons\appicns\appicns_TrashFull.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Tumblr.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Twitter.png" />
+    <Image Include="res\textures\icons\appicns\appicns_VLC.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Wunderlist.png" />
+    <Image Include="res\textures\icons\appicns\appicns_Xcode.png" />
+    <Image Include="res\textures\icons\appicns\appicns_iAWriter.png" />
+    <Image Include="res\textures\icons\appicns\appicns_iBooks.png" />
+    <Image Include="res\textures\icons\appicns\appicns_iMovie.png" />
+    <Image Include="res\textures\icons\appicns\appicns_iPhoto.png" />
+    <Image Include="res\textures\icons\appicns\appicns_iTunes.png" />
     <Image Include="res\textures\roguelikeSheet_magenta.png" />
     <Image Include="res\textures\roguelikeSheet_transparent.png" />
   </ItemGroup>

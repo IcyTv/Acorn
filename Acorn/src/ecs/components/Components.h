@@ -5,6 +5,8 @@
 #include "SceneCamera.h"
 #include "core/Core.h"
 
+#include "renderer/Texture.h"
+
 #include "ScriptableEntity.h"
 #include "core/Timestep.h"
 
@@ -46,6 +48,8 @@ namespace Acorn::Components
 	struct SpriteRenderer
 	{
 		glm::vec4 Color{1.0f};
+		Ref<Texture2d> Texture;
+		float TilingFactor = 1.0f;
 
 		SpriteRenderer() = default;
 		SpriteRenderer(const SpriteRenderer&) = default;

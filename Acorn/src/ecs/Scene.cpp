@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "components/Components.h"
 #include "renderer/2d/Renderer2D.h"
+#include "renderer/DebugRenderer.h"
 
 #include <glm/glm.hpp>
 
@@ -34,7 +35,33 @@ namespace Acorn
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::OnUpdate(Timestep ts)
+	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	{
+		ext2d::Renderer::BeginScene(camera);
+		auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
+		for (auto&& [entity, transform, sprite] : group.each())
+		{
+			// ext2d::Renderer::FillQuad((glm::mat4)transform, sprite.Color);
+			ext2d::Renderer::DrawSprite((glm::mat4)transform, sprite, (int)entity);
+		}
+
+		ext2d::Renderer::EndScene();
+
+		{
+			//Draw Icon Gizmos
+			debug::Renderer::Begin(camera);
+
+			auto group = m_Registry.group<Components::CameraComponent>(entt::get<Components::Transform>);
+			for (auto&& [entity, camera, transform] : group.each())
+			{
+				debug::Renderer::DrawGizmo(debug::GizmoType::Camera, transform.Translation, (int)entity);
+			}
+
+			debug::Renderer::End();
+		}
+	}
+
+	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		//Update Scripts
 		{
@@ -77,7 +104,7 @@ namespace Acorn
 			auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
 			for (auto&& [entity, transform, sprite] : group.each())
 			{
-				ext2d::Renderer::FillQuad((glm::mat4)transform, sprite.Color);
+				ext2d::Renderer::DrawSprite((glm::mat4)transform, sprite, (int)entity);
 			}
 
 			ext2d::Renderer::EndScene();
@@ -94,7 +121,8 @@ namespace Acorn
 		{
 			if (!camera.FixedAspectRatio)
 			{
-				camera.Camera.SetViewportSize(width, height);
+				if (width > 0 && height > 0)
+					camera.Camera.SetViewportSize(width, height);
 			}
 		}
 	}
@@ -128,7 +156,10 @@ namespace Acorn
 	template <>
 	void Scene::OnComponentAdded(Entity entity, Components::CameraComponent& camera)
 	{
-		camera.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
+			camera.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		else
+			camera.Camera.SetViewportSize(16, 9);
 	}
 
 	template <>

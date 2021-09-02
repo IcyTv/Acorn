@@ -4,83 +4,49 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 
-#include "math/Math..h"
 #include "serialize/Serializer.h"
 #include "utils/PlatformUtils.h"
+
+#include "utils/fonts/IconsFontAwesome4.h"
 
 #include <ImGuizmo.h>
 
 namespace Acorn
 {
 	OakLayer::OakLayer()
-		: Layer("Sandbox2D"), m_CameraController(16.0f / 9.0f, true)
+		: Layer("Sandbox2D")
 	{
 	}
 
 	void OakLayer::OnAttach()
 	{
 
-		m_Framebuffer = Framebuffer::Create({Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight()});
+		FrameBufferSpecs fbSpecs;
+		fbSpecs.Attachments = {FBTF::RGBA8, FBTF::R32I, FBTF::Depth};
+		fbSpecs.Width = Application::Get().GetWindow().GetWidth();
+		fbSpecs.Height = Application::Get().GetWindow().GetHeight();
+		m_Framebuffer = Framebuffer::Create(fbSpecs);
 
 		m_ActiveScene = CreateRef<Scene>();
 
-#if 0
-		auto square = m_ActiveScene->CreateEntity("Square");
-
-		square.AddComponent<Components::SpriteRenderer>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
-
-		m_Square = square;
-
-		m_Camera = m_ActiveScene->CreateEntity("Camera");
-		m_Camera.AddComponent<Components::CameraComponent>();
-
-		class CameraController : public ScriptableEntity
+		//Serialization
+		auto commandLineArgs = Application::Get().GetCommandLineArgs();
+		if (commandLineArgs.Count > 1)
 		{
-		public:
-			void OnCreate() override
-			{
-				AC_INFO("OnCreate!");
-				srand((uint32_t)time(NULL));
-				auto& transform = GetComponent<Components::Transform>().Translation;
-				transform.x = (float)(rand() % 10 - 5.0f);
-			}
+			auto sceneFilePath = commandLineArgs[1];
+			SceneSerializer serializer(m_ActiveScene);
+			serializer.Deserialize(sceneFilePath);
+		}
+		else
+		{
+			SceneSerializer serializer(m_ActiveScene);
+			std::string defaultProject = "res/scenes/PinkCube.acorn";
+			serializer.Deserialize(defaultProject);
+			m_CurrentFilePath = defaultProject;
+		}
 
-			void OnUpdate(Timestep ts) override
-			{
-				auto& transform = GetComponent<Components::Transform>().Translation;
-				auto& rotation = GetComponent<Components::Transform>().Rotation;
+		m_EditorCamera = EditorCamera(30.0f, 1.78f, 0.1f, 1000.0f);
 
-				if (Input::IsKeyPressed(AC_KEY_A))
-				{
-					transform.x -= 10.0f * ts;
-				}
-				if (Input::IsKeyPressed(AC_KEY_D))
-				{
-					transform.x += 10.0f * ts;
-				}
-				if (Input::IsKeyPressed(AC_KEY_W))
-				{
-					transform.y += 10.0f * ts;
-				}
-				if (Input::IsKeyPressed(AC_KEY_S))
-				{
-					transform.y -= 10.0f * ts;
-				}
-
-				if (Input::IsKeyPressed(AC_KEY_Q))
-				{
-					rotation.z += glm::radians(45.0f * ts);
-				}
-				if (Input::IsKeyPressed(AC_KEY_E))
-				{
-					rotation.z -= glm::radians(45.0f * ts);
-				}
-			}
-		};
-
-		m_Camera.AddComponent<Components::NativeScript>().Bind<CameraController>();
-
-#endif
 		//Panels
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
@@ -89,10 +55,7 @@ namespace Acorn
 		m_LogPanel->set_pattern("%^[%=8n][%T][%l]: %v%$");
 		Log::AddSink(m_LogPanel);
 
-		SceneSerializer serializer(m_ActiveScene);
-		std::string defaultProject = "res/scenes/PinkCube.acorn";
-		serializer.Deserialize(defaultProject);
-		m_CurrentFilePath = defaultProject;
+		m_ContentBrowserPanel = CreateRef<ContentBrowserPanel>();
 	}
 
 	void OakLayer::OnDetach()
@@ -110,24 +73,70 @@ namespace Acorn
 			(specs.Width != m_ViewportSize.x || specs.Height != m_ViewportSize.y))
 		{
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_CameraController.ResizeBounds(m_ViewportSize.x, m_ViewportSize.y);
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 
-		m_Framebuffer->Bind();
-		if (m_ViewportFocused || m_CameraController.ShouldUpdate())
+		if (m_ViewportFocused)
 		{
-			m_CameraController.OnUpdate(ts);
+			m_EditorCamera.OnUpdate(ts);
 		}
 
 		ext2d::Renderer::ResetStats();
 
+		m_Framebuffer->Bind();
+
 		RenderCommand::SetClearColor({0.1f, 0.1f, 0.2f, 1});
 		RenderCommand::Clear();
 
+		//Clear EntityId Attachment to -1
+		m_Framebuffer->ClearColorAttachment(1, -1);
+
 		//Update Scene
 
-		m_ActiveScene->OnUpdate(ts);
+		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= m_ViewportBounds[0].x;
+		my -= m_ViewportBounds[0].y;
+		glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+		my = viewportSize.y - my;
+
+		int mouseX = (int)mx;
+		int mouseY = (int)my;
+
+		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		{
+			int entityId = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+			m_HoveredEntity = Entity{entityId, m_ActiveScene.get()};
+		}
+
+		// if (Input::IsMouseButtonPressed(AC_MOUSE_BUTTON_LEFT) && !Input::IsKeyPressed(KeyCode::LeftAlt) && !ImGuizmo::IsOver())
+		// {
+		// 	auto [mx, my] = ImGui::GetMousePos();
+		// 	mx -= m_ViewportBounds[0].x;
+		// 	my -= m_ViewportBounds[0].y;
+		// 	glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+		// 	my = viewportSize.y - my;
+
+		// 	int mouseX = (int)mx;
+		// 	int mouseY = (int)my;
+
+		// 	if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		// 	{
+		// 		int entityId = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+		// 		if (entityId >= 0)
+		// 		{
+
+		// 			Entity entity = {entityId, m_ActiveScene.get()};
+		// 			m_SceneHierarchyPanel.SetSelectedEntity(entity);
+		// 		}
+		// 		else
+		// 		{
+		// 			m_SceneHierarchyPanel.SetSelectedEntity({});
+		// 		}
+		// 	}
+		// }
 
 		m_Framebuffer->Unbind();
 	}
@@ -257,36 +266,59 @@ namespace Acorn
 		//Panels
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_LogPanel->OnImGuiRender();
+		m_ContentBrowserPanel->OnImGuiRender();
 
 		if (m_WindowsOpen.Stats)
 		{
 			ImGui::Begin("Stats", &m_WindowsOpen.Stats);
-			auto stats = ext2d::Renderer::GetStats();
 			ImGui::Text("Renderer2d Stats");
-			ImGui::Text("Quad Count %d", stats.QuadCount);
-			ImGui::Text("Draw Calls %d", stats.DrawCalls);
-			ImGui::Text("Vertices %d", stats.GetTotalVertexCount());
-			ImGui::Text("Indices %d", stats.GetTotalIndexCount());
+			if (m_HoveredEntity)
+				ImGui::Text("Hovered Entity %s", m_HoveredEntity.GetComponent<Components::Tag>().TagName.c_str());
+			else
+				ImGui::Text("Hovered Entity None");
+			ImGui::Text("Quad Count %d", ext2d::Renderer::GetQuadCount());
+			ImGui::Text("Draw Calls %d", ext2d::Renderer::GetDrawCalls());
+			ImGui::Text("Vertices %d", ext2d::Renderer::GetVertexCount());
+			ImGui::Text("Indices %d", ext2d::Renderer::GetIndexCount());
 			ImGui::End();
 		}
-
-		// m_CameraController.ImGuiControls(&m_WindowsOpen.CameraControls);
 
 		if (m_WindowsOpen.Viewport)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-			if (ImGui::Begin("Viewport", &m_WindowsOpen.Viewport))
+			ImGui::Begin("Viewport", &m_WindowsOpen.Viewport);
+
+			auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+			auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+			auto viewportOffset = ImGui::GetWindowPos();
+			m_ViewportBounds[0] = {viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y};
+			m_ViewportBounds[1] = {viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y};
+
+			m_ViewportFocused = ImGui::IsWindowFocused();
+			m_ViewportHovered = ImGui::IsWindowHovered();
+			// m_ViewportFocused |= m_ViewportHovered && ImGui::IsAnyMouseDown();
+			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+
+			uint32_t viewportId = m_Framebuffer->GetColorAttachmentRendererId();
+			ImVec2 availableSize = ImGui::GetContentRegionAvail();
+
+			m_ViewportSize = {availableSize.x, availableSize.y};
+
+			ImGui::Image((void*)(intptr_t)viewportId, availableSize, ImVec2{0, 1}, ImVec2{1, 0});
+
+			if (ImGui::BeginDragDropTarget())
 			{
-				m_ViewportFocused = ImGui::IsWindowFocused();
-				m_ViewportHovered = ImGui::IsWindowHovered();
-				Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+				const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM");
 
-				uint32_t viewportId = m_Framebuffer->GetColorAttachmentRendererId();
-				ImVec2 availableSize = ImGui::GetContentRegionAvail();
+				if (payload != nullptr)
+				{
+					auto path = (const wchar_t*)payload->Data;
+					std::filesystem::path fsPath(path);
 
-				m_ViewportSize = {availableSize.x, availableSize.y};
+					OpenScene(path);
+				}
 
-				ImGui::Image((void*)(intptr_t)viewportId, availableSize, ImVec2{0, 1}, ImVec2{1, 0});
+				ImGui::EndDragDropTarget();
 			}
 
 			// Gizmos
@@ -295,16 +327,18 @@ namespace Acorn
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
-
-				float windowWidth = (float)ImGui::GetWindowWidth();
-				float windowHeight = (float)ImGui::GetWindowHeight();
-				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+				ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
 
 				// Camera
-				auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-				const auto& camera = cameraEntity.GetComponent<Components::CameraComponent>().Camera;
-				const glm::mat4& cameraProjection = camera.GetProjection();
-				glm::mat4 cameraView = glm::inverse((glm::mat4)cameraEntity.GetComponent<Components::Transform>());
+				// Runtime Camera
+				// auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+				// const auto& camera = cameraEntity.GetComponent<Components::CameraComponent>().Camera;
+				// const glm::mat4& cameraProjection = camera.GetProjection();
+				// glm::mat4 cameraView = glm::inverse((glm::mat4)cameraEntity.GetComponent<Components::Transform>());
+
+				// Editor Camera
+				glm::mat4 cameraProjection = m_EditorCamera.GetProjection();
+				glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
 
 				// Entity transform
 				auto& tc = selectedEntity.GetComponent<Components::Transform>();
@@ -339,6 +373,42 @@ namespace Acorn
 				}
 			}
 
+			// {
+			// 	//Camera Icon
+			// 	//TODO there is definitely a better way to do this
+			// 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
+			// 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
+			// 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
+
+			// 	for (Entity entity : m_ActiveScene->GetEntitiesWithComponent<Components::CameraComponent>())
+			// 	{
+			// 		if (entity == m_SceneHierarchyPanel.GetSelectedEntity())
+			// 			continue;
+			// 		auto& transform = entity.GetComponent<Components::Transform>();
+			// 		ImVec2 windowPos = ImGui::GetWindowPos();
+			// 		ImVec2 windowSize = ImGui::GetWindowSize();
+
+			// 		glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
+			// 		glm::vec3 pos = glm::project(translation, (glm::mat4)transform, m_EditorCamera.GetViewProjection(), glm::vec4{0.0f, 0.0f, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y});
+			// 		pos.y = windowSize.y - pos.y;
+
+			// 		ImVec2 charSize = ImGui::CalcTextSize(ICON_FA_CAMERA);
+			// 		ImVec2 gizmoPos = ImVec2{pos.x - (charSize.x * 0.5f), pos.y - (charSize.y * 0.5f)};
+
+			// 		if (gizmoPos.x > 0 && gizmoPos.x < m_ViewportSize.x - charSize.x && gizmoPos.y > 0 && gizmoPos.y < m_ViewportSize.y - charSize.y)
+			// 		{
+			// 			ImGui::SetCursorPos(gizmoPos);
+			// 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
+			// 			if (ImGui::Button(ICON_FA_CAMERA, charSize))
+			// 			{
+			// 				m_SceneHierarchyPanel.SetSelectedEntity(entity);
+			// 			}
+			// 			ImGui::PopStyleVar();
+			// 		}
+			// 	}
+			// 	ImGui::PopStyleColor(3);
+			// }
+
 			ImGui::End();
 
 			ImGui::PopStyleVar();
@@ -351,8 +421,11 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		m_EditorCamera.OnEvent(e);
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OakLayer::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OakLayer::OnMouseButtonPressed));
 	}
 
 	bool OakLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -391,6 +464,7 @@ namespace Acorn
 		{
 			switch (e.GetKeyCode())
 			{
+				//Gizmos
 				case KeyCode::Q:
 					m_GizmoType = GizmoType::None;
 					return true;
@@ -403,7 +477,31 @@ namespace Acorn
 				case KeyCode::R:
 					m_GizmoType = GizmoType::Scale;
 					return true;
+
+				//Camera
+				case KeyCode::F:
+				{
+					auto entity = m_SceneHierarchyPanel.GetSelectedEntity();
+					if (entity && entity.HasComponent<Components::Transform>())
+					{
+						auto& transform = entity.GetComponent<Components::Transform>();
+						auto scale = transform.Scale;
+						float zoom = std::max(scale.x, std::max(scale.y, scale.z)) + 1.0f;
+						m_EditorCamera.SetFocalPointDistance(entity.GetComponent<Components::Transform>().Translation, zoom);
+					}
+				}
+				break;
 			}
+		}
+		return false;
+	}
+
+	bool OakLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		if (m_ViewportHovered && e.GetMouseButton() == AC_MOUSE_BUTTON_LEFT && !Input::IsKeyPressed(KeyCode::LeftAlt) && !ImGuizmo::IsOver())
+		{
+			m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+			return true;
 		}
 		return false;
 	}
@@ -445,12 +543,17 @@ namespace Acorn
 		std::string filename = PlatformUtils::OpenFile("Acorn Scene (*.acorn)\0*.acorn\0");
 		if (!filename.empty())
 		{
-			m_ActiveScene = CreateRef<Scene>();
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-			m_CurrentFilePath = filename;
-
-			SceneSerializer(m_ActiveScene).Deserialize(filename);
+			OpenScene(filename);
 		}
+	}
+
+	void OakLayer::OpenScene(const std::filesystem::path& path)
+	{
+		m_ActiveScene = CreateRef<Scene>();
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_CurrentFilePath = path.string();
+
+		SceneSerializer(m_ActiveScene).Deserialize(path.string());
 	}
 }

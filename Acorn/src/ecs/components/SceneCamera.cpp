@@ -33,8 +33,7 @@ namespace Acorn
 
 	void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
-		if (width == 0 || height == 0)
-			return;
+		AC_CORE_ASSERT(width > 0 && height > 0, "Invalid viewport size!");
 		m_AspectRatio = (float)width / (float)height;
 		RecalculateProjectionMatrix();
 	}

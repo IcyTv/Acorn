@@ -2,14 +2,14 @@
 
 #ifdef AC_PLATFORM_WINDOWS
 
-extern Acorn::Application* Acorn::CreateApplication();
+extern Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args);
 
 int main(int argc, char** argv)
 {
 	Acorn::Log::Init();
 
 	AC_PROFILE_BEGIN_SESSION("Startup", "AcornProfile-Startup.json");
-	Acorn::Application* application = Acorn::CreateApplication();
+	Acorn::Application* application = Acorn::CreateApplication({argc, argv});
 	AC_PROFILE_END_SESSION();
 
 	application->Run();
@@ -21,10 +21,11 @@ int main(int argc, char** argv)
 	AC_PROFILE_END_SESSION();
 }
 
-
-#define AC_ENTRY(class)  Acorn::Application* Acorn::CreateApplication() { \
-	return new class;\
-}
+#define AC_ENTRY(class)                                                           \
+	Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args) \
+	{                                                                             \
+		return new class(args);                                                   \
+	}
 
 #else
 #error Only Windows for now!

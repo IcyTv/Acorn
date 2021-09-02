@@ -7,11 +7,11 @@ namespace Acorn
 	class AC_API WindowResizeEvent : public Event
 	{
 	public:
-		WindowResizeEvent(uint32_t width, uint32_t height): m_Width(width), m_Height(height) {}
+		WindowResizeEvent(uint32_t width, uint32_t height)
+			: m_Width(width), m_Height(height) {}
 
-		inline uint32_t GetWidth() const { return m_Width;  }
+		inline uint32_t GetWidth() const { return m_Width; }
 		inline uint32_t GetHeight() const { return m_Height; }
-
 
 		std::string ToString() const override
 		{
@@ -60,5 +60,23 @@ namespace Acorn
 
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 		EVENT_CLASS_TYPE(AppRender)
+	};
+
+	class ViewportChangedEvent : public Event
+	{
+	public:
+		ViewportChangedEvent(uint32_t width, uint32_t height)
+			: m_Width(width), m_Height(height)
+		{
+		}
+
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		EVENT_CLASS_TYPE(ViewportChanged)
+
+		inline uint32_t GetWidth() const { return m_Width; }
+		inline uint32_t GetHeight() const { return m_Height; }
+
+	private:
+		uint32_t m_Width, m_Height;
 	};
 }

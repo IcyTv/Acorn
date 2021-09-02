@@ -10,6 +10,7 @@
 
 #include "renderer/2d/Renderer2D.h"
 #include "renderer/Buffer.h"
+#include "renderer/DebugRenderer.h"
 #include "renderer/Framebuffer.h"
 #include "renderer/Renderer.h"
 #include "renderer/Shader.h"
@@ -34,3 +35,5 @@
 
 #include "gui/ImGuiLayer.h"
 #include "gui/nodes/ImGuiNodes.h"
+
+#include "math/Math.h"

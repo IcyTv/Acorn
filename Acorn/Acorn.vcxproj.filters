@@ -70,6 +70,9 @@
     <Filter Include="src\utils">
       <UniqueIdentifier>{6DAA42B6-D914-F72C-2253-A8D28EFCD481}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\utils\fonts">
+      <UniqueIdentifier>{8602BD47-F28D-2A0C-FB9E-AD0067A9860C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendor">
       <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
     </Filter>
@@ -112,6 +115,9 @@
       <Filter>src\core</Filter>
     </ClInclude>
     <ClInclude Include="src\debug\Instrumentor.h">
+      <Filter>src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\Timer.h">
       <Filter>src\debug</Filter>
     </ClInclude>
     <ClInclude Include="src\ecs\Entity.h">
@@ -162,7 +168,7 @@
     <ClInclude Include="src\layer\LayerStack.h">
       <Filter>src\layer</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\Math..h">
+    <ClInclude Include="src\math\Math.h">
       <Filter>src\math</Filter>
     </ClInclude>
     <ClInclude Include="src\platform\opengl\OpenGLBuffer.h">
@@ -174,10 +180,16 @@
     <ClInclude Include="src\platform\opengl\OpenGLFrameBuffer.h">
       <Filter>src\platform\opengl</Filter>
     </ClInclude>
+    <ClInclude Include="src\platform\opengl\OpenGLPlatformCapabilities.h">
+      <Filter>src\platform\opengl</Filter>
+    </ClInclude>
     <ClInclude Include="src\platform\opengl\OpenGLRendererApi.h">
       <Filter>src\platform\opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\platform\opengl\OpenGLTexture.h">
+      <Filter>src\platform\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\opengl\OpenGLUniformBuffer.h">
       <Filter>src\platform\opengl</Filter>
     </ClInclude>
     <ClInclude Include="src\platform\opengl\OpenGLVertexArray.h">
@@ -198,10 +210,19 @@
     <ClInclude Include="src\renderer\2d\SubTexture2d.h">
       <Filter>src\renderer\2d</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderer\BatchRenderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\renderer\Buffer.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\Camera.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\DebugRenderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\EditorCamera.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\Framebuffer.h">
@@ -225,6 +246,9 @@
     <ClInclude Include="src\renderer\Texture.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderer\UniformBuffer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\renderer\VertexArray.h">
       <Filter>src\renderer</Filter>
     </ClInclude>
@@ -234,11 +258,23 @@
     <ClInclude Include="src\templates\OrthographicCameraController.h">
       <Filter>src\templates</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\FileUtils.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\utils\FixedQueue.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\PlatformCapabilities.h">
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\PlatformUtils.h">
       <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ThreadSafeQueue.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\fonts\IconsFontAwesome4.h">
+      <Filter>src\utils\fonts</Filter>
     </ClInclude>
     <ClInclude Include="vendor\ImGuizmo\ImGuizmo.h">
       <Filter>vendor\ImGuizmo</Filter>
@@ -296,10 +332,16 @@
     <ClCompile Include="src\platform\opengl\OpenGLFrameBuffer.cpp">
       <Filter>src\platform\opengl</Filter>
     </ClCompile>
+    <ClCompile Include="src\platform\opengl\OpenGLPlatformCapabilities.cpp">
+      <Filter>src\platform\opengl</Filter>
+    </ClCompile>
     <ClCompile Include="src\platform\opengl\OpenGLRendererApi.cpp">
       <Filter>src\platform\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\opengl\OpenGLTexture.cpp">
+      <Filter>src\platform\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\opengl\OpenGLUniformBuffer.cpp">
       <Filter>src\platform\opengl</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\opengl\OpenGLVertexArray.cpp">
@@ -332,6 +374,12 @@
     <ClCompile Include="src\renderer\Camera.cpp">
       <Filter>src\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\DebugRenderer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\EditorCamera.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\renderer\Framebuffer.cpp">
       <Filter>src\renderer</Filter>
     </ClCompile>
@@ -350,6 +398,9 @@
     <ClCompile Include="src\renderer\Texture.cpp">
       <Filter>src\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\UniformBuffer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\renderer\VertexArray.cpp">
       <Filter>src\renderer</Filter>
     </ClCompile>
@@ -358,6 +409,12 @@
     </ClCompile>
     <ClCompile Include="src\templates\OrthographicCameraController.cpp">
       <Filter>src\templates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\FileUtils.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\PlatformCapabilities.cpp">
+      <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="vendor\ImGuizmo\ImGuizmo.cpp">
       <Filter>vendor\ImGuizmo</Filter>

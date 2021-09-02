@@ -20,6 +20,7 @@ namespace Acorn
 		AppTick,
 		AppUpdate,
 		AppRender,
+		ViewportChanged,
 		KeyPressed,
 		KeyReleased,
 		KeyTyped,

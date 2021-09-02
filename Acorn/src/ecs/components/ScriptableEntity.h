@@ -12,10 +12,11 @@ namespace Acorn
         template <typename T>
         bool HasComponent()
         {
-            AC_CORE_ASSERT(m_Scene != nullptr, "Scene is null");
-            AC_CORE_ASSERT(m_EntityHandle != entt::null, "Entity is null");
+            //AC_CORE_ASSERT(m_Scene != nullptr, "Scene is null");
+            //AC_CORE_ASSERT(m_EntityHandle != entt::null, "Entity is null");
 
-            return m_Scene->m_Registry.all_of<T>(m_EntityHandle);
+
+            return HasComponents<T>();
         }
 
         template <typename... T>

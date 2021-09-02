@@ -11,6 +11,8 @@
 
 #include "renderer/RenderCommand.h"
 
+#include "utils/fonts/IconsFontAwesome4.h"
+
 #include <ImGuizmo.h>
 
 //Temporary
@@ -43,8 +45,19 @@ namespace Acorn
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Bold.ttf", 16.0f);
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Regular.ttf", 16.0f);
+		ImFontConfig font_config;
+		font_config.MergeMode = false;
+		io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Bold.ttf", 16.0f, &font_config);
+
+		ImFontConfig config;
+		config.MergeMode = true;
+		config.GlyphMinAdvanceX = 16.0f; // Use if you want to make the icon monospaced
+		static const ImWchar icon_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
+		io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Regular.ttf", 16.0f, &font_config);
+		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FA, 16.0f, &config, icon_ranges);
+		io.Fonts->Build();
+
+		io.FontDefault = io.Fonts->Fonts[1];
 
 		ImGui::StyleColorsDark();
 

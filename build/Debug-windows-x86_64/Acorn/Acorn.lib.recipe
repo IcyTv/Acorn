@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-  <ProjectOutputs />
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>c:\Users\michael\Programming\game-engine\game-engine\bin\Debug-windows-x86_64\Premake\Premake</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
   <ContentFiles />
   <SatelliteDlls />
   <NonRecipeFileRefs />

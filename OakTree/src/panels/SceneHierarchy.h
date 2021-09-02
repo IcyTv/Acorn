@@ -14,6 +14,7 @@ namespace Acorn
 
 		void SetContext(const Ref<Scene>& context);
 		inline Entity GetSelectedEntity() const { return m_SelectionContext; }
+		inline void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; }
 
 		void OnImGuiRender();
 

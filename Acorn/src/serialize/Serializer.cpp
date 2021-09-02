@@ -262,7 +262,7 @@ namespace Acorn
 				{
 					auto& cc = deserializedEntity.AddComponent<Components::CameraComponent>();
 
-					auto& cameraProps = cameraComponent["SceneCamera"];
+					auto cameraProps = cameraComponent["SceneCamera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["Type"].as<int>());
 
 					cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
