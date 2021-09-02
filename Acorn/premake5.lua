@@ -1,12 +1,14 @@
 project "Acorn"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++latest"
+    filter "action:vs*"
+        cppdialect "C++latest"
+    filter {}
     staticruntime "off"
 
     vcpkg "on"
 
-    dependson { "Premake" }
+    dependson { "vendor/premake" }
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/build/" .. outputdir .. "/%{prj.name}")

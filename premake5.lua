@@ -1,8 +1,8 @@
 include "./vendor/premake/customization/solution_items.lua"
 include "./vendor/premake/customization/vcpkg.lua"
-require "./vendor/premake/export-compile-commands/export-compile-commands"
+require "./vendor/premake/cmake/cmake"
 
-VULKAN_SDK = os.getenv("VULKAN_SDK")
+VULKAN_SDK = os.getenv("VULKAN_SDK"):gsub("\\", "/")
 
 if VULKAN_SDK == '' or VULKAN_SDK == nil then
     premake.error("Vulkan SDK is required")
