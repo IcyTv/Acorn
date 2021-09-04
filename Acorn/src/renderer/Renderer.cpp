@@ -5,7 +5,7 @@
 #include "RenderCommand.h"
 #include "Renderer.h"
 
-#include "platform/opengl/OpenGlShader.h"
+#include "platform/opengl/OpenGLShader.h"
 
 namespace Acorn
 {

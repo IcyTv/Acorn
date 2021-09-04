@@ -3,12 +3,12 @@
 #include "core/Core.h"
 #include "renderer/Camera.h"
 
-#define GET_SET(name)                                     \
-	inline float Get##name##() const { return m_##name; } \
-	inline void Set##name##(float val)                    \
-	{                                                     \
-		m_##name = val;                                   \
-		RecalculateProjectionMatrix();                    \
+#define GET_SET(name)                                   \
+	inline float Get##name() const { return m_##name; } \
+	inline void Set##name(float val)                    \
+	{                                                   \
+		m_##name = val;                                 \
+		RecalculateProjectionMatrix();                  \
 	}
 
 namespace Acorn
