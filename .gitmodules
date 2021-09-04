@@ -10,6 +10,3 @@
 [submodule "Acorn/vendor/ImGuizmo"]
 	path = Acorn/vendor/ImGuizmo
 	url = https://github.com/TheCherno/ImGuizmo.git
-[submodule "vendor/premake/cmake"]
-	path = vendor/premake/cmake
-	url = https://github.com/Enhex/premake-cmake
