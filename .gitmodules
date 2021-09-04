@@ -13,18 +13,3 @@
 [submodule "vendor/premake/cmake"]
 	path = vendor/premake/cmake
 	url = https://github.com/Enhex/premake-cmake
-[submodule "vendor/entt"]
-	path = vendor/entt
-	url = https://github.com/skypjack/entt
-[submodule "vendor/SPIRV-Headers"]
-	path = vendor/SPIRV-Headers
-	url = https://github.com/KhronosGroup/SPIRV-Headers
-[submodule "vendor/SPIRV-Tools"]
-	path = vendor/SPIRV-Tools
-	url = https://github.com/KhronosGroup/SPIRV-Tools
-[submodule "vendor/glfw"]
-	path = vendor/glfw
-	url = https://github.com/glfw/glfw
-[submodule "vendor/yaml-cpp"]
-	path = vendor/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp
