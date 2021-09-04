@@ -9,7 +9,7 @@
 #ifdef AC_BUILD_DLL
 #define AC_API __declspec(dllexport)
 #else
-#define AC_API __declspec(dllexport)
+#define AC_API__declspec(dllexport)
 #endif
 #elif defined(AC_PLATFORM_LINUX)
 #ifdef AC_BUILD_DLL
@@ -25,7 +25,7 @@
 #define BIT(x) (1 << x)
 
 #ifdef AC_ENABLE_ASSERTS
-#include "debug/debug-trap.h"
+#include "debug-trap/debug-trap.h"
 #define AC_ASSERT(x, ...)          \
 	{                              \
 		if (!(x))                  \

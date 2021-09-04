@@ -4,12 +4,14 @@
 
 namespace Acorn
 {
-	class AC_API MouseMovedEvent : public Event
+	class MouseMovedEvent : public Event
 	{
 	public:
-		MouseMovedEvent(float x, float y) : m_MouseX(x), m_MouseY(y) {}
+		MouseMovedEvent(float x, float y)
+			: m_MouseX(x), m_MouseY(y) {}
 		//Don't know if this is actually needed, because of automatic conversion, but it's here for completeness sake
-		MouseMovedEvent(double x, double y) : m_MouseX((float)x), m_MouseY((float)y) {}
+		MouseMovedEvent(double x, double y)
+			: m_MouseX((float)x), m_MouseY((float)y) {}
 
 		inline float GetX() const { return m_MouseX; }
 		inline float GetY() const { return m_MouseY; }
@@ -27,10 +29,11 @@ namespace Acorn
 		float m_MouseX, m_MouseY;
 	};
 
-	class AC_API MouseScrolledEvent : public Event
+	class MouseScrolledEvent : public Event
 	{
 	public:
-		MouseScrolledEvent(float offsetX, float offsetY) : m_OffsetX(offsetX), m_OffsetY(offsetY) {}
+		MouseScrolledEvent(float offsetX, float offsetY)
+			: m_OffsetX(offsetX), m_OffsetY(offsetY) {}
 		//Don't know if this is actually needed, because of automatic conversion, but it's here for completeness sake
 		//MouseScrolledEvent(double offsetX, double offsetY) : m_OffsetX((float)offsetX), m_OffsetY((float)offsetY) {}
 
@@ -50,22 +53,24 @@ namespace Acorn
 		float m_OffsetX, m_OffsetY;
 	};
 
-	class AC_API MouseButtonEvent : public Event
+	class MouseButtonEvent : public Event
 	{
 	public:
 		inline int GetMouseButton() const { return m_Button; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
 	protected:
-		MouseButtonEvent(int button) : m_Button(button) {}
+		MouseButtonEvent(int button)
+			: m_Button(button) {}
 
 		int m_Button;
 	};
 
-	class AC_API MouseButtonPressedEvent : public MouseButtonEvent
+	class MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonPressedEvent(int button) : MouseButtonEvent(button) {}
+		MouseButtonPressedEvent(int button)
+			: MouseButtonEvent(button) {}
 
 		std::string ToString() const override
 		{
@@ -77,10 +82,11 @@ namespace Acorn
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class AC_API MouseButtonReleasedEvent : public MouseButtonEvent
+	class MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(int button) : MouseButtonEvent(button) {}
+		MouseButtonReleasedEvent(int button)
+			: MouseButtonEvent(button) {}
 
 		std::string ToString() const override
 		{

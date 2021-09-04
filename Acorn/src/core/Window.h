@@ -23,7 +23,7 @@ namespace Acorn
 		}
 	};
 
-	class AC_API Window
+	class Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;

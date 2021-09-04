@@ -1,0 +1,8 @@
+skypjack/entt
+glfw/glfw
+g-truc/glm
+gabime/spdlog
+jbeder/yaml-cpp
+ocornut/imgui@docking --cmake cmake/imgui.cmake
+nothings/stb --cmake header
+nemequ/portable-snippets --cmake header -DINCLUDE_DIR=.

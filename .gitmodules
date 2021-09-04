@@ -1,7 +1,7 @@
 [submodule "Acorn/vendor/ImNodes"]
-	path = Acorn/vendor/ImNodes
+	path = ./Acorn/vendor/ImNodes
 	url = https://github.com/IcyTv/ImNodes
-[submodule "Acorn/vendor/ImPlot"]
+[submodule "./Acorn/vendor/ImPlot"]
 	path = Acorn/vendor/ImPlot
 	url = https://github.com/IcyTv/implot
 [submodule "Acorn/vendor/nativefiledialog"]
@@ -28,7 +28,3 @@
 [submodule "vendor/yaml-cpp"]
 	path = vendor/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
-[submodule "Acorn/vendor/ImGui"]
-	path = Acorn/vendor/ImGui
-	url = https://github.com/IcyTv/imgui
-	branch = docking

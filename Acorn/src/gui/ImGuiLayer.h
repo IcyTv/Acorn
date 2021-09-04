@@ -13,7 +13,7 @@ constexpr uint32_t MAX_FRAME_TIMES = 512;
 
 namespace Acorn
 {
-	class AC_API ImGuiLayer : public Layer
+	class ImGuiLayer : public Layer
 	{
 	public:
 		ImGuiLayer();
