@@ -1,16 +1,9 @@
-[submodule ".\\Acorn\\vendor\\ImGui"]
-	path = .\\Acorn\\vendor\\ImGui
-	url = https://github.com/TheCherno/imgui
-	branch = docking
 [submodule ".\\Acorn\\vendor\\ImNodes"]
 	path = .\\Acorn\\vendor\\ImNodes
 	url = https://github.com/IcyTv/ImNodes
 [submodule ".\\Acorn\\vendor\\ImPlot"]
 	path = .\\Acorn\\vendor\\ImPlot
 	url = https://github.com/IcyTv/implot
-[submodule ".\\Acorn\\vendor\\yaml-cpp"]
-	path = .\\Acorn\\vendor\\yaml-cpp
-	url = https://github.com/TheCherno/yaml-cpp.git
 [submodule ".\\Acorn\\vendor\\nativefiledialog"]
 	path = .\\Acorn\\vendor\\nativefiledialog
 	url = https://github.com/mlabbe/nativefiledialog
@@ -20,3 +13,22 @@
 [submodule ".\\vendor\\premake\\cmake"]
 	path = .\\vendor\\premake\\cmake
 	url = https://github.com/Enhex/premake-cmake
+[submodule "vendor/entt"]
+	path = vendor/entt
+	url = https://github.com/skypjack/entt
+[submodule "vendor/ImGui"]
+	path = Acorn/vendor/ImGui
+	url = https://github.com/ocornut/imgui
+	branch = docking
+[submodule "vendor/SPIRV-Headers"]
+	path = vendor/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers
+[submodule "vendor/SPIRV-Tools"]
+	path = vendor/SPIRV-Tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools
+[submodule "vendor/glfw"]
+	path = vendor/glfw
+	url = https://github.com/glfw/glfw
+[submodule "vendor/yaml-cpp"]
+	path = vendor/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

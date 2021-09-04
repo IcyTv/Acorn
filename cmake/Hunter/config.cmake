@@ -1,0 +1,6 @@
+hunter_config(EnTT GIT_SUBMODULE "vendor/entt")
+hunter_config(SPIRV-Headers GIT_SUBMODULE "vendor/SPIRV-Headers")
+hunter_config(SPIRV-Tools GIT_SUBMODULE "vendor/SPIRV-Tools")
+hunter_config(glfw GIT_SUBMODULE "vendor/glfw")
+hunter_config(ImGui GIT_SUBMODULE "Acorn/vendor/ImGui")
+hunter_config(yaml-cpp GIT_SUBMODULE "vendor/yaml-cpp")

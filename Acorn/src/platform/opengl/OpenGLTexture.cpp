@@ -3,9 +3,9 @@
 #include "OpenGLTexture.h"
 
 #include <glad/glad.h>
-#include <stb_image.h>
-#include <stb_image_resize.h>
-#include <stb_image_write.h>
+#include <stb/stb_image.h>
+#include <stb/stb_image_resize.h>
+#include <stb/stb_image_write.h>
 
 namespace Acorn
 {

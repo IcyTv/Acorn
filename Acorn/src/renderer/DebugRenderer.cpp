@@ -12,10 +12,11 @@
 
 #include "utils/fonts/IconsFontAwesome4.h"
 
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+// #include <ft2build.h>
+// #include FT_FREETYPE_H
 
 #define length(array) ((sizeof(array)) / (sizeof(array[0])))
 
@@ -54,8 +55,8 @@ namespace Acorn
 
 			Scope<BatchRenderer<DebugVertex, 6, 4>> QuadRenderer;
 
-			FT_Library FreeTypeLibrary;
-			FT_Face IconFont;
+			// FT_Library FreeTypeLibrary;
+			// FT_Face IconFont;
 
 			struct CameraData
 			{
@@ -76,25 +77,25 @@ namespace Acorn
 				return;
 
 			AC_CORE_TRACE("Char Code Test {0:x}", charCode);
-			FT_ULong charIndex = FT_Get_Char_Index(s_Data.IconFont, charCode);
-			if (FT_Load_Glyph(s_Data.IconFont, charIndex, FT_LOAD_RENDER))
-				AC_CORE_ASSERT(false, "Failed to load glyph!");
+			// FT_ULong charIndex = FT_Get_Char_Index(s_Data.IconFont, charCode);
+			// if (FT_Load_Glyph(s_Data.IconFont, charIndex, FT_LOAD_RENDER))
+			// 	AC_CORE_ASSERT(false, "Failed to load glyph!");
 
-			FT_GlyphSlot glyph = s_Data.IconFont->glyph;
-			int width = glyph->bitmap.width;
-			int height = glyph->bitmap.rows;
+			// FT_GlyphSlot glyph = s_Data.IconFont->glyph;
+			// int width = glyph->bitmap.width;
+			// int height = glyph->bitmap.rows;
 
-			s_Data.IconTexture->SetSubData(glyph->bitmap.buffer, width * height, s_Data.CurrentWidth, s_Data.CurrentHeight, width, height);
+			// s_Data.IconTexture->SetSubData(glyph->bitmap.buffer, width * height, s_Data.CurrentWidth, s_Data.CurrentHeight, width, height);
 
-			Ref<ext2d::SubTexture> subTexture = ext2d::SubTexture::CreateFromCoords(s_Data.IconTexture, {s_Data.CurrentWidth, s_Data.CurrentHeight}, {width, height});
-			s_Data.TextureMap.insert(std::make_pair(charCode, subTexture));
+			// Ref<ext2d::SubTexture> subTexture = ext2d::SubTexture::CreateFromCoords(s_Data.IconTexture, {s_Data.CurrentWidth, s_Data.CurrentHeight}, {width, height});
+			// s_Data.TextureMap.insert(std::make_pair(charCode, subTexture));
 
-			s_Data.CurrentWidth += width;
-			if (s_Data.CurrentWidth > FONT_TEXTURE_SIZE)
-			{
-				s_Data.CurrentWidth = 0;
-				s_Data.CurrentHeight += height;
-			}
+			// s_Data.CurrentWidth += width;
+			// if (s_Data.CurrentWidth > FONT_TEXTURE_SIZE)
+			// {
+			// 	s_Data.CurrentWidth = 0;
+			// 	s_Data.CurrentHeight += height;
+			// }
 		}
 
 		void Renderer::Init()
@@ -113,34 +114,34 @@ namespace Acorn
 
 			s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
 
-			if (FT_Init_FreeType(&s_Data.FreeTypeLibrary))
-			{
-				AC_CORE_ASSERT(false, "Failed to initialize FreeType Library");
-			}
+			// if (FT_Init_FreeType(&s_Data.FreeTypeLibrary))
+			// {
+			// 	AC_CORE_ASSERT(false, "Failed to initialize FreeType Library");
+			// }
 
-			if (FT_New_Face(s_Data.FreeTypeLibrary, "res/fonts/fontawesome-webfont.ttf", 0, &s_Data.IconFont))
-			{
-				AC_CORE_ASSERT(false, "Failed to load font");
-			}
+			// if (FT_New_Face(s_Data.FreeTypeLibrary, "res/fonts/fontawesome-webfont.ttf", 0, &s_Data.IconFont))
+			// {
+			// 	AC_CORE_ASSERT(false, "Failed to load font");
+			// }
 
-			if (FT_Set_Pixel_Sizes(s_Data.IconFont, 0, FONT_SIZE))
-			{
-				AC_CORE_ASSERT(false, "Failed to set font size");
-			}
+			// if (FT_Set_Pixel_Sizes(s_Data.IconFont, 0, FONT_SIZE))
+			// {
+			// 	AC_CORE_ASSERT(false, "Failed to set font size");
+			// }
 
-			FT_Matrix matrix;
-			float angle = glm::radians(180.0f);
-			matrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
-			matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
-			matrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
-			matrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
-			FT_Set_Transform(s_Data.IconFont, &matrix, 0);
+			// FT_Matrix matrix;
+			// float angle = glm::radians(180.0f);
+			// matrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
+			// matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
+			// matrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
+			// matrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
+			// FT_Set_Transform(s_Data.IconFont, &matrix, 0);
 
-			LoadChar(ICON_FA_CAMERA_HEX);
-			LoadChar(ICON_FA_ANGLE_RIGHT_HEX);
+			// LoadChar(ICON_FA_CAMERA_HEX);
+			// LoadChar(ICON_FA_ANGLE_RIGHT_HEX);
 
-			FT_Done_Face(s_Data.IconFont);
-			FT_Done_FreeType(s_Data.FreeTypeLibrary);
+			// FT_Done_Face(s_Data.IconFont);
+			// FT_Done_FreeType(s_Data.FreeTypeLibrary);
 
 			AC_CORE_TRACE("Loaded fonts");
 

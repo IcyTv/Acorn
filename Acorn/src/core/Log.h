@@ -3,9 +3,11 @@
 #include "Core.h"
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/fmt/ostr.h"
+#define SPDLOG_FMT_EXTERNAL
+#include <spdlog/spdlog.h>
+
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <glm/gtx/io.hpp>
 
@@ -16,10 +18,10 @@ namespace Acorn
 	public:
 		static void Init();
 
-		static std::shared_ptr<spdlog::logger> &GetCoreLogger();
-		static std::shared_ptr<spdlog::logger> &GetClientLogger();
+		static std::shared_ptr<spdlog::logger>& GetCoreLogger();
+		static std::shared_ptr<spdlog::logger>& GetClientLogger();
 
-		static void AddSink(const spdlog::sink_ptr &sink);
+		static void AddSink(const spdlog::sink_ptr& sink);
 
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;

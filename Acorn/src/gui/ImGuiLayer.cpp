@@ -7,13 +7,12 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
 
-#include "implot.h"
-
 #include "renderer/RenderCommand.h"
 
 #include "utils/fonts/IconsFontAwesome4.h"
 
 #include <ImGuizmo.h>
+#include <implot.h>
 
 //Temporary
 #include <GLFW/glfw3.h>

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "core/CoreConfig.h"
+#include "CoreConfig.h"
 
 #ifdef AC_PLATFORM_WINDOWS
 #ifdef AC_DYNAMIC_LINK
@@ -25,7 +25,7 @@
 #define BIT(x) (1 << x)
 
 #ifdef AC_ENABLE_ASSERTS
-#include "debug-trap/debug-trap.h"
+#include "debug/debug-trap.h"
 #define AC_ASSERT(x, ...)          \
 	{                              \
 		if (!(x))                  \

@@ -10,6 +10,7 @@
 #include "utils/PlatformCapabilities.h"
 
 #include <chrono>
+#include <ctime>
 #include <iomanip>
 
 namespace Acorn
@@ -101,10 +102,11 @@ namespace Acorn
 					auto timestamp = std::chrono::system_clock::now();
 
 					std::time_t now_tt = std::chrono::system_clock::to_time_t(timestamp);
-					std::tm tm = *std::localtime(&now_tt);
+					std::tm buf;
+					gmtime_s(&buf, &now_tt);
 
 					std::stringstream nameStream;
-					nameStream << "AcornProfiling-Runtime-" << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+					nameStream << "AcornProfiling-Runtime-" << std::put_time(&buf, "%Y-%m-%d_%H-%M-%S");
 					std::string name = nameStream.str();
 					nameStream << ".json";
 					std::string filename = nameStream.str();
