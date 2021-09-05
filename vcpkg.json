@@ -6,23 +6,19 @@
 		"glfw3",
 		{
 			"name": "imgui",
-			"features": [
-				"opengl3-glad-binding"
-			]
+			"features": ["opengl3-binding", "glfw-binding", "docking-experimental"]
 		},
 		"portable-snippets",
 		{
 			"name": "glad",
-			"features": [
-				"gl-api-latest"
-			]
+			"features": ["gl-api-latest"]
 		},
 		"glm",
 		"stb",
 		"entt",
 		"freetype",
-		"shaderc",
-		"spirv-cross",
-		"spirv-tools"
+		"imguizmo",
+		"implot",
+		"yaml-cpp"
 	]
 }

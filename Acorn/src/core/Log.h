@@ -3,7 +3,6 @@
 #include "Core.h"
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-#define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 
 #include <spdlog/fmt/ostr.h>

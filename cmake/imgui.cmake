@@ -19,26 +19,31 @@ set(SOURCE_FILES
 )
 
 set(HEADER_FILES
+    imconfig.h
     imgui_internal.h
     imgui.h
     imstb_rectpack.h
     imstb_textedit.h
     imstb_truetype.h
-
-    backends/imgui_impl_glfw.cpp
-    backends/imgui_impl_opengl3.cpp
+    backends/imgui_impl_glfw.h
+    backends/imgui_impl_opengl3.h
 )
 
-#TODO add flags for backend sel
+message(STATUS "IM source dir ${IMGUI_SOURCE_DIR}")
 
-add_library(ImGui INTERFACE ${SOURCE_FILES} ${HEADER_FILES})
+add_library(ImGui ${SOURCE_FILES} ${HEADER_FILES})
 
-target_include_directories(ImGui INTERFACE 
-    $<BUILD_INTERFACE:${IMGUI_SOURCE_DIR}>)
+target_include_directories(ImGui PUBLIC ${IMGUI_SOURCE_DIR})
+set_target_properties(ImGui PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
 
-install(TARGETS ImGui
-    CONFIGURATIONS Debug
-    RUNTIME DESTINATION Debug/bin)
-install(TARGETS ImGui
-        CONFIGURATIONS Release
-        RUNTIME DESTINATION Release/bin)
+install(TARGETS ImGui LIBRARY DESTINATION lib)
+foreach(file ${HEADER_FILES})
+    get_filename_component(dir ${file} DIRECTORY)
+    install(FILES ${file} DESTINATION include/${dir})
+endforeach()
+
+# install(FILES ${HEADER_FILES} DESTINATION include COMPONENT header)
+
+# install(TARGETS ImGui
+#         CONFIGURATIONS Release
+#         RUNTIME DESTINATION bin)

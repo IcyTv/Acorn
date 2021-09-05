@@ -5,8 +5,8 @@ namespace Acorn
 	class Timestep
 	{
 	public:
-		// friend float operator*(const Timestep& timestep, float value);
-		// friend float operator*(float value, const Timestep& timestep);
+		friend float operator*(const Timestep& timestep, float value);
+		friend float operator*(float value, const Timestep& timestep);
 
 		Timestep(float time = 0.0f)
 			: m_Time(time)
