@@ -1,16 +1,24 @@
 cmake_minimum_required(VERSION 3.14)
 
-include(cmake/CPM.cmake)
-include(cmake/requirements.cmake)
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    message(STATUS "Setting toolchain file for vpckg")
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      CACHE STRING "")
+elseif(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND NOT OVERRIDE_VCPKG_REQUIREMENT)
+    message(FATAL_ERROR "Vcpkg is required to build Acorn. Please install it from https://vcpkg.io")
+else()
+    message(STATUS "Toolchain file is ${CMAKE_TOOLCHAIN_FILE}")
+endif()
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
+
+project(Acorn)
 
 cmake_policy(SET CMP0074 NEW)
 
 set(CMAKE_CXX_STANDARD 20)
-project(Acorn)
+
+option(OVERRIDE_VCPKG_REQUIREMENT OFF)
 
 add_subdirectory(Acorn)
 add_subdirectory(OakTree)
-
-# add_custom_target(link_commands ALL
-#     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/
-# )

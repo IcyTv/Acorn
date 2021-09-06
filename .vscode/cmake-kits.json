@@ -1,7 +1,7 @@
 [
 	{
-		"name": "CGet",
-		"toolchainFile": "C:/Users/mifi2/AppData/Local/cget/cget/cget.cmake",
+		"name": "VCPkg",
+		"toolchainFile": "C:\\src\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
 		"compilers": {
 			"C": "C:\\Program Files\\LLVM\\bin\\clang.exe",
 			"CXX": "C:\\Program Files\\LLVM\\bin\\clang++.exe"

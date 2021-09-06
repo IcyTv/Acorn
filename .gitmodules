@@ -7,6 +7,3 @@
 [submodule "Acorn/vendor/nativefiledialog"]
 	path = Acorn/vendor/nativefiledialog
 	url = https://github.com/mlabbe/nativefiledialog
-[submodule "Acorn/vendor/ImGuizmo"]
-	path = Acorn/vendor/ImGuizmo
-	url = https://github.com/TheCherno/ImGuizmo.git
