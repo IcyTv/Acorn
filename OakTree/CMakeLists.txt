@@ -10,7 +10,6 @@ file(GLOB_RECURSE HEADER_FILES
 
 message(STATUS "OakTree")
 
-
 add_executable(OakTree ${SOURCE_FILES} ${HEADER_FILES})
 
 target_link_libraries(OakTree PRIVATE Acorn)

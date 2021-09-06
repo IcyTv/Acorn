@@ -4,20 +4,11 @@
 
 #include "glm/glm.hpp"
 #include <optional>
-#include <shaderc/shaderc.hpp>
 #include <string>
 #include <unordered_map>
 
 namespace Acorn
 {
-	namespace Utils::Shader
-	{
-		const char* GLShaderStageToString(uint32_t stage);
-		uint32_t ShaderTypeFromString(const std::string& type);
-		shaderc_shader_kind GLShaderStageToShaderC(uint32_t stage);
-		const char* GLShaderStageToCachedOpenGLFileExtension(uint32_t stage);
-		const char* GLShaderStageToCachedVulkanFileExtension(uint32_t stage);
-	}
 
 	class OpenGLShader : public Shader
 	{

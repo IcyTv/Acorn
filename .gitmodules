@@ -1,9 +1,0 @@
-[submodule "Acorn/vendor/ImNodes"]
-	path = ./Acorn/vendor/ImNodes
-	url = https://github.com/IcyTv/ImNodes
-[submodule "./Acorn/vendor/ImPlot"]
-	path = Acorn/vendor/ImPlot
-	url = https://github.com/IcyTv/implot
-[submodule "Acorn/vendor/nativefiledialog"]
-	path = Acorn/vendor/nativefiledialog
-	url = https://github.com/mlabbe/nativefiledialog

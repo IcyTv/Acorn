@@ -33,7 +33,4 @@
 #include "input/KeyCodes.h"
 #include "input/MouseButtonCodes.h"
 
-#include "gui/ImGuiLayer.h"
-#include "gui/nodes/ImGuiNodes.h"
-
 #include "math/Math.h"

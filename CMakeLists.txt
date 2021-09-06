@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.17)
 
 if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     message(STATUS "Setting toolchain file for vpckg")
@@ -10,6 +10,7 @@ else()
     message(STATUS "Toolchain file is ${CMAKE_TOOLCHAIN_FILE}")
 endif()
 
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
 project(Acorn)
