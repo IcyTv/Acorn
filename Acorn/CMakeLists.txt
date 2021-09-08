@@ -39,13 +39,13 @@ endif()
 # set(VULKAN_DEBUG_LIBS "${Shadercd_LIBRARY};${SPIRV_Toolsd_LIBRARY};${SPIRV_Cross_Cored_LIBRARY};${SPIRV_Cross_GLSLd_LIBRARY};${SPIRV_Cross_Reflectd_LIBRARY}")
 # set(VULKAN_RELEASE_LIBS "${Shaderc_LIBRARY};${SPIRV_Tools_LIBRARY};${SPIRV_Cross_Core_LIBRARY};${SPIRV_Cross_GLSL_LIBRARY};${SPIRV_Cross_Reflect_LIBRARY}")
 
-if(WIN32)
-    set(VULKAN_DEBUG_LIBS "")
-else()
-    set(VULKAN_DEBUG_LIBS "")
-endif()
+# if(WIN32)
+#     set(VULKAN_DEBUG_LIBS "SPIRV-toolsd;SPIRV-tools-sharedd")
+# else()
+#     set(VULKAN_DEBUG_LIBS "SPIRV-tools;SPIRV-tools-shared")
+# endif()
 
-set(VULKAN_RELEASE_LIBS "")
+# set(VULKAN_RELEASE_LIBS "SPIRV-tools;SPIRV-tools-shared")
 
 #TODO -d to debug versions of vulkan libs??
 find_package(ImGui CONFIG REQUIRED)
@@ -86,7 +86,8 @@ add_library(Acorn SHARED
 ${SOURCE_FILES} ${HEADER_FILES}
 )
 
-target_precompile_headers(Acorn PRIVATE src/acpch.h)
+# target_precompile_headers(Acorn PRIVATE src/acpch.h)
+# set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0)
@@ -109,7 +110,14 @@ target_link_libraries(Acorn PRIVATE spirv-cross-core)
 target_link_libraries(Acorn PRIVATE spirv-cross-glsl)
 target_link_libraries(Acorn PRIVATE yaml-cpp)
 target_link_libraries(Acorn PRIVATE glslang SPIRV OGLCompiler)
-target_link_libraries(Acorn PRIVATE SPIRV-Tools)
+
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
+target_link_libraries(Acorn PRIVATE ${SPIRV-Tools_LIBRARIES})
 target_link_libraries(Acorn PRIVATE ${shaderc_LIB})
 target_link_libraries(Acorn PRIVATE ${shaderc_util_LIB})
 
