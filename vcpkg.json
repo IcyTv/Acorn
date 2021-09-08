@@ -19,10 +19,6 @@
 		"freetype",
 		"imguizmo",
 		"implot",
-		"yaml-cpp",
-		"spirv-tools",
-		"spirv-cross",
-		"shaderc",
-		"glslang"
+		"yaml-cpp"
 	]
 }

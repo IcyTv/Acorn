@@ -24,70 +24,61 @@ if(NOT Vulkan_FOUND)
     endif()
 endif()
 
-# find_library(Shadercd_LIBRARY NAMES shadercd HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Toolsd_LIBRARY NAMES SPIRV-Toolsd HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Cross_Cored_LIBRARY NAMES spirv-cross-cored HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Cross_GLSLd_LIBRARY NAMES spirv-cross-glsld HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Cross_Reflectd_LIBRARY NAMES spirv-cross-reflectd HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
+if(WIN32)
+    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_sharedd;spirv-cross-cored;spirv-cross-glsld")
+else()
+    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_shared;spirv-cross-core;spirv-cross-glsl")
+endif()
 
-# find_library(Shaderc_LIBRARY NAMES shaderc HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Tools_LIBRARY NAMES SPIRV-Tools HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Cross_Core_LIBRARY NAMES spirv-cross-core HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Cross_GLSL_LIBRARY NAMES spirv-cross-glsl HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-# find_library(SPIRV_Cross_Reflect_LIBRARY NAMES spirv-cross-reflect HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
+foreach(LIB_NAME ${VULKAN_DEBUG_LIBS_NAMES})
+    message(STATUS "Looking for ${LIB_NAME}")
+    find_library(FOUND_LIB_${LIB_NAME} NAMES "${LIB_NAME}" HINTS "${VULKAN_PATH}/Lib" "${VULKAN_PATH}/Bin" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
+    message(STATUS "Found ${FOUND_LIB_${LIB_NAME}}")
+    if(NOT FOUND_LIB_${LIB_NAME})
+        message(FATAL_ERROR "Failed to locate ${LIB_NAME}")
+    else()
+        list(APPEND VULKAN_DEBUG_LIBS ${FOUND_LIB_${LIB_NAME}})
+    endif()
+endforeach()
 
-# set(VULKAN_DEBUG_LIBS "${Shadercd_LIBRARY};${SPIRV_Toolsd_LIBRARY};${SPIRV_Cross_Cored_LIBRARY};${SPIRV_Cross_GLSLd_LIBRARY};${SPIRV_Cross_Reflectd_LIBRARY}")
-# set(VULKAN_RELEASE_LIBS "${Shaderc_LIBRARY};${SPIRV_Tools_LIBRARY};${SPIRV_Cross_Core_LIBRARY};${SPIRV_Cross_GLSL_LIBRARY};${SPIRV_Cross_Reflect_LIBRARY}")
+set(VULKAN_RELEASE_LIBS "shaderc_shared;spirv-cross-core;spirv-cross-glsl")
 
-# if(WIN32)
-#     set(VULKAN_DEBUG_LIBS "SPIRV-toolsd;SPIRV-tools-sharedd")
-# else()
-#     set(VULKAN_DEBUG_LIBS "SPIRV-tools;SPIRV-tools-shared")
-# endif()
-
-# set(VULKAN_RELEASE_LIBS "SPIRV-tools;SPIRV-tools-shared")
-
-#TODO -d to debug versions of vulkan libs??
 find_package(ImGui CONFIG REQUIRED)
 find_package(implot CONFIG REQUIRED)
 find_package(imguizmo CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-find_package(spirv_cross_core CONFIG REQUIRED)
-find_package(spirv_cross_glsl CONFIG REQUIRED)
-find_package(glslang CONFIG REQUIRED)
-find_package(SPIRV-Tools CONFIG REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb.h")
 
 message(STATUS "Imgui ${imgui_SOURCE_DIR}")
-
-find_library(shaderc_LIB NAMES "shaderc" REQUIRED)
-find_library(shaderc_util_LIB NAMES "shaderc_util" REQUIRED)
-# find_library(glslang_LIB NAMES "glslang" REQUIRED)
 
 message(STATUS "glslang ${glslang_LIB}")
 
 file(GLOB_RECURSE SOURCE_FILES
     CONFIGURE_DEPENDS    
-    "src/**/*.cpp"
+    "src/*.cpp"
     "vendor/stb_image/stb_image.cpp"
 )
 file(GLOB_RECURSE HEADER_FILES
     CONFIGURE_DEPENDS
-    "src/**/*.h"
+    "src/*.h"
 )
+
+message(STATUS "Acorn src files ${SOURCE_FILES}")
+
 
 add_library(Acorn SHARED
 ${SOURCE_FILES} ${HEADER_FILES}
 )
 
-# target_precompile_headers(Acorn PRIVATE src/acpch.h)
-# set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
+target_precompile_headers(Acorn PRIVATE src/acpch.h)
+set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0)
@@ -100,32 +91,25 @@ target_link_directories(Acorn PRIVATE "${VULKAN_PATH}/Lib;")
 
 target_link_libraries(Acorn PUBLIC EnTT::EnTT)
 target_link_libraries(Acorn PRIVATE glad::glad)
-target_link_libraries(Acorn PUBLIC glfw)
+target_link_libraries(Acorn PUBLIC glfw ${OPENGL_gl_LIBRARY})
 target_link_libraries(Acorn PUBLIC glm::glm)
 target_link_libraries(Acorn PUBLIC spdlog::spdlog)
 target_link_libraries(Acorn PUBLIC imgui::imgui)
 target_link_libraries(Acorn PRIVATE implot::implot)
 target_link_libraries(Acorn PRIVATE imguizmo::imguizmo)
-target_link_libraries(Acorn PRIVATE spirv-cross-core)
-target_link_libraries(Acorn PRIVATE spirv-cross-glsl)
 target_link_libraries(Acorn PRIVATE yaml-cpp)
-target_link_libraries(Acorn PRIVATE glslang SPIRV OGLCompiler)
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Linking vulkan debug libs ${VULKAN_DEBUG_LIBS}")
+    target_link_libraries(Acorn PRIVATE ${VULKAN_DEBUG_LIBS})
+else()
+    target_link_libraries(Acorn PRIVATE ${VULKAN_RELEASE_LIBS})
+endif()
 
-target_link_libraries(Acorn PRIVATE ${SPIRV-Tools_LIBRARIES})
-target_link_libraries(Acorn PRIVATE ${shaderc_LIB})
-target_link_libraries(Acorn PRIVATE ${shaderc_util_LIB})
-
-target_link_libraries(Acorn PRIVATE $<$<CONFIG:Debug>:$VULKAN_DEBUG_LIBS> $<$<CONFIG:Release>:$VULKAN_RELEASE_LIBS>)
-
-# target_include_directories(Acorn PRIVATE "${VULKAN_PATH}/Include")
+target_include_directories(Acorn PRIVATE "${VULKAN_PATH}/Include")
 target_include_directories(Acorn PRIVATE ${STB_INCLUDE_DIRS})
 target_include_directories(Acorn PUBLIC src)
+target_include_directories(Acorn PUBLIC ${PROJECT_BINARY_DIR})
 
 set_target_properties(Acorn PROPERTIES
     CXX_STANDARD 20
@@ -141,6 +125,7 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+export(TARGETS Acorn FILE Acorn.cmake)
 
 # bundle_static_library(Acorn libAcorn)
 
@@ -156,3 +141,20 @@ install(
 #     endif()
 
 # endforeach()
+
+include(GenerateExportHeader)
+generate_export_header(Acorn)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_custom_command(TARGET Acorn
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+            ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/yaml-cppd.dll
+            ${PROJECT_BINARY_DIR}/yaml-cpp.dll
+    )
+else()
+    add_custom_command(TARGET Acorn
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+            ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/yaml-cpp.dll
+            ${PROJECT_BINARY_DIR}/yaml-cpp.dll
+    )
+endif()

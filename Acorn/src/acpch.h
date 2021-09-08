@@ -1,21 +1,21 @@
 #pragma once
 
-#include "core/CoreConfig.h"
 #include "core/Core.h"
+#include "core/CoreConfig.h"
 
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <utility>
-#include <algorithm>
-#include <functional>
 
-#include <string>
+#include <deque>
+#include <queue>
 #include <sstream>
-#include <vector>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <queue>
-#include <deque>
+#include <vector>
 
 #include <mutex>
 
@@ -24,6 +24,6 @@
 #include "debug/Instrumentor.h"
 
 #ifdef AC_PLATFORM_WINDOWS
-	#define NOMINMAX
-	#include <Windows.h>
+#define NOMINMAX
+#include <Windows.h>
 #endif

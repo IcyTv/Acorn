@@ -1,5 +1,7 @@
 #pragma once
 
+#include "acorn_export.h"
+
 #include "RendererApi.h"
 
 #include <glm/vec4.hpp>
@@ -37,7 +39,8 @@ namespace Acorn
 		inline static const char* GetVendor() { return s_RendererApi->GetVendor(); }
 		inline static const char* GetRenderer() { return s_RendererApi->GetRenderer(); }
 		inline static const char* GetVersion() { return s_RendererApi->GetVersion(); }
+
 	private:
-		static Scope<RendererApi> s_RendererApi;
+		static ACORN_EXPORT Scope<RendererApi> s_RendererApi;
 	};
 }

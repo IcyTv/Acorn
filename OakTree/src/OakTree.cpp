@@ -2,6 +2,9 @@
 #include <core/EntryPoint.h>
 
 #include "OakLayer.h"
+#include "core/Log.h"
+
+#include <iostream>
 
 namespace Acorn
 {
@@ -21,6 +24,10 @@ namespace Acorn
 		}
 	};
 
-	AC_ENTRY(OakTree)
-
+	// AC_ENTRY(OakTree);
+	Application* CreateApplication(ApplicationCommandLineArgs args)
+	{
+		std::cout << "Creating OakTree" << std::endl;
+		return new OakTree(args);
+	}
 }
