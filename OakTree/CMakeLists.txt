@@ -36,14 +36,15 @@ install(
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
+#FIXME temporary hack
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_custom_command(TARGET OakTree
+    add_custom_command(TARGET OakTree POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different 
             ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/yaml-cppd.dll
             ${PROJECT_BINARY_DIR}/yaml-cpp.dll
     )
 else()
-    add_custom_command(TARGET OakTree
+    add_custom_command(TARGET OakTree POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different 
             ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/yaml-cpp.dll
             ${PROJECT_BINARY_DIR}/yaml-cpp.dll
