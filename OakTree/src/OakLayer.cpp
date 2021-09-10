@@ -1,18 +1,15 @@
 #include "OakLayer.h"
 
+#include <Acorn/utils/fonts/IconsFontAwesome4.h>
+
+#include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 
-#include "serialize/Serializer.h"
-#include "utils/PlatformUtils.h"
-
-#include "utils/fonts/IconsFontAwesome4.h"
-
-#include <ImGuizmo.h>
-
 namespace Acorn
 {
+
 	OakLayer::OakLayer()
 		: Layer("Sandbox2D")
 	{
@@ -489,8 +486,11 @@ namespace Acorn
 						float zoom = std::max(scale.x, std::max(scale.y, scale.z)) + 1.0f;
 						m_EditorCamera.SetFocalPointDistance(entity.GetComponent<Components::Transform>().Translation, zoom);
 					}
+					return true;
 				}
 				break;
+				default:
+					return false;
 			}
 		}
 		return false;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/Core.h"
-#include "utils/PlatformCapabilities.h"
+#include "Acorn/core/Core.h"
+#include "Acorn/utils/PlatformCapabilities.h"
 
 namespace Acorn
 {

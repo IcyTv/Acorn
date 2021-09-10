@@ -3,9 +3,9 @@
 #include "core/Application.h"
 #include "input/KeyCodes.h"
 
+#include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "imgui.h"
 
 #include "renderer/RenderCommand.h"
 
@@ -161,7 +161,7 @@ namespace Acorn
 		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.1505f, 0.151f, 1.0f);
 	}
 
-	void ImGuiLayer::OnImGuiRender(Timestep timestep)
+	void ImGuiLayer::OnImGuiRender(Timestep)
 	{
 	}
 

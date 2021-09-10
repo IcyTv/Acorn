@@ -1,8 +1,8 @@
 #pragma once
 
-#include "core/Window.h"
+#include "Acorn/core/Window.h"
 
-#include "renderer/GraphicsContext.h"
+#include "Acorn/renderer/GraphicsContext.h"
 #include <GLFW/glfw3.h>
 
 namespace Acorn

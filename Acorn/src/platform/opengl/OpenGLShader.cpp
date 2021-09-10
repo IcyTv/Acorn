@@ -2,8 +2,8 @@
 
 #include "OpenGLShader.h"
 
-#include "debug/Timer.h"
-#include "utils/FileUtils.h"
+#include "Acorn/debug/Timer.h"
+#include "Acorn/utils/FileUtils.h"
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -16,13 +16,13 @@
 #include <fstream>
 
 #ifdef AC_DEBUG
-#define CHECK_PROGRAM_BOUND                 \
-	int id;                                 \
-	glGetIntegerv(GL_CURRENT_PROGRAM, &id); \
-	AC_CORE_ASSERT(id, "No program bound"); \
-	AC_CORE_ASSERT(id == m_RendererId, "Wrong Shader Program bound {}", id);
+	#define CHECK_PROGRAM_BOUND                 \
+		int id;                                 \
+		glGetIntegerv(GL_CURRENT_PROGRAM, &id); \
+		AC_CORE_ASSERT(id, "No program bound"); \
+		AC_CORE_ASSERT(id == m_RendererId, "Wrong Shader Program bound {}", id);
 #else
-#define CHECK_PROGRAM_BOUND
+	#define CHECK_PROGRAM_BOUND
 #endif
 
 namespace Acorn

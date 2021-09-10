@@ -4,14 +4,15 @@
 #include <chrono>
 #include <fstream>
 #include <iomanip>
-#include <string>
-#include <thread>
 #include <mutex>
 #include <sstream>
+#include <string>
+#include <thread>
 
-#include "core/Log.h"
+#include "Acorn/core/Log.h"
 
-namespace Acorn {
+namespace Acorn
+{
 
 	using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;
 
@@ -100,6 +101,7 @@ namespace Acorn {
 			static Instrumentor instance;
 			return instance;
 		}
+
 	private:
 		Instrumentor()
 			: m_CurrentSession(nullptr)
@@ -109,7 +111,7 @@ namespace Acorn {
 		~Instrumentor()
 		{
 			EndSession();
-		}		
+		}
 
 		void WriteHeader()
 		{
@@ -135,6 +137,7 @@ namespace Acorn {
 				m_CurrentSession = nullptr;
 			}
 		}
+
 	private:
 		std::mutex m_Mutex;
 		InstrumentationSession* m_CurrentSession;
@@ -159,20 +162,22 @@ namespace Acorn {
 		void Stop()
 		{
 			auto endTimepoint = std::chrono::steady_clock::now();
-			auto highResStart = FloatingPointMicroseconds{ m_StartTimepoint.time_since_epoch() };
+			auto highResStart = FloatingPointMicroseconds{m_StartTimepoint.time_since_epoch()};
 			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
 
-			Instrumentor::Get().WriteProfile({ m_Name, highResStart, elapsedTime, std::this_thread::get_id() });
+			Instrumentor::Get().WriteProfile({m_Name, highResStart, elapsedTime, std::this_thread::get_id()});
 
 			m_Stopped = true;
 		}
+
 	private:
 		const char* m_Name;
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
 		bool m_Stopped;
 	};
 
-	namespace InstrumentorUtils {
+	namespace InstrumentorUtils
+	{
 
 		template <size_t N>
 		struct ChangeResult
@@ -181,7 +186,7 @@ namespace Acorn {
 		};
 
 		template <size_t N, size_t K>
-		constexpr auto CleanupOutputString(const char(&expr)[N], const char(&remove)[K])
+		constexpr auto CleanupOutputString(const char (&expr)[N], const char (&remove)[K])
 		{
 			ChangeResult<N> result = {};
 
@@ -227,8 +232,9 @@ namespace Acorn {
 
 	#define AC_PROFILE_BEGIN_SESSION(name, filepath) ::Hazel::Instrumentor::Get().BeginSession(name, filepath)
 	#define AC_PROFILE_END_SESSION() ::Hazel::Instrumentor::Get().EndSession()
-	#define AC_PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = ::Hazel::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
-											   ::Hazel::InstrumentationTimer timer##line(fixedName##line.Data)
+	#define AC_PROFILE_SCOPE_LINE2(name, line)                                                              \
+		constexpr auto fixedName##line = ::Hazel::InstrumentorUtils::CleanupOutputString(name, "__cdecl "); \
+		::Hazel::InstrumentationTimer timer##line(fixedName##line.Data)
 	#define AC_PROFILE_SCOPE_LINE(name, line) AC_PROFILE_SCOPE_LINE2(name, line)
 	#define AC_PROFILE_SCOPE(name) AC_PROFILE_SCOPE_LINE(name, __LINE__)
 	#define AC_PROFILE_FUNCTION() AC_PROFILE_SCOPE(AC_FUNC_SIG)

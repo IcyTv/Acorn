@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer/Shader.h"
+#include "Acorn/renderer/Shader.h"
 
 #include "glm/glm.hpp"
 #include <optional>

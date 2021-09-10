@@ -10,13 +10,14 @@
 
 #include "BatchRenderer.h"
 
+#include "core/Core.h"
 #include "utils/fonts/IconsFontAwesome4.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// #include <ft2build.h>
-// #include FT_FREETYPE_H
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #define length(array) ((sizeof(array)) / (sizeof(array[0])))
 
@@ -76,10 +77,16 @@ namespace Acorn
 			if (s_Data.TextureMap.find(charCode) != s_Data.TextureMap.end())
 				return;
 
-			AC_CORE_TRACE("Char Code Test {0:x}", charCode);
+			// AC_CORE_TRACE("Char Code Test {0:x}", charCode);
+			// AC_CORE_ASSERT(s_Data.FreeTypeLibrary, "Freetype Library not loaded");
+			// AC_CORE_ASSERT(s_Data.IconFont, "Font not loaded");
+
 			// FT_ULong charIndex = FT_Get_Char_Index(s_Data.IconFont, charCode);
-			// if (FT_Load_Glyph(s_Data.IconFont, charIndex, FT_LOAD_RENDER))
+			// //FIXME access violation nullptr
+			// if (FT_Load_Glyph(s_Data.IconFont, charIndex, FT_LOAD_DEFAULT))
 			// 	AC_CORE_ASSERT(false, "Failed to load glyph!");
+			// if (FT_Render_Glyph(s_Data.IconFont->glyph, FT_RENDER_MODE_NORMAL))
+			// 	AC_CORE_ASSERT(false, "Failed to render glyph!");
 
 			// FT_GlyphSlot glyph = s_Data.IconFont->glyph;
 			// int width = glyph->bitmap.width;
@@ -107,19 +114,24 @@ namespace Acorn
 			s_Data.QuadVertexPositions[2] = {0.5f, 0.5f, 0.0f, 1.0f};
 			s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
 
-			s_Data.IconTexture = Texture2d::Create(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 1);
-			char* data = new char[1024 * 1024]{0};
-			s_Data.IconTexture->SetData(data, FONT_TEXTURE_SIZE * FONT_TEXTURE_SIZE);
-			delete[] data;
+			// s_Data.IconTexture = Texture2d::Create(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 1);
+			// char* data = new char[1024 * 1024]{0};
+			// s_Data.IconTexture->SetData(data, FONT_TEXTURE_SIZE * FONT_TEXTURE_SIZE);
+			// delete[] data;
 
-			s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
+			// s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
 
 			// if (FT_Init_FreeType(&s_Data.FreeTypeLibrary))
 			// {
 			// 	AC_CORE_ASSERT(false, "Failed to initialize FreeType Library");
 			// }
 
-			// if (FT_New_Face(s_Data.FreeTypeLibrary, "res/fonts/fontawesome-webfont.ttf", 0, &s_Data.IconFont))
+			// error = FT_New_Face(s_Data.FreeTypeLibrary, "res/fonts/fontawesome-webfont.ttf", 0, &s_Data.IconFont);
+			// if (error == FT_Err_Unknown_File_Format)
+			// {
+			// 	AC_CORE_ASSERT(false, "Failed to load font, unknown file format");
+			// }
+			// else if (error)
 			// {
 			// 	AC_CORE_ASSERT(false, "Failed to load font");
 			// }
@@ -143,7 +155,11 @@ namespace Acorn
 			// FT_Done_Face(s_Data.IconFont);
 			// FT_Done_FreeType(s_Data.FreeTypeLibrary);
 
-			AC_CORE_TRACE("Loaded fonts");
+			// AC_CORE_TRACE("Loaded fonts");
+			s_Data.IconTexture = Texture2d::Create("res/textures/icon-texture.png");
+			s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
+
+			s_Data.TextureMap[ICON_FA_CAMERA_HEX] = ext2d::SubTexture::CreateFromCoords(s_Data.IconTexture, {0, 0}, {48, 48});
 
 			std::array<uint32_t, 6> indices = {0, 1, 2, 2, 3, 0};
 
@@ -203,6 +219,8 @@ namespace Acorn
 					AC_CORE_ASSERT(false, "Unknown GizmoType");
 					return;
 			}
+			AC_CORE_ASSERT(s_Data.TextureMap.find(name) != s_Data.TextureMap.end(), "Texture not found");
+
 			Ref<ext2d::SubTexture> subTexture = s_Data.TextureMap[name];
 			const glm::vec2* texCoords = subTexture->GetTexCoords();
 

@@ -2,7 +2,6 @@
 #include <core/EntryPoint.h>
 
 #include "OakLayer.h"
-#include "core/Log.h"
 
 #include <iostream>
 

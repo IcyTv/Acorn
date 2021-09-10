@@ -15,6 +15,8 @@
 
 namespace Acorn
 {
+	Application* Application::s_Instance = nullptr;
+
 	Application::Application(const std::string& name, ApplicationCommandLineArgs args, bool maximized)
 		: m_CommandLineArgs(args)
 	{

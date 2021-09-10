@@ -11,7 +11,7 @@ else()
 endif()
 
 # Variables
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 set(VCPKG_LIBRARY_LINKAGE dynamic CACHE STRING "Vcpkg dynamic linking")
 # set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

@@ -1,6 +1,5 @@
-project(Acorn)
+project(Acorn VERSION 0.0.1 LANGUAGES CXX)
 
-message(STATUS "Acorn")
 
 include("../cmake/bundle.cmake")
 
@@ -31,9 +30,7 @@ else()
 endif()
 
 foreach(LIB_NAME ${VULKAN_DEBUG_LIBS_NAMES})
-    message(STATUS "Looking for ${LIB_NAME}")
     find_library(FOUND_LIB_${LIB_NAME} NAMES "${LIB_NAME}" HINTS "${VULKAN_PATH}/Lib" "${VULKAN_PATH}/Bin" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-    message(STATUS "Found ${FOUND_LIB_${LIB_NAME}}")
     if(NOT FOUND_LIB_${LIB_NAME})
         message(FATAL_ERROR "Failed to locate ${LIB_NAME}")
     else()
@@ -56,10 +53,6 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb.h")
 
-message(STATUS "Imgui ${imgui_SOURCE_DIR}")
-
-message(STATUS "glslang ${glslang_LIB}")
-
 file(GLOB_RECURSE SOURCE_FILES
     CONFIGURE_DEPENDS    
     "src/*.cpp"
@@ -70,46 +63,45 @@ file(GLOB_RECURSE HEADER_FILES
     "src/*.h"
 )
 
-message(STATUS "Acorn src files ${SOURCE_FILES}")
-
-
-add_library(Acorn SHARED
-${SOURCE_FILES} ${HEADER_FILES}
+#Add Library
+# add_library(Acorn SHARED
+#     ${SOURCE_FILES} ${HEADER_FILES}
+# )
+add_library(Acorn STATIC
+    ${SOURCE_FILES} ${HEADER_FILES}
 )
+add_library(Acorn::Acorn ALIAS Acorn)
 
-target_precompile_headers(Acorn PRIVATE src/acpch.h)
+# Build Settings
+# target_precompile_headers(Acorn PRIVATE src/acpch.h)
 set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0)
-endif()
-
-target_compile_definitions(Acorn PRIVATE -DGLFW_INCLUDE_NONE)
-
-#${VULKAN_PATH}/Bin;
-target_link_directories(Acorn PRIVATE "${VULKAN_PATH}/Lib;")
-
-target_link_libraries(Acorn PUBLIC EnTT::EnTT)
-target_link_libraries(Acorn PRIVATE glad::glad)
-target_link_libraries(Acorn PUBLIC glfw ${OPENGL_gl_LIBRARY})
-target_link_libraries(Acorn PUBLIC glm::glm)
-target_link_libraries(Acorn PUBLIC spdlog::spdlog)
-target_link_libraries(Acorn PUBLIC imgui::imgui)
-target_link_libraries(Acorn PRIVATE implot::implot)
-target_link_libraries(Acorn PRIVATE imguizmo::imguizmo)
-target_link_libraries(Acorn PRIVATE yaml-cpp)
+# Include Directories
+target_include_directories(Acorn
+    PRIVATE 
+        "${VULKAN_PATH}/Include"
+        "${STB_INCLUDE_DIRS}"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+    PUBLIC
+        $<INSTALL_INTERFACE:src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:src/Acorn>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/Acorn>
+)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "Linking vulkan debug libs ${VULKAN_DEBUG_LIBS}")
-    target_link_libraries(Acorn PRIVATE ${VULKAN_DEBUG_LIBS})
-else()
-    target_link_libraries(Acorn PRIVATE ${VULKAN_RELEASE_LIBS})
+    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0)
 endif()
 
-target_include_directories(Acorn PRIVATE "${VULKAN_PATH}/Include")
-target_include_directories(Acorn PRIVATE ${STB_INCLUDE_DIRS})
-target_include_directories(Acorn PUBLIC src)
-target_include_directories(Acorn PUBLIC ${PROJECT_BINARY_DIR})
+if(WIN32)
+    target_compile_definitions(Acorn PRIVATE -DAC_PLATFORM_WINDOWS)
+endif()
+
+#Export header ()
+# include(GenerateExportHeader)
+# generate_export_header(Acorn)
+
+target_compile_definitions(Acorn PRIVATE -DGLFW_INCLUDE_NONE -DAcorn_EXPORTS)
 
 set_target_properties(Acorn PROPERTIES
     CXX_STANDARD 20
@@ -117,44 +109,109 @@ set_target_properties(Acorn PROPERTIES
     ENABLE_EXPORTS ON
 )
 
-install(
-    TARGETS Acorn
-    EXPORT Acorn
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-export(TARGETS Acorn FILE Acorn.cmake)
-
-# bundle_static_library(Acorn libAcorn)
-
-# foreach(VULKAN_LIB ${VULKAN_DEBUG_LIBS})
-#     message(STATUS "Copying Vulkan ${VULKAN_LIB}")
-
-#     if(EXISTS "${VULKAN_PATH}/Bin/${VULKAN_LIB}.dll")
-#         add_custom_command(TARGET Acorn PRE_LINK
-#             COMMAND ${CMAKE_COMMAND} -E copy "${VULKAN_PATH}/Bin/${VULKAN_LIB}.dll" "${CMAKE_CURRENT_BINARY_DIR}/${VULKAN_LIB}.dll"
-#         )
-#     else()
-#         message(STATUS "    Vulkan ${VULKAN_LIB} not found")
-#     endif()
-
-# endforeach()
-
-include(GenerateExportHeader)
-generate_export_header(Acorn)
+target_compile_options(Acorn PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+    -Wall -Wextra -Wpedantic>)
+    # -Werror>)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_custom_command(TARGET Acorn
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-            ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/yaml-cppd.dll
-            ${PROJECT_BINARY_DIR}/yaml-cpp.dll
-    )
-else()
-    add_custom_command(TARGET Acorn
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-            ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/yaml-cpp.dll
-            ${PROJECT_BINARY_DIR}/yaml-cpp.dll
+    target_compile_options(Acorn PRIVATE
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+        -O0 -ggdb -fno-omit-frame-pointer -g>
     )
 endif()
+
+#Linking
+
+target_link_directories(Acorn PRIVATE "${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;")
+
+target_link_libraries(Acorn PUBLIC EnTT::EnTT)
+target_link_libraries(Acorn PRIVATE glad::glad)
+target_link_libraries(Acorn PUBLIC glfw ${OPENGL_gl_LIBRARY})
+target_link_libraries(Acorn PUBLIC glm::glm)
+target_link_libraries(Acorn PUBLIC spdlog::spdlog)
+target_link_libraries(Acorn PUBLIC freetype)
+target_link_libraries(Acorn PUBLIC imgui::imgui)
+target_link_libraries(Acorn PRIVATE implot::implot)
+target_link_libraries(Acorn PRIVATE imguizmo::imguizmo)
+target_link_libraries(Acorn PRIVATE yaml-cpp)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_link_libraries(Acorn PRIVATE ${VULKAN_DEBUG_LIBS})
+else()
+    target_link_libraries(Acorn PRIVATE ${VULKAN_RELEASE_LIBS})
+endif()
+
+get_target_property(Includes Acorn INCLUDE_DIRECTORIES)
+message(STATUS "Include dirs: ${Includes}")
+
+###############################################
+# Installation
+###############################################
+
+install(CODE [[
+    message(STATUS "PATH env $ENV{PATH}")
+]])
+
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Acorn)
+
+message(STATUS "install inc dir ${CMAKE_INSTALL_INCLUDEDIR}")
+
+install(TARGETS Acorn
+    EXPORT AcornTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/acorn_export.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+set_target_properties(Acorn PROPERTIES EXPORT_NAME Acorn)
+
+# Export the targets to a script
+install(EXPORT AcornTargets
+    FILE
+        AcornTargets.cmake
+    NAMESPACE
+        Acorn::
+    DESTINATION
+        ${INSTALL_CONFIGDIR}
+)
+
+#Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/AcornConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+#Install the config, configversion and custom find modules
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfig.cmake
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+###############################################
+# Exporting from the build tree
+###############################################
+
+export(
+    EXPORT AcornTargets
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/AcornTargets.cmake
+    NAMESPACE Acorn::
+)
+
+# Register package in the user package Registry
+export(PACKAGE Acorn)

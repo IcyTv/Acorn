@@ -1,8 +1,8 @@
 #pragma once
 
-#include "core/Core.h"
-#include "events/Event.h"
-#include "core/Timestep.h"
+#include "Acorn/core/Core.h"
+#include "Acorn/core/Timestep.h"
+#include "Acorn/events/Event.h"
 
 namespace Acorn
 {
@@ -19,8 +19,8 @@ namespace Acorn
 		virtual void OnEvent(Event& e) {}
 
 		inline const std::string& GetName() const { return m_DebugName; }
+
 	protected:
 		std::string m_DebugName;
 	};
 }
-

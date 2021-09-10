@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/Core.h"
-#include "core/CoreConfig.h"
+#include "Acorn/core/Core.h"
+#include "Acorn/core/CoreConfig.h"
 
 #include <algorithm>
 #include <functional>
@@ -19,11 +19,11 @@
 
 #include <mutex>
 
-#include "core/Log.h"
+#include "Acorn/core/Log.h"
 
-#include "debug/Instrumentor.h"
+#include "Acorn/debug/Instrumentor.h"
 
 #ifdef AC_PLATFORM_WINDOWS
-#define NOMINMAX
-#include <Windows.h>
+	#define NOMINMAX
+	#include <Windows.h>
 #endif

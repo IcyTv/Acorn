@@ -3,6 +3,7 @@
 #include "renderer/Buffer.h"
 
 #include <memory>
+#include <vector>
 
 namespace Acorn
 {

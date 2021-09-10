@@ -1,8 +1,8 @@
 #pragma once
 
-#include "acorn_export.h"
-
 #include "RendererApi.h"
+
+#include "acorn_export.h"
 
 #include <glm/vec4.hpp>
 

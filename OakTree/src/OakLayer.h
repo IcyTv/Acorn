@@ -1,9 +1,12 @@
 #pragma once
 
+#include <Acorn.h>
+
 #include "panels/ContentBrowser.h"
 #include "panels/LogPanel.h"
 #include "panels/SceneHierarchy.h"
-#include <Acorn.h>
+
+#include <ImGuizmo.h>
 
 namespace Acorn
 {
@@ -25,9 +28,9 @@ namespace Acorn
 		enum class GizmoType : int
 		{
 			None = -1,
-			Translate = 0,
-			Rotate = 1,
-			Scale = 2,
+			Translate = ImGuizmo::OPERATION::TRANSLATE,
+			Rotate = ImGuizmo::OPERATION::ROTATE,
+			Scale = ImGuizmo::OPERATION::SCALE,
 		};
 
 	private:

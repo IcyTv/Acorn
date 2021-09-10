@@ -1,4 +1,4 @@
-project(OakTree)
+project(OakTree VERSION 0.0.1 LANGUAGES CXX)
 
 file(GLOB_RECURSE SOURCE_FILES
 "src/*.cpp"
@@ -13,40 +13,57 @@ message(STATUS "OakTree src files ${SOURCE_FILES}")
 
 add_executable(OakTree ${SOURCE_FILES} ${HEADER_FILES})
 
-target_link_libraries(OakTree PRIVATE Acorn)
+target_link_libraries(OakTree Acorn)
+add_dependencies(OakTree Acorn)
 
 find_package(imguizmo CONFIG REQUIRED)
-target_link_libraries(OakTree PRIVATE imguizmo::imguizmo)
+target_link_libraries(OakTree imguizmo::imguizmo)
 
 target_include_directories(OakTree PUBLIC src)
-target_include_directories(OakTree PUBLIC $<TARGET_PROPERTY:Acorn,INCLUDE_DIRECTORIES>)
 
 add_custom_command(TARGET OakTree
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:Acorn> "${CMAKE_CURRENT_BINARY_DIR}"
-    COMMENT "Copy dll file to ${CMAKE_CURRENT_BINARY_DIR} directory" VERBATIM
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
+)
+add_custom_command(TARGET OakTree
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini    
 )
 
-install(
-    TARGETS OakTree
-    EXPORT OakTree
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+# set(LIBRARIES_TO_COPY "Acorn;brotlicommon;brotlidec;bz2d;fmtd;freetyped;glfw3;libpng16d;spdlogd;yaml-cppd;zlibd1")
+set(LIBRARIES_TO_COPY "")
+# set(DEBUG_SYMBOLS_TO_COPY "Acorn.lib;Acorn.pdb")
+set(DEBUG_SYMBOLS_TO_COPY "")
 
-#FIXME temporary hack
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_custom_command(TARGET OakTree POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-            ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/yaml-cppd.dll
-            ${PROJECT_BINARY_DIR}/yaml-cpp.dll
-    )
-else()
-    add_custom_command(TARGET OakTree POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-            ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/yaml-cpp.dll
-            ${PROJECT_BINARY_DIR}/yaml-cpp.dll
-    )
+if(WIN32)
+    foreach(LIB ${LIBRARIES_TO_COPY})
+        message(STATUS "Copying ${LIB}")
+        add_custom_command(TARGET OakTree
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/../Acorn/${LIB}.dll" "${CMAKE_CURRENT_BINARY_DIR}/${LIB.dll}"
+        )
+    endforeach()
+
+    foreach(LIB ${DEBUG_SYMBOLS_TO_COPY})
+        message(STATUS "Copying ${LIB}")
+        add_custom_command(TARGET OakTree
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/../Acorn/${LIB}" "${CMAKE_CURRENT_BINARY_DIR}/${LIB}"
+        )
+    endforeach()
 endif()
+# TODO other platforms
+# target_include_directories(OakTree PUBLIC $<TARGET_PROPERTY:Acorn,INCLUDE_DIRECTORIES>)
+
+# add_custom_command(TARGET OakTree
+#     POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:Acorn> "${CMAKE_CURRENT_BINARY_DIR}"
+#     COMMENT "Copy dll file to ${CMAKE_CURRENT_BINARY_DIR} directory" VERBATIM
+# )
+
+# install(
+#     TARGETS OakTree
+#     EXPORT OakTree
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+# )

@@ -1,7 +1,7 @@
-#include "acpch.h"
 #include "OpenGLContext.h"
+#include "acpch.h"
 
-#include "core/Core.h"
+#include "Acorn/core/Core.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -10,22 +10,22 @@ void gl_error_callback(GLenum source, GLenum type, GLuint id, GLenum severity, G
 {
 	switch (severity)
 	{
-	case GL_DEBUG_SEVERITY_HIGH:
-		AC_CORE_ASSERT(false, message);
-		break;
-	case GL_DEBUG_SEVERITY_MEDIUM:
-		AC_CORE_WARN("[GL]: {0}", message);
-		break;
-	case GL_DEBUG_SEVERITY_LOW:
-		AC_CORE_INFO("[GL]: {0}", message);
-		break;
-	case GL_DEBUG_SEVERITY_NOTIFICATION:
-		//AC_CORE_TRACE("[GL]: {0}", message);
-		break;
-	default:
-		AC_CORE_FATAL("Unknwon message type!");
-		AC_CORE_ASSERT(false, "[GL]: {0}", message);
-		break;
+		case GL_DEBUG_SEVERITY_HIGH:
+			AC_CORE_ASSERT(false, message);
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			AC_CORE_WARN("[GL]: {0}", message);
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			AC_CORE_INFO("[GL]: {0}", message);
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			//AC_CORE_TRACE("[GL]: {0}", message);
+			break;
+		default:
+			AC_CORE_FATAL("Unknwon message type!");
+			AC_CORE_ASSERT(false, "[GL]: {0}", message);
+			break;
 	}
 }
 
@@ -33,7 +33,7 @@ namespace Acorn
 {
 
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
-		: m_WindowHandle(windowHandle) 
+		: m_WindowHandle(windowHandle)
 	{
 		AC_CORE_ASSERT(windowHandle, "Window Handle for OpenGLContext is null!");
 	}

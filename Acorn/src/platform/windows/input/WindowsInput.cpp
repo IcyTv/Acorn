@@ -1,7 +1,7 @@
 #include "acpch.h"
 
-#include "core/Application.h"
-#include "input/Input.h"
+#include "Acorn/core/Application.h"
+#include "Acorn/input/Input.h"
 
 #include <GLFW/glfw3.h>
 
@@ -43,7 +43,7 @@ namespace Acorn
 		double xPos, yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
 
-		return { (float)xPos, (float)yPos };
+		return {(float)xPos, (float)yPos};
 	}
 
 }

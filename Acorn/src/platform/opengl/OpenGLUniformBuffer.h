@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/Core.h"
-#include "renderer/UniformBuffer.h"
+#include "Acorn/core/Core.h"
+#include "Acorn/renderer/UniformBuffer.h"
 
 namespace Acorn
 {

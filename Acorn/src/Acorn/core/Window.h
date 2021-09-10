@@ -2,8 +2,8 @@
 
 #include "acpch.h"
 
-#include "core/Core.h"
-#include "events/Event.h"
+#include "Acorn/events/Event.h"
+#include "Core.h"
 
 namespace Acorn
 {

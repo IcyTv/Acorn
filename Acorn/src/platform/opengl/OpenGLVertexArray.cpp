@@ -2,7 +2,7 @@
 
 #include "OpenGLVertexArray.h"
 
-#include "renderer/Buffer.h"
+#include "Acorn/renderer/Buffer.h"
 
 #include <glad/glad.h>
 

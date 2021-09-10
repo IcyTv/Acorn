@@ -6,6 +6,8 @@
 #include "gui/ImGuiLayer.h"
 #include "layer/LayerStack.h"
 
+#include "acorn_export.h"
+
 namespace Acorn
 {
 	struct ApplicationCommandLineArgs
@@ -60,7 +62,7 @@ namespace Acorn
 		ApplicationCommandLineArgs m_CommandLineArgs;
 
 	private:
-		inline static Application* s_Instance = nullptr;
+		static ACORN_EXPORT Application* s_Instance;
 	};
 
 	// To be defined in Client
