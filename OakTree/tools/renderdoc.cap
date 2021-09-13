@@ -5,9 +5,9 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "C:\\Users\\michael\\Desktop\\Programming\\game-engine\\game-engine\\bin\\Debug-windows-x86_64\\OakTree\\OakTree.exe",
+        "executable": "C:\\Users\\michael\\Desktop\\Programming\\game-engine\\Acorn\\build\\OakTree\\OakTree.exe",
         "inject": false,
-        "numQueuedFrames": 0,
+        "numQueuedFrames": 3,
         "options": {
             "allowFullscreen": true,
             "allowVSync": true,
@@ -22,6 +22,6 @@
             "verifyBufferAccess": false
         },
         "queuedFrameCap": 0,
-        "workingDir": "C:/Users/michael/Desktop/Programming/game-engine/game-engine/OakTree"
+        "workingDir": "C:/Users/michael/Desktop/Programming/game-engine/Acorn/build/OakTree"
     }
 }

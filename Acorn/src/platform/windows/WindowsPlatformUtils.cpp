@@ -1,6 +1,6 @@
+#include "Acorn/core/Application.h"
+#include "Acorn/utils/PlatformUtils.h"
 #include "acpch.h"
-#include "core/Application.h"
-#include "utils/PlatformUtils.h"
 
 #include <filesystem>
 

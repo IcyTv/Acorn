@@ -1,28 +1,29 @@
 #pragma once
 
-#include "core/CoreConfig.h"
-#include "core/Core.h"
+#include "Acorn/core/Core.h"
+#include "Acorn/core/CoreConfig.h"
 
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <utility>
-#include <algorithm>
-#include <functional>
 
-#include <string>
+#include <deque>
+#include <queue>
 #include <sstream>
-#include <vector>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <queue>
-#include <deque>
+#include <vector>
 
 #include <mutex>
 
-#include "core/Log.h"
+#include "Acorn/core/Log.h"
 
-#include "debug/Instrumentor.h"
+#include "Acorn/debug/Instrumentor.h"
 
 #ifdef AC_PLATFORM_WINDOWS
+	#define NOMINMAX
 	#include <Windows.h>
 #endif

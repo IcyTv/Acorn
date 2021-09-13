@@ -3,6 +3,8 @@
 
 #include "OakLayer.h"
 
+#include <iostream>
+
 namespace Acorn
 {
 
@@ -21,6 +23,9 @@ namespace Acorn
 		}
 	};
 
-	AC_ENTRY(OakTree)
-
+	// AC_ENTRY(OakTree);
+	Application* CreateApplication(ApplicationCommandLineArgs args)
+	{
+		return new OakTree(args);
+	}
 }

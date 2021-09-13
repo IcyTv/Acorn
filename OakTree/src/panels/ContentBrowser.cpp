@@ -1,7 +1,5 @@
 #include "ContentBrowser.h"
 
-#include "core/Log.h"
-
 #include <future>
 #include <imgui.h>
 #include <queue>

@@ -3,9 +3,9 @@
 #include "OpenGLTexture.h"
 
 #include <glad/glad.h>
-#include <stb/stb_image.h>
-#include <stb/stb_image_resize.h>
-#include <stb/stb_image_write.h>
+#include <stb_image.h>
+#include <stb_image_resize.h>
+#include <stb_image_write.h>
 
 namespace Acorn
 {
@@ -73,7 +73,7 @@ namespace Acorn
 		glTextureStorage2D(m_RendererId, 1, m_InternalFormat, m_Width, m_Height);
 
 		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -94,8 +94,8 @@ namespace Acorn
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		glTextureStorage2D(m_RendererId, 1, m_InternalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -141,8 +141,8 @@ namespace Acorn
 		// glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		glTextureStorage2D(m_RendererId, 1, internalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -184,6 +184,8 @@ namespace Acorn
 			dataFormat = GL_RGB;
 		}
 
+		AC_CORE_INFO("Loading Texture with {} channels", channels);
+
 		m_InternalFormat = internalFormat;
 		m_DataFormat = dataFormat;
 
@@ -193,8 +195,8 @@ namespace Acorn
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		glTextureStorage2D(m_RendererId, 1, internalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererId, GL_TEXTURE_WRAP_T, GL_REPEAT);

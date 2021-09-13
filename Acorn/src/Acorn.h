@@ -2,38 +2,35 @@
 
 //For use by client applications
 
-#include "core/Application.h"
-#include "core/Log.h"
-#include "layer/Layer.h"
+#include "Acorn/core/Application.h"
+#include "Acorn/core/Log.h"
+#include "Acorn/layer/Layer.h"
 
-#include "core/Timestep.h"
+#include "Acorn/core/Timestep.h"
 
-#include "renderer/2d/Renderer2D.h"
-#include "renderer/Buffer.h"
-#include "renderer/DebugRenderer.h"
-#include "renderer/Framebuffer.h"
-#include "renderer/Renderer.h"
-#include "renderer/Shader.h"
-#include "renderer/Texture.h"
-#include "renderer/VertexArray.h"
+#include "Acorn/renderer/2d/Renderer2D.h"
+#include "Acorn/renderer/Buffer.h"
+#include "Acorn/renderer/DebugRenderer.h"
+#include "Acorn/renderer/Framebuffer.h"
+#include "Acorn/renderer/Renderer.h"
+#include "Acorn/renderer/Shader.h"
+#include "Acorn/renderer/Texture.h"
+#include "Acorn/renderer/VertexArray.h"
 
-#include "renderer/Camera.h"
+#include "Acorn/renderer/Camera.h"
 
-#include "templates/OrthographicCameraController.h"
-#include "utils/PlatformUtils.h"
+#include "Acorn/templates/OrthographicCameraController.h"
+#include "Acorn/utils/PlatformUtils.h"
 
-#include "serialize/Serializer.h"
+#include "Acorn/serialize/Serializer.h"
 
-#include "ecs/Entity.h"
-#include "ecs/Scene.h"
-#include "ecs/components/Components.h"
-#include "ecs/components/ScriptableEntity.h"
+#include "Acorn/ecs/Entity.h"
+#include "Acorn/ecs/Scene.h"
+#include "Acorn/ecs/components/Components.h"
+#include "Acorn/ecs/components/ScriptableEntity.h"
 
-#include "input/Input.h"
-#include "input/KeyCodes.h"
-#include "input/MouseButtonCodes.h"
+#include "Acorn/input/Input.h"
+#include "Acorn/input/KeyCodes.h"
+#include "Acorn/input/MouseButtonCodes.h"
 
-#include "gui/ImGuiLayer.h"
-#include "gui/nodes/ImGuiNodes.h"
-
-#include "math/Math.h"
+#include "Acorn/math/Math.h"

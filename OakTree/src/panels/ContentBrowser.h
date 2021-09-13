@@ -1,7 +1,6 @@
 #pragma once
 
-#include "core/Core.h"
-#include "renderer/Texture.h"
+#include <Acorn.h>
 
 #include <filesystem>
 #include <unordered_map>

@@ -1,18 +1,14 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "cppvsdbg",
-            "request": "launch",
-            "name": "Launch OakTree(Debug)",
-            "program": "${command:msbuild-tools.debug}",
-            "args": [],
-            "cwd": "${workspaceRoot}/OakTree",
-            "console": "internalConsole",
-            "preLaunchTask": "Premake"
-        }
-    ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Launch",
+			"program": "${command:cmake.launchTargetPath}",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/OakTree",
+			"console": "integratedTerminal"
+		}
+	]
 }

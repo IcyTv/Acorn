@@ -1,18 +1,16 @@
 #include "OakLayer.h"
+#include "utils/fonts/IconsFontAwesome4.h"
 
+#include <Acorn/utils/fonts/IconsFontAwesome4.h>
+
+#include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
 
-#include "serialize/Serializer.h"
-#include "utils/PlatformUtils.h"
-
-#include "utils/fonts/IconsFontAwesome4.h"
-
-#include <ImGuizmo.h>
-
 namespace Acorn
 {
+
 	OakLayer::OakLayer()
 		: Layer("Sandbox2D")
 	{
@@ -77,7 +75,7 @@ namespace Acorn
 			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 
-		if (m_ViewportFocused)
+		if (m_ViewportFocused && m_SceneState == SceneState::Edit)
 		{
 			m_EditorCamera.OnUpdate(ts);
 		}
@@ -94,49 +92,28 @@ namespace Acorn
 
 		//Update Scene
 
-		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+		if (m_SceneState == SceneState::Edit)
+			m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+		else if (m_SceneState == SceneState::Play)
+			m_ActiveScene->OnUpdateRuntime(ts);
 
-		auto [mx, my] = ImGui::GetMousePos();
-		mx -= m_ViewportBounds[0].x;
-		my -= m_ViewportBounds[0].y;
-		glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-		my = viewportSize.y - my;
-
-		int mouseX = (int)mx;
-		int mouseY = (int)my;
-
-		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		if (m_SceneState == SceneState::Edit)
 		{
-			int entityId = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-			m_HoveredEntity = Entity{entityId, m_ActiveScene.get()};
+			auto [mx, my] = ImGui::GetMousePos();
+			mx -= m_ViewportBounds[0].x;
+			my -= m_ViewportBounds[0].y;
+			glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+			my = viewportSize.y - my;
+
+			int mouseX = (int)mx;
+			int mouseY = (int)my;
+
+			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+			{
+				int entityId = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+				m_HoveredEntity = Entity{entityId, m_ActiveScene.get()};
+			}
 		}
-
-		// if (Input::IsMouseButtonPressed(AC_MOUSE_BUTTON_LEFT) && !Input::IsKeyPressed(KeyCode::LeftAlt) && !ImGuizmo::IsOver())
-		// {
-		// 	auto [mx, my] = ImGui::GetMousePos();
-		// 	mx -= m_ViewportBounds[0].x;
-		// 	my -= m_ViewportBounds[0].y;
-		// 	glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-		// 	my = viewportSize.y - my;
-
-		// 	int mouseX = (int)mx;
-		// 	int mouseY = (int)my;
-
-		// 	if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-		// 	{
-		// 		int entityId = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-		// 		if (entityId >= 0)
-		// 		{
-
-		// 			Entity entity = {entityId, m_ActiveScene.get()};
-		// 			m_SceneHierarchyPanel.SetSelectedEntity(entity);
-		// 		}
-		// 		else
-		// 		{
-		// 			m_SceneHierarchyPanel.SetSelectedEntity({});
-		// 		}
-		// 	}
-		// }
 
 		m_Framebuffer->Unbind();
 	}
@@ -321,6 +298,7 @@ namespace Acorn
 				ImGui::EndDragDropTarget();
 			}
 
+			UI_Toolbar();
 			// Gizmos
 			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 			if (selectedEntity && m_GizmoType != GizmoType::None)
@@ -489,8 +467,11 @@ namespace Acorn
 						float zoom = std::max(scale.x, std::max(scale.y, scale.z)) + 1.0f;
 						m_EditorCamera.SetFocalPointDistance(entity.GetComponent<Components::Transform>().Translation, zoom);
 					}
+					return true;
 				}
 				break;
+				default:
+					return false;
 			}
 		}
 		return false;
@@ -555,5 +536,48 @@ namespace Acorn
 		m_CurrentFilePath = path.string();
 
 		SceneSerializer(m_ActiveScene).Deserialize(path.string());
+	}
+
+	void OakLayer::OnScenePlay()
+	{
+		m_SceneState = SceneState::Play;
+	}
+
+	void OakLayer::OnSceneStop()
+	{
+		m_SceneState = SceneState::Edit;
+	}
+
+	void OakLayer::UI_Toolbar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		auto& colors = ImGui::GetStyle().Colors;
+		auto& hoveredColor = colors[ImGuiCol_ButtonHovered];
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(hoveredColor.x, hoveredColor.y, hoveredColor.z, 0.5f));
+		auto& activeColor = colors[ImGuiCol_ButtonActive];
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(activeColor.x, activeColor.y, activeColor.z, 0.5f));
+
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		const char* sceneStateIcon = m_SceneState == SceneState::Edit ? ICON_FA_PLAY : ICON_FA_STOP;
+		float size = ImGui::GetWindowHeight() - 4.0f;
+
+		// static float initialLineHeight = ImGui::GetTextLineHeight();
+
+		//TODO figure this out
+		// ImGui::SetWindowFontScale(size / 16.0f - 0.2f);
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+		if (ImGui::Button(sceneStateIcon, ImVec2{size, size}))
+		{
+			if (m_SceneState == SceneState::Edit)
+				OnScenePlay();
+			else if (m_SceneState == SceneState::Play)
+				OnSceneStop();
+		}
+		ImGui::End();
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
 	}
 }

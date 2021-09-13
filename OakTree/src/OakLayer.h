@@ -1,9 +1,12 @@
 #pragma once
 
+#include <Acorn.h>
+
 #include "panels/ContentBrowser.h"
 #include "panels/LogPanel.h"
 #include "panels/SceneHierarchy.h"
-#include <Acorn.h>
+
+#include <ImGuizmo.h>
 
 namespace Acorn
 {
@@ -25,9 +28,9 @@ namespace Acorn
 		enum class GizmoType : int
 		{
 			None = -1,
-			Translate = 0,
-			Rotate = 1,
-			Scale = 2,
+			Translate = ImGuizmo::OPERATION::TRANSLATE,
+			Rotate = ImGuizmo::OPERATION::ROTATE,
+			Scale = ImGuizmo::OPERATION::SCALE,
 		};
 
 	private:
@@ -40,6 +43,12 @@ namespace Acorn
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
 
+		void OnScenePlay();
+		void OnSceneStop();
+
+		//UI Panels
+		void UI_Toolbar();
+
 	private:
 		struct WindowsOpen
 		{
@@ -50,7 +59,14 @@ namespace Acorn
 			bool Logging = true;
 		};
 
-		Ref<Texture2d> m_CheckerboardTexture;
+		enum class SceneState
+		{
+			Edit = 0,
+			Play = 1,
+		};
+
+		Ref<Texture2d>
+			m_CheckerboardTexture;
 		Ref<Texture2d> m_SpriteSheet;
 		Ref<Framebuffer> m_Framebuffer;
 
@@ -66,6 +82,8 @@ namespace Acorn
 
 		glm::vec2 m_ViewportSize{0.0f};
 		glm::vec2 m_ViewportBounds[2];
+
+		SceneState m_SceneState = SceneState::Edit;
 
 		//Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
