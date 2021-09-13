@@ -35,6 +35,8 @@ namespace Acorn::ext2d
 		struct CameraData
 		{
 			glm::mat4 ViewProjection;
+			glm::vec4 CameraRight;
+			glm::vec4 CameraUp;
 		};
 
 		CameraData CameraBuffer;
@@ -83,28 +85,18 @@ namespace Acorn::ext2d
 		AC_PROFILE_FUNCTION();
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
+		s_Data.CameraBuffer.CameraRight = glm::vec4(camera.GetRightDirection(), 0.0f);
+		s_Data.CameraBuffer.CameraUp = glm::vec4(camera.GetUpDirection(), 0.0f);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2dStorage::CameraData));
 
 		s_Data.BatchRenderer->Begin();
-	}
-
-	void Renderer::BeginScene(const OrthographicCamera& camera)
-	{
-		AC_PROFILE_FUNCTION();
-
-		AC_CORE_ASSERT(false, "Orthographic camera deprecated!");
-
-		// s_Data.BatchRenderer->Begin();
-		// s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 	}
 
 	void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
 		AC_PROFILE_FUNCTION();
 
-		glm::mat4 viewProjection = camera.GetProjection() * glm::inverse(transform);
-
-		s_Data.CameraBuffer.ViewProjection = viewProjection;
+		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2dStorage::CameraData));
 
 		s_Data.BatchRenderer->Begin();

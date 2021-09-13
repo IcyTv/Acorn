@@ -51,6 +51,7 @@ find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
+find_package(V8 CONFIG REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb.h")
 
 file(GLOB_RECURSE SOURCE_FILES
@@ -87,10 +88,12 @@ target_include_directories(Acorn
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:src/Acorn>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/Acorn>
+        $<INSTALL_INTERFACE:vendor/v8pp>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vendor/v8pp>
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0)
+    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0 -DAC_DEBUG)
 endif()
 
 if(WIN32)
@@ -111,20 +114,29 @@ set_target_properties(Acorn PROPERTIES
 
 target_compile_options(Acorn PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-    -Wall -Wextra -Wpedantic>)
+    -Wall -Wextra -Wpedantic -DV8_COMPRESS_POINTERS>)
     # -Werror>)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(Acorn PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-        -O0 -ggdb -fno-omit-frame-pointer -g>
-    )
+        -O0 -ggdb -fno-omit-frame-pointer -g -Wno-unused-parameter>
+        )
 endif()
 
 #Linking
 
 target_link_directories(Acorn PRIVATE "${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;")
 
+# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#     set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Debug")
+#     # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Debug")
+# else()
+#     set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Release")
+#     # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Release")
+# endif()
+
+# target_link_libraries(Acorn PRIVATE V8)
 target_link_libraries(Acorn PUBLIC EnTT::EnTT)
 target_link_libraries(Acorn PRIVATE glad::glad)
 target_link_libraries(Acorn PUBLIC glfw ${OPENGL_gl_LIBRARY})
@@ -135,6 +147,14 @@ target_link_libraries(Acorn PUBLIC imgui::imgui)
 target_link_libraries(Acorn PRIVATE implot::implot)
 target_link_libraries(Acorn PRIVATE imguizmo::imguizmo)
 target_link_libraries(Acorn PRIVATE yaml-cpp)
+target_link_libraries(Acorn PRIVATE V8::V8)
+# target_link_libraries(Acorn PRIVATE 
+#     "${V8_LIB_PATH}/v8_libbase.dll.lib"
+#     "${V8_LIB_PATH}/v8_libplatform.dll.lib"
+#     "${V8_LIB_PATH}/v8.dll.lib"
+#     "${V8_LIB_PATH}/zlib.dll.lib"
+# )
+# target_link_libraries(Acorn PRIVATE v8pp) # TODO add support for Release
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_libraries(Acorn PRIVATE ${VULKAN_DEBUG_LIBS})

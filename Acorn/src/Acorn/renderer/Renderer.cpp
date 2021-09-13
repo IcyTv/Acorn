@@ -16,7 +16,7 @@ namespace Acorn
 	{
 		RenderCommand::Init();
 		ext2d::Renderer::Init();
-		debug::Renderer::Init();
+		// debug::Renderer::Init();
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)

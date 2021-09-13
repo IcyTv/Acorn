@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
 #include <imgui_internal.h>
 
 namespace Acorn
@@ -391,6 +392,22 @@ namespace Acorn
 				else
 				{
 					ImGui::Button("", ImVec2{25.0f, 25.0f});
+				}
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+					ImGui::OpenPopup("Texture");
+
+				if (ImGui::BeginPopup("Texture"))
+				{
+					if (spriteRenderer.Texture)
+					{
+						if (ImGui::Button("Remove Texture"))
+						{
+							spriteRenderer.Texture = nullptr;
+							ImGui::CloseCurrentPopup();
+						}
+					}
+					ImGui::End();
 				}
 
 				if (ImGui::BeginDragDropTarget())

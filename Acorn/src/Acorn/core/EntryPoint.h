@@ -4,15 +4,12 @@
 #include "Core.h"
 #include "Log.h"
 
-#include <iostream>
-
 #ifdef AC_PLATFORM_WINDOWS
 
 extern Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args);
 
 int main(int argc, char** argv)
 {
-	std::cout << "Hello World!\n";
 	Acorn::Log::Init();
 
 	AC_CORE_INFO("Acorn Engine Initialized");
@@ -30,12 +27,12 @@ int main(int argc, char** argv)
 	AC_PROFILE_END_SESSION();
 }
 
-#define AC_ENTRY(class)                                                           \
-	Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args) \
-	{                                                                             \
-		return new class(args);                                                   \
-	}
+	#define AC_ENTRY(class)                                                           \
+		Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args) \
+		{                                                                             \
+			return new class(args);                                                   \
+		}
 
 #else
-#error Only Windows for now!
+	#error Only Windows for now!
 #endif

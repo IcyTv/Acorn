@@ -4,6 +4,7 @@
 
 #include "Entity.h"
 #include "components/Components.h"
+#include "ecs/components/Components.h"
 #include "renderer/2d/Renderer2D.h"
 #include "renderer/DebugRenderer.h"
 
@@ -47,18 +48,18 @@ namespace Acorn
 
 		ext2d::Renderer::EndScene();
 
-		{
-			//Draw Icon Gizmos
-			debug::Renderer::Begin(camera);
+		// {
+		// 	//Draw Icon Gizmos
+		// 	debug::Renderer::Begin(camera);
 
-			auto group = m_Registry.group<Components::CameraComponent>(entt::get<Components::Transform>);
-			for (auto&& [entity, camera, transform] : group.each())
-			{
-				debug::Renderer::DrawGizmo(debug::GizmoType::Camera, transform.Translation, (int)entity);
-			}
+		// 	auto group = m_Registry.group<Components::CameraComponent>(entt::get<Components::Transform>);
+		// 	for (auto&& [entity, camera, transform] : group.each())
+		// 	{
+		// 		debug::Renderer::DrawGizmo(debug::GizmoType::Camera, transform.Translation, (int)entity);
+		// 	}
 
-			debug::Renderer::End();
-		}
+		// 	debug::Renderer::End();
+		// }
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
@@ -83,16 +84,15 @@ namespace Acorn
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 		{
-			auto view = m_Registry.view<Components::CameraComponent, Components::Transform>();
-
+			auto view = m_Registry.view<Components::Transform, Components::CameraComponent>();
 			for (auto entity : view)
 			{
-				auto& camera = view.get<Components::CameraComponent>(entity);
-				auto& transform = view.get<Components::Transform>(entity);
+				auto [transform, camera] = view.get<Components::Transform, Components::CameraComponent>(entity);
+
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					cameraTransform = (glm::mat4)transform;
+					cameraTransform = transform.GetTransform();
 					break;
 				}
 			}
@@ -108,6 +108,10 @@ namespace Acorn
 			}
 
 			ext2d::Renderer::EndScene();
+		}
+		else
+		{
+			AC_CORE_WARN("No camera found in scene!");
 		}
 	}
 

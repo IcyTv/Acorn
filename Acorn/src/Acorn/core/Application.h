@@ -62,7 +62,7 @@ namespace Acorn
 		ApplicationCommandLineArgs m_CommandLineArgs;
 
 	private:
-		static ACORN_EXPORT Application* s_Instance;
+		static Application* s_Instance;
 	};
 
 	// To be defined in Client

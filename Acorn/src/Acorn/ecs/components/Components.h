@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "SceneCamera.h"
 #include "core/Core.h"
@@ -33,6 +34,16 @@ namespace Acorn::Components
 		Transform(const Transform&) = default;
 		Transform(glm::vec3 translation)
 			: Translation(translation) {}
+
+		glm::mat4 GetTransform() const
+		{
+			auto rotation = glm::toMat4(glm::quat(Rotation));
+
+			auto transform = glm::translate(glm::mat4(1.0f), Translation) *
+							 rotation *
+							 glm::scale(glm::mat4(1.0f), Scale);
+			return transform;
+		}
 
 		operator glm::mat4() const
 		{

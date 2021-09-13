@@ -30,6 +30,7 @@
 		},
 		"imguizmo",
 		"implot",
-		"yaml-cpp"
+		"yaml-cpp",
+		"v8"
 	]
 }

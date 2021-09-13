@@ -44,6 +44,8 @@ namespace Acorn
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+		//TODO bundle fonts into engine?
+
 		ImFontConfig font_config;
 		font_config.MergeMode = false;
 		io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Bold.ttf", 16.0f, &font_config);

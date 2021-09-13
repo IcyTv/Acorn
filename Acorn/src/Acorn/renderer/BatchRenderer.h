@@ -3,6 +3,7 @@
 #include "RenderCommand.h"
 #include "core/Core.h"
 #include "renderer/Shader.h"
+#include "renderer/Texture.h"
 #include "renderer/VertexArray.h"
 #include "utils/PlatformCapabilities.h"
 
