@@ -1,0 +1,37 @@
+print(console.log);
+
+print("Loaded Test Script");
+function getAllFuncs(toCheck) {
+    const props = [];
+    let obj = toCheck;
+    do {
+        props.push(...Object.getOwnPropertyNames(obj));
+    } while (obj = Object.getPrototypeOf(obj));
+
+    return props.sort().filter((e, i, arr) => {
+        if (e != arr[i + 1] && typeof toCheck[e] == 'function') return true;
+    });
+}
+
+class Test extends TestSuperClass {
+    testVar = "Test";
+
+    // constructor()
+    // {
+    //     super();
+    //     print("Test Constructor");
+    // }
+
+    get value() {
+        return this.testVar;
+    }
+
+    OnUpdate() {
+        // super.TestMethod("asdf");
+        print("OnUpdate from v8!");
+    }
+}
+print("Test", getAllFuncs(new Test()));
+// print("TestSuper", getAllFuncs(new TestSuperClass()));
+
+register(Test);

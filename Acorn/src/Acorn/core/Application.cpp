@@ -9,8 +9,6 @@
 #include "utils/FileUtils.h"
 #include "utils/PlatformCapabilities.h"
 
-#include "ecs/components/V8Script.h"
-
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -49,8 +47,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
-		V8Script script(Utils::File::ReadFile("res/scripts/test.js"));
-		script.Run();
+		// TSCompiler::Compile("res/scripts/test.ts");
 
 		while (m_Running)
 		{

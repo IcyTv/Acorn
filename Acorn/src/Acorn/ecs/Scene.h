@@ -5,6 +5,8 @@
 #include "core/Timestep.h"
 #include "renderer/EditorCamera.h"
 
+class b2World;
+
 namespace Acorn
 {
 	class Entity;
@@ -18,6 +20,9 @@ namespace Acorn
 
 		Entity CreateEntity(const std::string& name = "");
 		void DestroyEntity(Entity entity);
+
+		void InitializeRuntime();
+		void DestroyRuntime();
 
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnUpdateRuntime(Timestep ts);
@@ -47,6 +52,8 @@ namespace Acorn
 		entt::registry m_Registry;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+
+		b2World* m_PhysicsWorld = nullptr;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

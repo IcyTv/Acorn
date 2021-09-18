@@ -1,0 +1,58 @@
+Scene: Untitled Scene
+Entities:
+  - Entity: 1234567890
+    Tag:
+      Tag: Ground
+    Transform:
+      Translation: [0, -1.99293768, 0]
+      Rotation: [0, -0, 0]
+      Scale: [9.80721664, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 1234567890
+    Tag:
+      Tag: Box Test
+    Transform:
+      Translation: [0.461196721, 4.06674433, 0]
+      Rotation: [0, 0, -2.03348613]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+      Density: 1
+      Friction: 1
+      Restitution: 0.709999979
+      RestitutionThreshold: 0.5
+  - Entity: 1234567890
+    Tag:
+      Tag: Camera
+    Transform:
+      Translation: [0, 0, 6.18304539]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    Camera:
+      SceneCamera:
+        Type: 0
+        OrthographicSize: 10
+        OrthographicNearClip: -1
+        OrthographicFarClip: 1
+        PerspectiveFov: 1.04719758
+        PerspectiveNearClip: 0.00999999978
+        PerspectiveFarClip: 1000
+      FixedAspectRatio: false
+      Primary: true

@@ -10,5 +10,6 @@ namespace Acorn::Utils
 		bool HasShaderFileChanged(const std::string& filePath);
 
 		std::string ReadFile(const std::string& filePath);
+		void WriteFile(const std::string& filePath, const std::string& data);
 	}
 }

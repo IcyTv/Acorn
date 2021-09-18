@@ -25,6 +25,7 @@ set(CMAKE_CXX_STANDARD 20)
 option(OVERRIDE_VCPKG_REQUIREMENT OFF)
 
 # add_subdirectory(Acorn/vendor/v8pp)
+# add_subdirectory(vendor/v8-cmake)
 add_subdirectory(Acorn)
 add_subdirectory(OakTree)
 

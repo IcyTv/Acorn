@@ -31,6 +31,9 @@
 		"imguizmo",
 		"implot",
 		"yaml-cpp",
-		"v8"
+		"magic-enum",
+		"v8",
+		"boost-variant",
+		"box2d"
 	]
 }

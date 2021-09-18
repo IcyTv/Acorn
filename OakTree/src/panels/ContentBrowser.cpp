@@ -29,6 +29,7 @@ namespace Acorn
 		m_FolderIcon = Texture2d::Create("res/textures/icons/appicns/appicns_FolderGeneric.png");
 		m_FileIcon = Texture2d::Create("res/textures/icons/appicns/appicns_OtherDocument.png");
 		m_AcornFileIcon = Texture2d::Create("res/textures/icons/AcornFile.png");
+		m_JSFileIcon = Texture2d::Create("res/textures/icons/JSFile.png");
 	}
 
 	//TODO initialize on construction, add directory watch
@@ -87,6 +88,10 @@ namespace Acorn
 			{
 				id = m_AcornFileIcon->GetRendererId();
 			}
+			else if (file.path().extension() == ".js")
+			{
+				id = m_JSFileIcon->GetRendererId();
+			}
 			else
 			{
 				id = m_FileIcon->GetRendererId();
@@ -105,6 +110,10 @@ namespace Acorn
 			{
 				//TODO
 			}
+			else if (file.path().extension() == ".ts")
+			{
+				itemType = "JS_SCRIPT_FILE";
+			}
 
 			if (ImGui::BeginDragDropSource())
 			{
@@ -116,9 +125,21 @@ namespace Acorn
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
+				//TODO store file extension
 				if (file.is_directory())
 				{
 					m_CurrentPath = file.path();
+				}
+				else if (file.path().extension() == ".ts")
+				{
+#ifdef AC_PLATFORM_WINDOWS
+					std::string command = "explorer";
+#else
+	#error Unknown platform
+#endif
+					command.append(" ");
+					command.append(file.path().string());
+					system(command.c_str());
 				}
 			}
 			ImGui::TextWrapped("%s", fileName.c_str());

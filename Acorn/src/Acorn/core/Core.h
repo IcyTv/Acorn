@@ -53,6 +53,13 @@
 #define DISABLE_ALL_WARNINGS_END \
 	__pragma(warning(pop))
 
+#ifdef AC_DEBUG
+	#include <debug-trap/debug-trap.h>
+	#define AC_CORE_BREAK() psnip_trap()
+#else
+	#define AC_CORE_BREAK()
+#endif
+
 namespace Acorn
 {
 	template <typename T>

@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef AC_DEBUG
-	#define AC_PROFILE 1
+// #define AC_PROFILE 1
 
 #endif
 

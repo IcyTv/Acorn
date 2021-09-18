@@ -51,13 +51,18 @@ find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
+find_package(Threads REQUIRED)
 find_package(V8 CONFIG REQUIRED)
+find_package(Boost REQUIRED)
+find_package(box2d REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb.h")
+find_path(MAGIC_ENUM_INCLUDE_DIRS "magic_enum.hpp")
 
 file(GLOB_RECURSE SOURCE_FILES
     CONFIGURE_DEPENDS    
     "src/*.cpp"
     "vendor/stb_image/stb_image.cpp"
+    "vendor/v8pp/v8pp/*.cpp"
 )
 file(GLOB_RECURSE HEADER_FILES
     CONFIGURE_DEPENDS
@@ -74,15 +79,17 @@ add_library(Acorn STATIC
 add_library(Acorn::Acorn ALIAS Acorn)
 
 # Build Settings
-# target_precompile_headers(Acorn PRIVATE src/acpch.h)
-set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
+target_precompile_headers(Acorn PRIVATE src/acpch.h)
+# set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
 
 # Include Directories
 target_include_directories(Acorn
     PRIVATE 
         "${VULKAN_PATH}/Include"
         "${STB_INCLUDE_DIRS}"
+        "${MAGIC_ENUM_INCLUDE_DIRS}"
         "${CMAKE_CURRENT_BINARY_DIR}"
+        # "${CMAKE_SOURCE_DIR}/../v8/v8/include"
     PUBLIC
         $<INSTALL_INTERFACE:src>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -128,14 +135,15 @@ endif()
 
 target_link_directories(Acorn PRIVATE "${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;")
 
-# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#     set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Debug")
-#     # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Debug")
-# else()
-#     set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Release")
-#     # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Release")
-# endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Debug")
+    # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Debug")
+else()
+    set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Release")
+    # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Release")
+endif()
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 # target_link_libraries(Acorn PRIVATE V8)
 target_link_libraries(Acorn PUBLIC EnTT::EnTT)
 target_link_libraries(Acorn PRIVATE glad::glad)
@@ -147,13 +155,25 @@ target_link_libraries(Acorn PUBLIC imgui::imgui)
 target_link_libraries(Acorn PRIVATE implot::implot)
 target_link_libraries(Acorn PRIVATE imguizmo::imguizmo)
 target_link_libraries(Acorn PRIVATE yaml-cpp)
-target_link_libraries(Acorn PRIVATE V8::V8)
-# target_link_libraries(Acorn PRIVATE 
+target_link_libraries(Acorn PRIVATE Threads::Threads)
+target_link_libraries(Acorn PUBLIC V8::V8)
+target_link_libraries(Acorn PRIVATE Boost::boost)
+target_link_libraries(Acorn PRIVATE box2d::box2d)
+
+# set(V8_LIB_PATH "${CMAKE_SOURCE_DIR}/../v8/v8/out.gn/x64.debug/obj")
+
+# get_filename_component(V8_LIB_NAME ${V8_LIB_PATH} ABSOLUTE)
+
+# target_link_libraries(Acorn PRIVATE
 #     "${V8_LIB_PATH}/v8_libbase.dll.lib"
 #     "${V8_LIB_PATH}/v8_libplatform.dll.lib"
 #     "${V8_LIB_PATH}/v8.dll.lib"
 #     "${V8_LIB_PATH}/zlib.dll.lib"
 # )
+# target_link_libraries(Acorn PRIVATE v8_snapshot v8_libbase v8_libplatform)
+
+# target_link_directories(Acorn PUBLIC "${V8_LIB_PATH};${V8_LIB_PATH}/third_party")
+# target_link_libraries(Acorn PUBLIC v8_monolith)
 # target_link_libraries(Acorn PRIVATE v8pp) # TODO add support for Release
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -169,69 +189,69 @@ message(STATUS "Include dirs: ${Includes}")
 # Installation
 ###############################################
 
-install(CODE [[
-    message(STATUS "PATH env $ENV{PATH}")
-]])
+# install(CODE [[
+#     message(STATUS "PATH env $ENV{PATH}")
+# ]])
 
-include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Acorn)
+# include(GNUInstallDirs)
+# set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Acorn)
 
-message(STATUS "install inc dir ${CMAKE_INSTALL_INCLUDEDIR}")
+# message(STATUS "install inc dir ${CMAKE_INSTALL_INCLUDEDIR}")
 
-install(TARGETS Acorn
-    EXPORT AcornTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/acorn_export.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+# install(TARGETS Acorn
+#     EXPORT AcornTargets
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+# )
+# install(FILES
+#     ${CMAKE_CURRENT_BINARY_DIR}/acorn_export.h
+#     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+# )
 
-set_target_properties(Acorn PROPERTIES EXPORT_NAME Acorn)
+# set_target_properties(Acorn PROPERTIES EXPORT_NAME Acorn)
 
-# Export the targets to a script
-install(EXPORT AcornTargets
-    FILE
-        AcornTargets.cmake
-    NAMESPACE
-        Acorn::
-    DESTINATION
-        ${INSTALL_CONFIGDIR}
-)
+# # Export the targets to a script
+# install(EXPORT AcornTargets
+#     FILE
+#         AcornTargets.cmake
+#     NAMESPACE
+#         Acorn::
+#     DESTINATION
+#         ${INSTALL_CONFIGDIR}
+# )
 
-#Create a ConfigVersion.cmake file
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfigVersion.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
+# #Create a ConfigVersion.cmake file
+# include(CMakePackageConfigHelpers)
+# write_basic_package_version_file(
+#     ${CMAKE_CURRENT_BINARY_DIR}/AcornConfigVersion.cmake
+#     VERSION ${PROJECT_VERSION}
+#     COMPATIBILITY AnyNewerVersion
+# )
 
-configure_package_config_file(
-    ${CMAKE_CURRENT_LIST_DIR}/cmake/AcornConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfig.cmake
-    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
-)
+# configure_package_config_file(
+#     ${CMAKE_CURRENT_LIST_DIR}/cmake/AcornConfig.cmake.in
+#     ${CMAKE_CURRENT_BINARY_DIR}/AcornConfig.cmake
+#     INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+# )
 
-#Install the config, configversion and custom find modules
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfigVersion.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/AcornConfig.cmake
-    DESTINATION ${INSTALL_CONFIGDIR}
-)
+# #Install the config, configversion and custom find modules
+# install(FILES
+#     ${CMAKE_CURRENT_BINARY_DIR}/AcornConfigVersion.cmake
+#     ${CMAKE_CURRENT_BINARY_DIR}/AcornConfig.cmake
+#     DESTINATION ${INSTALL_CONFIGDIR}
+# )
 
-###############################################
-# Exporting from the build tree
-###############################################
+# ###############################################
+# # Exporting from the build tree
+# ###############################################
 
-export(
-    EXPORT AcornTargets
-    FILE ${CMAKE_CURRENT_BINARY_DIR}/AcornTargets.cmake
-    NAMESPACE Acorn::
-)
+# export(
+#     EXPORT AcornTargets
+#     FILE ${CMAKE_CURRENT_BINARY_DIR}/AcornTargets.cmake
+#     NAMESPACE Acorn::
+# )
 
-# Register package in the user package Registry
-export(PACKAGE Acorn)
+# # Register package in the user package Registry
+# export(PACKAGE Acorn)

@@ -1,9 +1,16 @@
 #include "SceneHierarchy.h"
+#include "ecs/components/Components.h"
+#include "ecs/components/TSCompiler.h"
+#include "ecs/components/V8Script.h"
 
 #include <filesystem>
+#include <fmt/core.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <magic_enum.hpp>
+#include <string.h>
+#include <string_view>
 
 namespace Acorn
 {
@@ -49,6 +56,7 @@ namespace Acorn
 		ImGui::End();
 
 		ImGui::Begin("Properties");
+		ImGui::BeginChild("properties_drop_target", ImVec2(0, -1), false);
 
 		if (m_SelectionContext)
 		{
@@ -57,6 +65,22 @@ namespace Acorn
 		else
 			ImGui::Text("No Selection");
 
+		ImGui::EndChild();
+		if (m_SelectionContext && ImGui::BeginDragDropTarget())
+		{
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("JS_SCRIPT_FILE");
+
+			if (payload != nullptr)
+			{
+				auto path = (const wchar_t*)payload->Data;
+				std::filesystem::path fsPath(path);
+
+				m_SelectionContext.AddComponent<Components::JSScript>(fsPath.string());
+				// jsScript.LoadScript(fsPath.string());
+			}
+
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::End();
 	}
 
@@ -71,7 +95,7 @@ namespace Acorn
 			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 
 		bool opened = ImGui::TreeNodeEx((void*)(intptr_t)(uint32_t)entity,
-										flags, tag.c_str());
+										flags, "%s", tag.c_str());
 
 		if (ImGui::IsItemClicked())
 		{
@@ -113,7 +137,7 @@ namespace Acorn
 		ImGui::PushID(label.c_str());
 		ImGui::Columns(2);
 		ImGui::SetColumnWidth(0, columnWidth);
-		ImGui::Text(label.c_str());
+		ImGui::Text("%s", label.c_str());
 		ImGui::NextColumn();
 
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
@@ -209,7 +233,7 @@ namespace Acorn
 
 			ImGui::Separator();
 
-			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, label.c_str());
+			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, "%s", label.c_str());
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
 			{
@@ -218,7 +242,7 @@ namespace Acorn
 
 			ImGui::PopStyleVar();
 
-			ImGui::SameLine(contentRegionX - lineHeight * 0.5f);
+			ImGui::SameLine(contentRegionX - lineHeight);
 			if (ImGui::Button("+", ImVec2{lineHeight, lineHeight}))
 			{
 				ImGui::OpenPopup("ComponentSettings");
@@ -273,16 +297,49 @@ namespace Acorn
 
 		if (ImGui::BeginPopup("AddComponent"))
 		{
-			if (ImGui::MenuItem("Sprite Renderer"))
+			if (!entity.HasComponent<Components::SpriteRenderer>())
 			{
-				entity.AddComponent<Components::SpriteRenderer>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Sprite Renderer"))
+				{
+					entity.AddComponent<Components::SpriteRenderer>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 
-			if (ImGui::MenuItem("Camera"))
+			if (!entity.HasComponent<Components::CameraComponent>())
 			{
-				entity.AddComponent<Components::CameraComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Camera"))
+				{
+					entity.AddComponent<Components::CameraComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<Components::JSScript>())
+			{
+				if (ImGui::MenuItem("JS Script"))
+				{
+					entity.AddComponent<Components::JSScript>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<Components::RigidBody2d>())
+			{
+				if (ImGui::MenuItem("Rigid Body 2d"))
+				{
+					entity.AddComponent<Components::RigidBody2d>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<Components::BoxCollider2d>())
+			{
+				if (ImGui::MenuItem("Box Collider 2d"))
+				{
+					entity.AddComponent<Components::BoxCollider2d>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 
 			ImGui::EndPopup();
@@ -429,6 +486,119 @@ namespace Acorn
 
 				if (spriteRenderer.Texture)
 					ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+			});
+
+		DrawComponent<Components::JSScript>(
+			"JS Script", entity,
+			[&](Components::JSScript& jsScript)
+			{
+				char scriptName[256] = {0};
+				if (jsScript.Script && jsScript.Script->GetFilePath().size() > 0)
+				{
+					strcpy_s(scriptName, jsScript.Script->GetFilePath().c_str());
+				}
+				ImGui::InputText("Script Path", scriptName, sizeof(scriptName));
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("JS_SCRIPT_FILE");
+
+					if (payload != nullptr)
+					{
+						auto path = (const wchar_t*)payload->Data;
+						std::filesystem::path fsPath(path);
+						jsScript.LoadScript(fsPath.string());
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::SameLine();
+
+				if (ImGui::Button("Load Script"))
+				{
+					jsScript.LoadScript(scriptName);
+				}
+
+				if (jsScript.Script)
+				{
+					TSScriptData scriptData = jsScript.Script->GetScriptData();
+
+					ImGui::Text("%s", scriptData.ClassName.c_str());
+					ImGui::PushID(scriptData.ClassName.c_str());
+
+					for (auto& field : scriptData.Fields)
+					{
+						ImGui::Text("%s", field.first.c_str());
+						ImGui::SameLine();
+
+						switch (ToV8Type(field.second.Type))
+						{
+							case V8Types::Boolean:
+							{
+								ImGui::Checkbox(fmt::format("##{}", field.first.c_str()).c_str(), &jsScript.Script->GetValue<bool>(field.first));
+							}
+							break;
+							case V8Types::Number:
+							{
+								ImGui::DragFloat(fmt::format("##{}", field.first.c_str()).c_str(), &jsScript.Script->GetValue<float>(field.first), 0.1f, -100.0f, 100.0f, "%.2f", ImGuiSliderFlags_None);
+							}
+							break;
+							case V8Types::String:
+							{
+								//TODO do once
+								std::string value = jsScript.Script->GetValue<std::string>(field.first);
+								char buf[256] = {0};
+								strcpy_s(buf, value.c_str());
+								if (ImGui::InputText(fmt::format("##{}", field.first.c_str()).c_str(), buf, 256))
+								{
+									jsScript.Script->SetValue<std::string>(field.first, std::string(buf));
+								}
+							}
+							break;
+						}
+					}
+					ImGui::PopID();
+				}
+			});
+
+		DrawComponent<Components::RigidBody2d>(
+			"RigidBody", entity,
+			[&](Components::RigidBody2d& rigidBody)
+			{
+				auto bodyTypes = magic_enum::enum_names<Components::RigidBody2d::BodyType>();
+				auto currentBodyType = magic_enum::enum_name(rigidBody.Type);
+
+				if (ImGui::BeginCombo("Body Type", currentBodyType.data()))
+				{
+					for (auto& bodyType : bodyTypes)
+					{
+						bool isSelected = (bodyType == currentBodyType);
+						if (ImGui::Selectable(bodyType.data(), isSelected))
+						{
+							currentBodyType = bodyType;
+							rigidBody.Type = magic_enum::enum_cast<Components::RigidBody2d::BodyType>(bodyType).value();
+						}
+
+						if (isSelected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+
+				ImGui::Checkbox("Fixed Rotation", &rigidBody.FixedRotation);
+			});
+
+		DrawComponent<Components::BoxCollider2d>(
+			"BoxCollider", entity,
+			[&](Components::BoxCollider2d& collider)
+			{
+				ImGui::DragFloat2("Size", glm::value_ptr(collider.Size), 0.1f, 0.0f, 10.0f, "%.2f");
+				ImGui::DragFloat2("Offset", glm::value_ptr(collider.Offset), 0.1f, -10.0f, 10.0f, "%.2f");
+
+				ImGui::DragFloat("Density", &collider.Density, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Friction", &collider.Friction, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Restitution", &collider.Restitution, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Restitution Threshold", &collider.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f");
 			});
 	}
 }

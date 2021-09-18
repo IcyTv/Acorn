@@ -103,5 +103,18 @@ namespace Acorn::Utils
 			}
 			return buffer.str();
 		}
+
+		void WriteFile(const std::string& filePath, const std::string& data)
+		{
+			std::ofstream file(filePath);
+			if (file)
+			{
+				file << data;
+			}
+			else
+			{
+				AC_CORE_ASSERT(false, "Failed to open file!");
+			}
+		}
 	}
 }
