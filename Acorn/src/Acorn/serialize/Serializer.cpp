@@ -7,13 +7,37 @@
 #include "ecs/Scene.h"
 #include "ecs/components/Components.h"
 
-#include <fstream>
-#include <sstream>
-#include <yaml-cpp/yaml.h>
 #include <filesystem>
+#include <fstream>
+#include <magic_enum.hpp>
+#include <sstream>
+#include <yaml-cpp/emittermanip.h>
+#include <yaml-cpp/yaml.h>
 
 namespace YAML
 {
+	template <>
+	struct convert<glm::vec2>
+	{
+		static Node encode(const glm::vec2& rhs)
+		{
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			return node;
+		}
+
+		static bool decode(const Node& node, glm::vec2& rhs)
+		{
+			if (!node.IsSequence() || node.size() != 2)
+				return false;
+
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			return true;
+		}
+	};
+
 	template <>
 	struct convert<glm::vec3>
 	{
@@ -67,9 +91,14 @@ namespace YAML
 
 namespace Acorn
 {
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& vec)
+	{
+		out << YAML::Flow;
+		out << YAML::BeginSeq << vec.x << vec.y << YAML::EndSeq;
+		return out;
+	}
 
-	YAML::Emitter&
-	operator<<(YAML::Emitter& out, const glm::vec3& vec)
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec)
 	{
 		out << YAML::Flow;
 		out << YAML::BeginSeq << vec.x << vec.y << vec.z << YAML::EndSeq;
@@ -141,6 +170,56 @@ namespace Acorn
 		return out;
 	}
 
+	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::JSScript& jsScript)
+	{
+		out << YAML::Value << YAML::BeginMap; //JSScript
+
+		out << YAML::Key << "Path" << YAML::Value << jsScript.Script->GetFilePath();
+
+		if (jsScript.Script)
+		{
+			out << YAML::Key << "Parameters" << YAML::BeginMap; //User Defined Parameters
+
+			for (auto& param : jsScript.Script->GetParameters())
+			{
+				out << YAML::Key << param.first << YAML::Value << param.second;
+			}
+
+			out << YAML::EndMap; //User Defined Parameters
+		}
+		out << YAML::EndMap; //JSScript
+
+		return out;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::RigidBody2d& rigidBody)
+	{
+		out << YAML::Value << YAML::BeginMap; //RigidBody2d
+
+		out << YAML::Key << "Type" << YAML::Value << magic_enum::enum_name<Components::RigidBody2d::BodyType>(rigidBody.Type).data();
+		out << YAML::Key << "FixedRotation" << YAML::Value << rigidBody.FixedRotation;
+
+		out << YAML::EndMap; //RigidBody2d
+		return out;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::BoxCollider2d& boxCollider)
+	{
+		out << YAML::Value << YAML::BeginMap; //BoxCollider2d
+
+		out << YAML::Key << "Size" << YAML::Value << boxCollider.Size;
+		out << YAML::Key << "Offset" << YAML::Value << boxCollider.Offset;
+
+		out << YAML::Key << "Density" << YAML::Value << boxCollider.Density;
+		out << YAML::Key << "Friction" << YAML::Value << boxCollider.Friction;
+		out << YAML::Key << "Restitution" << YAML::Value << boxCollider.Restitution;
+		out << YAML::Key << "RestitutionThreshold" << YAML::Value << boxCollider.RestitutionThreshold;
+
+		out << YAML::EndMap; //BoxCollider2d
+
+		return out;
+	}
+
 	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
 		: m_Scene(scene)
 	{
@@ -170,6 +249,21 @@ namespace Acorn
 		if (entity.HasComponent<Components::SpriteRenderer>())
 		{
 			out << YAML::Key << "SpriteRenderer" << YAML::Value << entity.GetComponent<Components::SpriteRenderer>();
+		}
+
+		if (entity.HasComponent<Components::JSScript>())
+		{
+			out << YAML::Key << "JSScript" << YAML::Value << entity.GetComponent<Components::JSScript>();
+		}
+
+		if (entity.HasComponent<Components::RigidBody2d>())
+		{
+			out << YAML::Key << "RigidBody2d" << YAML::Value << entity.GetComponent<Components::RigidBody2d>();
+		}
+
+		if (entity.HasComponent<Components::BoxCollider2d>())
+		{
+			out << YAML::Key << "BoxCollider2d" << YAML::Value << entity.GetComponent<Components::BoxCollider2d>();
 		}
 
 		out << YAML::EndMap; //Entity
@@ -217,6 +311,7 @@ namespace Acorn
 
 	bool SceneSerializer::Deserialize(const std::string& filePath)
 	{
+		//TODO error handling
 		std::ifstream fin(filePath);
 		std::stringstream buffer;
 		buffer << fin.rdbuf();
@@ -263,6 +358,7 @@ namespace Acorn
 					auto& cc = deserializedEntity.AddComponent<Components::CameraComponent>();
 
 					auto cameraProps = cameraComponent["SceneCamera"];
+					//TODO serialize as string
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["Type"].as<int>());
 
 					cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
@@ -283,6 +379,37 @@ namespace Acorn
 					auto& sr = deserializedEntity.AddComponent<Components::SpriteRenderer>();
 
 					sr.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+				}
+
+				auto jsScriptComponent = entity["JSScript"];
+				if (jsScriptComponent)
+				{
+					auto& jsScript = deserializedEntity.AddComponent<Components::JSScript>();
+
+					jsScript.LoadScript(jsScriptComponent["Path"].as<std::string>());
+				}
+
+				auto rigidBodyComponent = entity["RigidBody2d"];
+				if (rigidBodyComponent)
+				{
+					auto& rb = deserializedEntity.AddComponent<Components::RigidBody2d>();
+
+					rb.FixedRotation = rigidBodyComponent["FixedRotation"].as<bool>();
+					rb.Type = magic_enum::enum_cast<Components::RigidBody2d::BodyType>(rigidBodyComponent["Type"].as<std::string>()).value_or(Components::RigidBody2d::BodyType::Static);
+				}
+
+				auto boxColliderComponent = entity["BoxCollider2d"];
+				if (boxColliderComponent)
+				{
+					auto& bc = deserializedEntity.AddComponent<Components::BoxCollider2d>();
+
+					bc.Size = boxColliderComponent["Size"].as<glm::vec2>();
+					bc.Offset = boxColliderComponent["Offset"].as<glm::vec2>();
+
+					bc.Density = boxColliderComponent["Density"].as<float>();
+					bc.Friction = boxColliderComponent["Friction"].as<float>();
+					bc.Restitution = boxColliderComponent["Restitution"].as<float>();
+					bc.RestitutionThreshold = boxColliderComponent["RestitutionThreshold"].as<float>();
 				}
 			}
 		}

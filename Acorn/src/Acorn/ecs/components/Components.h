@@ -4,12 +4,16 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "SceneCamera.h"
+#include "V8Script.h"
 #include "core/Core.h"
 
 #include "renderer/Texture.h"
 
 #include "ScriptableEntity.h"
 #include "core/Timestep.h"
+#include "utils/FileUtils.h"
+
+#include <v8.h>
 
 namespace Acorn::Components
 {
@@ -34,6 +38,10 @@ namespace Acorn::Components
 		Transform(const Transform&) = default;
 		Transform(glm::vec3 translation)
 			: Translation(translation) {}
+		Transform(glm::vec3 translation, glm::vec3 rotation)
+			: Translation(translation), Rotation(rotation) {}
+		Transform(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
+			: Translation(translation), Rotation(rotation), Scale(scale) {}
 
 		glm::mat4 GetTransform() const
 		{
@@ -98,5 +106,75 @@ namespace Acorn::Components
 				script->Instance = nullptr;
 			};
 		}
+	};
+
+	struct JSScript
+	{
+		//TODO ref, because V8Engine keeps a reference to the Script as well...?
+		//TODO multiple scripts per entity?
+		V8Script* Script = nullptr;
+
+		JSScript() = default;
+		JSScript(const std::string& filepath)
+		{
+			Script = new V8Script(filepath);
+		}
+		~JSScript()
+		{
+			//TODO memory leak?
+			// delete Script;
+		}
+
+		void LoadScript(const std::string& filepath)
+		{
+			Script = new V8Script(filepath);
+		}
+
+		void OnUpdate(Timestep ts)
+		{
+			if (Script)
+			{
+				Script->OnUpdate(ts);
+			}
+		}
+	};
+
+	//Physics
+	struct RigidBody2d
+	{
+		enum class BodyType
+		{
+			Static = 0,
+			Dynamic,
+			Kinematic,
+		};
+		BodyType Type = BodyType::Static;
+		bool FixedRotation = false;
+
+		//Storage for runtime
+		//NOTE this might not have to be stored here, but as a map in scene
+		void* RuntimeBody = nullptr;
+
+		RigidBody2d() = default;
+		RigidBody2d(const RigidBody2d&) = default;
+	};
+
+	struct BoxCollider2d
+	{
+		glm::vec2 Offset = {0.0f, 0.0f};
+		glm::vec2 Size = {0.5f, 0.5f};
+
+		//TODO move into physics material later
+		float Density = 1.0f;
+		float Friction = 1.0f;
+		float Restitution = 0.0f;
+		float RestitutionThreshold = 0.5f;
+
+		//Storage for runtime
+		//NOTE this might not have to be stored here, but as a map in scene
+		void* RuntimeFixture = nullptr;
+
+		BoxCollider2d() = default;
+		BoxCollider2d(const BoxCollider2d&) = default;
 	};
 }

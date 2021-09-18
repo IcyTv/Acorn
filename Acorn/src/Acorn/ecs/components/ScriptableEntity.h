@@ -45,10 +45,11 @@ namespace Acorn
 	protected:
 		virtual void OnCreate(){};
 		virtual void OnDestroy(){};
-		virtual void OnUpdate(Timestep ts){};
+		virtual void OnUpdate(Timestep){};
 
 	private:
 		Entity m_Entity;
 		friend class Scene;
+		friend class V8Script;
 	};
 }

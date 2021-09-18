@@ -301,7 +301,7 @@ namespace Acorn
 			UI_Toolbar();
 			// Gizmos
 			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-			if (selectedEntity && m_GizmoType != GizmoType::None)
+			if (selectedEntity && m_GizmoType != GizmoType::None && m_SceneState == SceneState::Edit)
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
@@ -470,6 +470,18 @@ namespace Acorn
 					return true;
 				}
 				break;
+				case KeyCode::F5:
+				{
+					if (m_SceneState == SceneState::Edit)
+					{
+						OnScenePlay();
+					}
+					else if (m_SceneState == SceneState::Play)
+					{
+						OnSceneStop();
+					}
+				}
+				break;
 				default:
 					return false;
 			}
@@ -540,11 +552,13 @@ namespace Acorn
 
 	void OakLayer::OnScenePlay()
 	{
+		m_ActiveScene->InitializeRuntime();
 		m_SceneState = SceneState::Play;
 	}
 
 	void OakLayer::OnSceneStop()
 	{
+		m_ActiveScene->DestroyRuntime();
 		m_SceneState = SceneState::Edit;
 	}
 
