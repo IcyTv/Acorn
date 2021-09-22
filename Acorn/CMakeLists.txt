@@ -55,6 +55,8 @@ find_package(Threads REQUIRED)
 find_package(V8 CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 find_package(box2d REQUIRED)
+find_package(cereal REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb.h")
 find_path(MAGIC_ENUM_INCLUDE_DIRS "magic_enum.hpp")
 
@@ -100,7 +102,7 @@ target_include_directories(Acorn
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=0 -DAC_DEBUG)
+    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=1 -DAC_DEBUG)
 endif()
 
 if(WIN32)
@@ -159,6 +161,8 @@ target_link_libraries(Acorn PRIVATE Threads::Threads)
 target_link_libraries(Acorn PUBLIC V8::V8)
 target_link_libraries(Acorn PRIVATE Boost::boost)
 target_link_libraries(Acorn PRIVATE box2d::box2d)
+target_link_libraries(Acorn PRIVATE cereal)
+target_link_libraries(Acorn PRIVATE OpenSSL::Crypto)
 
 # set(V8_LIB_PATH "${CMAKE_SOURCE_DIR}/../v8/v8/out.gn/x64.debug/obj")
 

@@ -5,6 +5,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <openssl/md5.h>
 #include <yaml-cpp/yaml.h>
 
 namespace Acorn::Utils
@@ -115,6 +116,45 @@ namespace Acorn::Utils
 			{
 				AC_CORE_ASSERT(false, "Failed to open file!");
 			}
+		}
+
+		std::string MD5HashFilePath(const std::string& filePath)
+		{
+			std::basic_ifstream<unsigned char> file(filePath);
+			file.seekg(0, std::ios::end);
+			size_t fileSize = file.tellg();
+			file.seekg(0, std::ios::beg);
+			unsigned char outBuf[16]; //MD5 digest size
+			std::vector<unsigned char> fileBuf(fileSize);
+
+			if (!file.read(fileBuf.data(), fileSize))
+			{
+				AC_CORE_ASSERT(false, "Failed to read file!");
+			}
+
+			MD5(fileBuf.data(), fileSize, outBuf);
+
+			std::stringstream buffer;
+			buffer << std::hex;
+			for (int i = 0; i < 16; i++)
+			{
+				buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
+			}
+			return buffer.str();
+		}
+
+		std::string MD5HashString(const std::string& data)
+		{
+			unsigned char outBuf[16]; //MD5 digest size
+			MD5(reinterpret_cast<const unsigned char*>(data.c_str()), data.size(), outBuf);
+
+			std::stringstream buffer;
+			buffer << std::hex;
+			for (int i = 0; i < 16; i++)
+			{
+				buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
+			}
+			return buffer.str();
 		}
 	}
 }

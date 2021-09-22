@@ -8,15 +8,9 @@ layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_TilingFactor;
 layout(location = 5) in int a_EntityId;
 
-// out vec2 v_TexCoord;
-// out vec4 v_Color;
-// out float v_TexIndex;
-// out float v_TilingFactor;
 layout(std140, binding = 0) uniform Camera
 {
 	mat4 u_ViewProjection;
-	vec3 u_CameraRight;
-	vec3 u_CameraUp;
 };
 
 struct VertexOutput
@@ -59,13 +53,6 @@ layout(location = 4) in flat int v_EntityId;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out int entityId;
-
-// in vec2 v_TexCoord;
-// in vec4 v_Color;
-// in float v_TexIndex;
-// in float v_TilingFactor;
-// flat in int v_EntityId;
-
 
 layout (binding = 0) uniform sampler2D u_Textures[32];
 

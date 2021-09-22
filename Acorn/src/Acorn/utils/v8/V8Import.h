@@ -2,24 +2,40 @@
 
 #include "core/Core.h"
 #include "core/Log.h"
+#include "debug/Instrumentor.h"
 #include "utils/FileUtils.h"
 
+#include <fstream>
+#include <unordered_map>
 #include <v8.h>
 #include <v8pp/convert.hpp>
 
 #include <filesystem>
 #include <vector>
 
+constexpr const char* MODULE_CACHE_PATH = "res/cache/scripts";
+
 namespace Acorn
 {
 	//TODO cache compiled module results...
+	//TODO cache isolate for reuse with multiple scripts?
+	struct CompilerData
+	{
+		//NOTE maybe just save unsigned char*
+		//Map hash to cache file path
+		std::unordered_map<std::string, std::filesystem::path> CompileCache;
+	};
+
+	static CompilerData s_Data;
 
 	static v8::MaybeLocal<v8::Module> loadModule(const std::string& code, const char* name, v8::Local<v8::Context> cx)
 	{
+		AC_PROFILE_FUNCTION();
 		AC_CORE_TRACE("Loading {}", name);
 
+		std::string md5Hash = Utils::File::MD5HashString(code);
+		AC_CORE_TRACE("MD5HashString {} {}", name, md5Hash);
 		v8::Local<v8::String> vcode = v8pp::to_v8(cx->GetIsolate(), code);
-		;
 
 		v8::ScriptOrigin origin(
 			v8::String::NewFromUtf8(cx->GetIsolate(), name).ToLocalChecked(),
@@ -30,32 +46,69 @@ namespace Acorn
 			v8::True(cx->GetIsolate()));
 
 		v8::Context::Scope context_scope(cx);
-		v8::ScriptCompiler::Source source(vcode, origin);
 
-		// v8::Local<v8::Value> exports = v8::True(cx->GetIsolate());
+		//Check cache
+		if (s_Data.CompileCache.find(md5Hash) != s_Data.CompileCache.end() && std::filesystem::exists(s_Data.CompileCache[md5Hash]))
+		{
+			AC_PROFILE_SCOPE("Cache Hit");
 
-		// v8::Local<v8::ObjectTemplate> module = v8::ObjectTemplate::New(cx->GetIsolate());
-		// module->Set(v8::String::NewFromUtf8(cx->GetIsolate(), "exports").ToLocalChecked(), exports);
+			//Load from cache
+			std::filesystem::path cachePath = s_Data.CompileCache[md5Hash];
 
-		// cx->Global()->Set(cx, v8::String::NewFromUtf8(cx->GetIsolate(), "module").ToLocalChecked(), module->NewInstance(cx).ToLocalChecked()).Check();
+			std::basic_ifstream<uint8_t> cacheFile(cachePath.string(), std::ios::binary);
+			AC_CORE_ASSERT(cacheFile.is_open(), "Could not open cache file!");
+			cacheFile.seekg(0, std::ios::end);
+			size_t cacheSize = cacheFile.tellg();
+			cacheFile.seekg(0, std::ios::beg);
+			uint8_t* cacheData = new uint8_t[cacheSize];
+			cacheFile.read(cacheData, cacheSize);
 
-		v8::MaybeLocal<v8::Module> mod = v8::ScriptCompiler::CompileModule(cx->GetIsolate(), &source);
+			cacheFile.close();
 
-		// if (exports.IsEmpty() || exports->IsBoolean())
-		// {
-		// 	AC_CORE_BREAK();
-		// }
-		// else if (!exports->IsNullOrUndefined())
-		// {
-		// 	AC_CORE_TRACE("Exports: {}", v8pp::from_v8<std::string>(cx->GetIsolate(), exports));
-		// 	AC_CORE_BREAK();
-		// }
+			v8::ScriptCompiler::CachedData* v8cachedData = new v8::ScriptCompiler::CachedData(cacheData, cacheSize);
 
-		return mod;
+			v8::ScriptCompiler::Source source(vcode, origin, v8cachedData);
+
+			v8::MaybeLocal<v8::Module> mod = v8::ScriptCompiler::CompileModule(cx->GetIsolate(), &source, v8::ScriptCompiler::CompileOptions::kConsumeCodeCache);
+
+			delete[] cacheData;
+
+			return mod;
+		}
+		else
+		{
+			AC_PROFILE_SCOPE("Cache Miss");
+			v8::ScriptCompiler::Source source(vcode, origin);
+			//Compile
+
+			v8::MaybeLocal<v8::Module> mod = v8::ScriptCompiler::CompileModule(cx->GetIsolate(), &source);
+
+			v8::Local<v8::UnboundModuleScript> script = mod.ToLocalChecked()->GetUnboundModuleScript();
+			v8::ScriptCompiler::CachedData* data = v8::ScriptCompiler::CreateCodeCache(script);
+
+			AC_CORE_ASSERT(data != nullptr, "Failed to create code cache");
+
+			//TODO naming? [first 2]/[rest]?
+			std::filesystem::path cachePath = MODULE_CACHE_PATH;
+			if (!std::filesystem::exists(cachePath))
+				std::filesystem::create_directories(cachePath);
+
+			cachePath /= md5Hash;
+			cachePath += ".js.cache";
+
+			std::basic_ofstream<uint8_t> cacheFile(cachePath.string(), std::ios::binary);
+			cacheFile.write(data->data, data->length);
+			cacheFile.close();
+
+			s_Data.CompileCache[md5Hash] = cachePath;
+
+			return mod;
+		}
 	}
 
 	v8::MaybeLocal<v8::Module> callResolve(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer)
 	{
+		AC_PROFILE_FUNCTION();
 		v8::Local<v8::FixedArray> moduleRequests = referrer->GetModuleRequests();
 		v8::Local<v8::ModuleRequest> request = moduleRequests->Get(context, 0).As<v8::ModuleRequest>();
 		v8::Local<v8::String> requestSpecifier = request->GetSpecifier();
@@ -106,6 +159,8 @@ namespace Acorn
 
 	static v8::Local<v8::Module> checkModule(v8::MaybeLocal<v8::Module> maybeModule, v8::Local<v8::Context> cx)
 	{
+		AC_PROFILE_FUNCTION();
+		v8::HandleScope handle_scope(cx->GetIsolate());
 		v8::Local<v8::Module> mod;
 		if (!maybeModule.ToLocal(&mod))
 		{
@@ -148,6 +203,8 @@ namespace Acorn
 
 	static v8::Local<v8::Value> execModule(v8::Local<v8::Module> mod, v8::Local<v8::Context> cx, bool nsObject = false)
 	{
+		//TODO speed up
+		AC_PROFILE_FUNCTION();
 		v8::Local<v8::Value> retVal;
 		if (!mod->Evaluate(cx).ToLocal(&retVal))
 		{
@@ -172,6 +229,7 @@ namespace Acorn
 						 v8::Local<v8::Module> module,
 						 v8::Local<v8::Object> meta)
 	{
+		AC_PROFILE_FUNCTION();
 
 		// In this example, this is throw-away function. But it shows that you can
 		// bind module's url. Here, placeholder is used.
@@ -187,6 +245,7 @@ namespace Acorn
 												   v8::Local<v8::ScriptOrModule> referrer,
 												   v8::Local<v8::String> specifier)
 	{
+		AC_PROFILE_FUNCTION();
 		v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
 		v8::MaybeLocal<v8::Promise> maybePromise = resolver->GetPromise();
 
@@ -200,6 +259,7 @@ namespace Acorn
 
 	void BindImport(v8::Isolate* isolate)
 	{
+		AC_PROFILE_FUNCTION();
 		//TODO use synthetic module to bind module.export?
 		// Binding dynamic import() callback
 		isolate->SetHostImportModuleDynamicallyCallback(callDynamic);

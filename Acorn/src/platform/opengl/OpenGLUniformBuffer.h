@@ -11,6 +11,8 @@ namespace Acorn
 		OpenGLUniformBuffer(uint32_t size, uint32_t binding);
 		virtual ~OpenGLUniformBuffer();
 
+		virtual void Bind() override;
+
 		virtual void SetData(const void* data, uint32_t size, uint32_t offset = 0) override;
 
 	private:

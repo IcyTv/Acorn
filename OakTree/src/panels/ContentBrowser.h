@@ -7,10 +7,12 @@
 
 namespace Acorn
 {
+	class OakLayer;
+
 	class ContentBrowserPanel
 	{
 	public:
-		ContentBrowserPanel();
+		ContentBrowserPanel(OakLayer* layer);
 
 		void OnImGuiRender();
 
@@ -20,6 +22,8 @@ namespace Acorn
 
 	private:
 		std::filesystem::path m_CurrentPath;
+
+		OakLayer* m_Layer;
 
 		Ref<Texture2d> m_FolderIcon;
 		Ref<Texture2d> m_FileIcon;

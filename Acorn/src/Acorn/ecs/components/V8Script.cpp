@@ -15,6 +15,7 @@
 #include <boost/variant/detail/apply_visitor_delayed.hpp>
 #include <boost/variant/get.hpp>
 #include <boost/variant/static_visitor.hpp>
+#include <fstream>
 #include <functional>
 #include <glm/detail/qualifier.hpp>
 #include <memory>
@@ -41,6 +42,8 @@
 	case ComponentsEnum::name:                                                     \
 		args.GetReturnValue().Set(obj->HasComponent<Components::componentName>()); \
 		break;
+
+constexpr const char* SNAPSHOT_DATA_PATH = "res/cache/snapshots";
 
 //FIXME templating?
 template <>
@@ -194,6 +197,8 @@ namespace Acorn
 		Camera = 3,
 		NativeScript = 4,
 		V8Script = 5,
+		RigidBody2d = 6,
+		BoxCollider2d = 7,
 	};
 
 	class ScriptSuperClass : public ScriptableEntity
@@ -264,6 +269,8 @@ namespace Acorn
 			COMPONENT_SWITCH_HAS(SpriteRenderer)
 			COMPONENT_SWITCH_HAS2(Camera, CameraComponent)
 			COMPONENT_SWITCH_HAS(NativeScript)
+			COMPONENT_SWITCH_HAS(RigidBody2d)
+			COMPONENT_SWITCH_HAS(BoxCollider2d)
 			default:
 				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component")));
 				break;
@@ -377,6 +384,35 @@ namespace Acorn
 				}
 			}
 			break;
+			//TODO others
+			case ComponentsEnum::RigidBody2d:
+			{
+				if (!obj->HasComponent<Components::RigidBody2d>())
+				{
+					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No RigidBody2d Component")));
+					return;
+				}
+
+				Components::RigidBody2d& rigidBody2dComponent = obj->GetComponent<Components::RigidBody2d>();
+				try
+				{
+					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, rigidBody2dComponent);
+					// v8::Local<v8::ObjectTemplate> v8Templ = v8::ObjectTemplate::New(isolate);
+					// v8Templ->SetInternalFieldCount(1);
+
+					// v8::Local<v8::Object> v8Obj = v8Obj->NewInstance();
+					// v8Obj->SetInternalField(0, &obj);
+
+					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert RigidBody2d");
+
+					args.GetReturnValue().Set(v8Obj);
+				}
+				catch (std::runtime_error& e)
+				{
+					AC_CORE_ERROR("{0}", e.what());
+				}
+			}
+			break;
 			default:
 				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component")));
 				break;
@@ -459,6 +495,37 @@ namespace Acorn
 		create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
 		m_Isolate = v8::Isolate::New(create_params);
 
+		std::string sourceCode = Utils::File::ReadFile(m_JSFilePath);
+
+		std::string md5Hash = Utils::File::MD5HashString(sourceCode);
+
+		std::filesystem::path snapshotPath(SNAPSHOT_DATA_PATH);
+		if (!std::filesystem::exists(snapshotPath))
+			std::filesystem::create_directories(snapshotPath);
+
+		snapshotPath /= md5Hash;
+		snapshotPath += ".snapshot";
+
+		AC_CORE_INFO("Trying to load Snapshot from {}", snapshotPath.string());
+		v8::StartupData* snapshot = nullptr;
+		if (std::filesystem::exists(snapshotPath))
+		{
+			std::ifstream file(snapshotPath.string(), std::ios::binary);
+			AC_CORE_ASSERT(file.is_open(), "Failed to open snapshot file!");
+			file.seekg(0, std::ios::end);
+			std::size_t size = file.tellg();
+			file.seekg(0, std::ios::beg);
+			char* data = new char[size];
+			file.read(data, size);
+			file.close();
+
+			snapshot = new v8::StartupData();
+			snapshot->data = data;
+			snapshot->raw_size = size;
+		}
+
+		v8::SnapshotCreator snapshotCreator(m_Isolate, nullptr, snapshot);
+
 		AC_CORE_ASSERT(m_Isolate, "Failed to create V8 isolate!");
 		AC_CORE_ASSERT(m_Isolate != nullptr, "V8 Isolate is null!");
 
@@ -471,6 +538,9 @@ namespace Acorn
 		v8::HandleScope handle_scope(m_Isolate);
 
 		v8::Local<v8::Context> context = CreateShellContext();
+
+		snapshotCreator.SetDefaultContext(context);
+
 		// m_Context = context;
 		// m_Context.Reset(m_Isolate, context);
 		m_Context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(m_Isolate, context);
@@ -481,7 +551,6 @@ namespace Acorn
 		v8::Context::Scope context_scope(context);
 		{
 			// Create a string containing the JavaScript source code.
-			std::string sourceCode = Utils::File::ReadFile(m_JSFilePath);
 			v8::Local<v8::String> source =
 				v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
 			// Compile the source code.
@@ -555,6 +624,20 @@ namespace Acorn
 			//OnDestroy
 			//...
 		}
+
+		v8::StartupData serializedData = snapshotCreator.CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kKeep);
+
+		AC_CORE_INFO("Writing Snapshot to {}", snapshotPath.string());
+
+		std::ofstream out(snapshotPath.string(), std::ios::binary);
+
+		AC_CORE_ASSERT(out, "Failed to write snapshot");
+
+		out.write(reinterpret_cast<const char*>(serializedData.data), serializedData.raw_size);
+
+		out.close();
+
+		AC_CORE_INFO("Snapshot written to {}", snapshotPath.string());
 	}
 
 	void V8Script::Dispose()
@@ -709,8 +792,13 @@ namespace Acorn
 			.set("TagName", &Components::Tag::TagName)
 			.auto_wrap_objects(true);
 
+		v8pp::class_<Components::RigidBody2d> rigidBody2d(m_Isolate);
+		rigidBody2d.ctor<>()
+			.set("AddForce", &Components::RigidBody2d::AddForce)
+			.auto_wrap_objects(true);
+
 		componentModule.set("Tag", tag);
-		// componentModule.set("Transform", transform);
+		componentModule.set("RigidBody2d", rigidBody2d);
 
 		global->Set(v8pp::to_v8(m_Isolate, "Components"), componentModule.impl());
 	}

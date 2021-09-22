@@ -2,47 +2,9 @@ Scene: Untitled Scene
 Entities:
   - Entity: 1234567890
     Tag:
-      Tag: Ground
-    Transform:
-      Translation: [0, -1.99293768, 0]
-      Rotation: [0, -0, 0]
-      Scale: [9.80721664, 1, 1]
-    SpriteRenderer:
-      Color: [1, 1, 1, 1]
-    RigidBody2d:
-      Type: Static
-      FixedRotation: false
-    BoxCollider2d:
-      Size: [0.5, 0.5]
-      Offset: [0, 0]
-      Density: 1
-      Friction: 1
-      Restitution: 0
-      RestitutionThreshold: 0.5
-  - Entity: 1234567890
-    Tag:
-      Tag: Box Test
-    Transform:
-      Translation: [0.461196721, 4.06674433, 0]
-      Rotation: [0, 0, -2.03348613]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      Color: [1, 1, 1, 1]
-    RigidBody2d:
-      Type: Dynamic
-      FixedRotation: false
-    BoxCollider2d:
-      Size: [0.5, 0.5]
-      Offset: [0, 0]
-      Density: 1
-      Friction: 1
-      Restitution: 0.709999979
-      RestitutionThreshold: 0.5
-  - Entity: 1234567890
-    Tag:
       Tag: Camera
     Transform:
-      Translation: [0, 0, 6.18304539]
+      Translation: [3.7252903e-09, 0.970976353, 8.23327255]
       Rotation: [0, -0, 0]
       Scale: [1, 1, 1]
     Camera:
@@ -56,3 +18,115 @@ Entities:
         PerspectiveFarClip: 1000
       FixedAspectRatio: false
       Primary: true
+  - Entity: 1234567890
+    Tag:
+      Tag: Box 1
+    Transform:
+      Translation: [0.461196721, 4.06674433, 0]
+      Rotation: [0, 0, -2.03348613]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [0.779898703, 0.0658014193, 0.974683523, 1]
+    JSScript:
+      Path: res\scripts\test.ts
+      Parameters:
+        {}
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0.99000001
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 1234567890
+    Tag:
+      Tag: Ground
+    Transform:
+      Translation: [0, -1.99293768, 0]
+      Rotation: [0, -0, 0]
+      Scale: [63.4864693, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 1234567890
+    Tag:
+      Tag: Wall 1
+    Transform:
+      Translation: [-8.60913467, 3.10545468, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 9.53770256, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 1234567890
+    Tag:
+      Tag: Wall 2
+    Transform:
+      Translation: [8.41872597, 2.7698431, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 9.28347874, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 1234567890
+    Tag:
+      Tag: Box 2
+    Transform:
+      Translation: [-0.330634803, 2.36590576, 0]
+      Rotation: [0, -0, 0.445553064]
+      Scale: [0.999999762, 0.999999762, 1]
+    SpriteRenderer:
+      Color: [0, 0.943948567, 0.978902936, 1]
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 0.289999992
+      Friction: 1
+      Restitution: 0.200000003
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 1234567890
+    Tag:
+      Tag: Roof
+    Transform:
+      Translation: [0, 7.76013803, 0]
+      Rotation: [0, -0, 0]
+      Scale: [18.1300545, 1, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]

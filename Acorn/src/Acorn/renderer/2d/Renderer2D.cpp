@@ -35,8 +35,6 @@ namespace Acorn::ext2d
 		struct CameraData
 		{
 			glm::mat4 ViewProjection;
-			glm::vec4 CameraRight;
-			glm::vec4 CameraUp;
 		};
 
 		CameraData CameraBuffer;
@@ -70,8 +68,6 @@ namespace Acorn::ext2d
 
 		std::array<uint32_t, 6> indices = {0, 1, 2, 2, 3, 0};
 		s_Data.BatchRenderer = CreateScope<BatchRenderer<QuadVertex, 6, 4>>(s_Data.TextureShader, indices, layout);
-
-		s_Data.TextureShader->Bind();
 		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2dStorage::CameraData), 0);
 	}
 
@@ -85,8 +81,6 @@ namespace Acorn::ext2d
 		AC_PROFILE_FUNCTION();
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
-		s_Data.CameraBuffer.CameraRight = glm::vec4(camera.GetRightDirection(), 0.0f);
-		s_Data.CameraBuffer.CameraUp = glm::vec4(camera.GetUpDirection(), 0.0f);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2dStorage::CameraData));
 
 		s_Data.BatchRenderer->Begin();
@@ -106,6 +100,7 @@ namespace Acorn::ext2d
 	{
 		AC_PROFILE_FUNCTION();
 
+		s_Data.CameraUniformBuffer->Bind();
 		s_Data.BatchRenderer->End();
 	}
 
@@ -304,7 +299,7 @@ namespace Acorn::ext2d
 
 	uint32_t Renderer::GetQuadCount()
 	{
-		return s_Data.BatchRenderer->GetStats().QuadCount;
+		return s_Data.BatchRenderer->GetStats().ObjectCount;
 	}
 
 	uint32_t Renderer::GetIndexCount()

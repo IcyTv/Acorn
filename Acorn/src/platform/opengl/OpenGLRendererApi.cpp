@@ -38,6 +38,12 @@ namespace Acorn
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
+	void OpenGLRendererApi::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count)
+	{
+		uint32_t indexCount = count ? count : vertexArray->GetIndexBuffer()->GetCount();
+		glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
+	}
+
 	const char* OpenGLRendererApi::GetRenderer() const
 	{
 		return (const char*)glGetString(GL_RENDERER);

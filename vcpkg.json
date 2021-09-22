@@ -34,6 +34,8 @@
 		"magic-enum",
 		"v8",
 		"boost-variant",
-		"box2d"
+		"box2d",
+		"cereal",
+		"openssl"
 	]
 }

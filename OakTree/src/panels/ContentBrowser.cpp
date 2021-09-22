@@ -1,5 +1,7 @@
 #include "ContentBrowser.h"
 
+#include "OakLayer.h"
+
 #include <future>
 #include <imgui.h>
 #include <queue>
@@ -23,8 +25,8 @@ namespace Acorn
 		return std::make_pair(filename, texture);
 	}
 
-	ContentBrowserPanel::ContentBrowserPanel()
-		: m_CurrentPath(s_AssetsDirectory)
+	ContentBrowserPanel::ContentBrowserPanel(OakLayer* layer)
+		: m_CurrentPath(s_AssetsDirectory), m_Layer(layer)
 	{
 		m_FolderIcon = Texture2d::Create("res/textures/icons/appicns/appicns_FolderGeneric.png");
 		m_FileIcon = Texture2d::Create("res/textures/icons/appicns/appicns_OtherDocument.png");
@@ -140,6 +142,10 @@ namespace Acorn
 					command.append(" ");
 					command.append(file.path().string());
 					system(command.c_str());
+				}
+				else if (file.path().extension() == ".acorn")
+				{
+					m_Layer->OpenScene(file.path());
 				}
 			}
 			ImGui::TextWrapped("%s", fileName.c_str());

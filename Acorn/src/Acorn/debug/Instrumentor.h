@@ -229,11 +229,11 @@ namespace Acorn
 		#define AC_FUNC_SIG "AC_FUNC_SIG unknown!"
 	#endif
 
-	#define AC_PROFILE_BEGIN_SESSION(name, filepath) ::Hazel::Instrumentor::Get().BeginSession(name, filepath)
-	#define AC_PROFILE_END_SESSION() ::Hazel::Instrumentor::Get().EndSession()
+	#define AC_PROFILE_BEGIN_SESSION(name, filepath) ::Acorn::Instrumentor::Get().BeginSession(name, filepath)
+	#define AC_PROFILE_END_SESSION() ::Acorn::Instrumentor::Get().EndSession()
 	#define AC_PROFILE_SCOPE_LINE2(name, line)                                                              \
-		constexpr auto fixedName##line = ::Hazel::InstrumentorUtils::CleanupOutputString(name, "__cdecl "); \
-		::Hazel::InstrumentationTimer timer##line(fixedName##line.Data)
+		constexpr auto fixedName##line = ::Acorn::InstrumentorUtils::CleanupOutputString(name, "__cdecl "); \
+		::Acorn::InstrumentationTimer timer##line(fixedName##line.Data)
 	#define AC_PROFILE_SCOPE_LINE(name, line) AC_PROFILE_SCOPE_LINE2(name, line)
 	#define AC_PROFILE_SCOPE(name) AC_PROFILE_SCOPE_LINE(name, __LINE__)
 	#define AC_PROFILE_FUNCTION() AC_PROFILE_SCOPE(AC_FUNC_SIG)

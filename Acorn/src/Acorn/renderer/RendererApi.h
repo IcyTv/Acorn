@@ -11,7 +11,8 @@ namespace Acorn
 	public:
 		enum class Api
 		{
-			None = 0, OpenGL = 1,
+			None = 0,
+			OpenGL = 1,
 		};
 
 	public:
@@ -23,12 +24,14 @@ namespace Acorn
 		virtual void Clear() = 0;
 
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount) = 0;
+		virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count) = 0;
 
 		inline static Api GetAPI() { return s_API; }
 
 		virtual const char* GetRenderer() const = 0;
 		virtual const char* GetVersion() const = 0;
 		virtual const char* GetVendor() const = 0;
+
 	private:
 		static Api s_API;
 	};

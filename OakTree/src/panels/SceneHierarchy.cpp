@@ -39,7 +39,7 @@ namespace Acorn
 				DrawEntityNode(entity);
 			});
 
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && !ImGui::IsItemHovered())
 		{
 			m_SelectionContext = {};
 		}
@@ -586,6 +586,13 @@ namespace Acorn
 				}
 
 				ImGui::Checkbox("Fixed Rotation", &rigidBody.FixedRotation);
+
+				ImGui::Separator();
+
+				ImGui::DragFloat("Density", &rigidBody.Density, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Friction", &rigidBody.Friction, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Restitution", &rigidBody.Restitution, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Restitution Threshold", &rigidBody.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f");
 			});
 
 		DrawComponent<Components::BoxCollider2d>(
@@ -594,11 +601,6 @@ namespace Acorn
 			{
 				ImGui::DragFloat2("Size", glm::value_ptr(collider.Size), 0.1f, 0.0f, 10.0f, "%.2f");
 				ImGui::DragFloat2("Offset", glm::value_ptr(collider.Offset), 0.1f, -10.0f, 10.0f, "%.2f");
-
-				ImGui::DragFloat("Density", &collider.Density, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Friction", &collider.Friction, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Restitution", &collider.Restitution, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Restitution Threshold", &collider.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f");
 			});
 	}
 }

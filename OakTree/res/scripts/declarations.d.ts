@@ -7,6 +7,8 @@ declare enum ComponentTypes {
     Camera = 3,
     NativeScript = 4,
     V8Script = 5,
+    RigidBody2d = 6,
+    BoxCollider2d = 7,
 }
 
 declare class ScriptSuperClass {
@@ -14,6 +16,7 @@ declare class ScriptSuperClass {
     GetComponent(type: ComponentTypes.Tag): Components.Tag;
     GetComponent(type: ComponentTypes.Transform): Components.Transform;
     GetComponent(type: ComponentTypes.SpriteRenderer): Components.SpriteRenderer;
+    GetComponent(type: ComponentTypes.RigidBody2d): Components.RigidBody2d;
 }
 
 declare class Input {
@@ -60,6 +63,10 @@ declare namespace Components {
 
     export class SpriteRenderer {
         Color: math.vec4;
+    }
+
+    export class RigidBody2d {
+        AddForce(force: math.vec2): void;
     }
 }
 

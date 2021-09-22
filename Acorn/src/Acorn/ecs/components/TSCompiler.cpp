@@ -5,6 +5,7 @@
 #include "V8Script.h"
 #include "core/Core.h"
 #include "core/Log.h"
+#include "debug/Instrumentor.h"
 #include "utils/FileUtils.h"
 #include "utils/v8/V8Import.h"
 
@@ -129,6 +130,7 @@ namespace Acorn
 
 	static void WaitForPendingPromise(const v8::Local<v8::Promise>& promise, v8::Isolate* isolate, const v8::TryCatch& trycatch)
 	{
+		AC_PROFILE_FUNCTION();
 		v8::HandleScope handle_scope(isolate);
 		while (promise->State() == v8::Promise::kPending)
 		{
@@ -146,7 +148,11 @@ namespace Acorn
 
 	TSScriptData TSCompiler::Compile(v8::Isolate* isolate, const std::string& filepath)
 	{
-		AC_CORE_ASSERT(std::filesystem::exists(filepath), "File not found");
+		AC_PROFILE_FUNCTION();
+		{
+			AC_PROFILE_SCOPE("std::filesystem::exists(filepath)");
+			AC_CORE_ASSERT(std::filesystem::exists(filepath), "File not found");
+		}
 		AC_CORE_ASSERT(V8Engine::instance().isRunning(), "V8 Engine is not running");
 		// V8Engine::instance().KeepRunning();
 

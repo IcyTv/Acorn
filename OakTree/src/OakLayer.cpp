@@ -1,4 +1,8 @@
 #include "OakLayer.h"
+#include "ecs/Entity.h"
+#include "ecs/Scene.h"
+#include "ecs/components/Components.h"
+#include "renderer/Texture.h"
 #include "utils/fonts/IconsFontAwesome4.h"
 
 #include <Acorn/utils/fonts/IconsFontAwesome4.h>
@@ -7,6 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <imgui.h>
+#include <memory>
 
 namespace Acorn
 {
@@ -25,6 +30,12 @@ namespace Acorn
 		fbSpecs.Height = Application::Get().GetWindow().GetHeight();
 		m_Framebuffer = Framebuffer::Create(fbSpecs);
 
+		FrameBufferSpecs ccSpecs;
+		ccSpecs.Attachments = {FBTF::RGBA8, FBTF::Depth};
+		ccSpecs.Width = m_CameraPreviewSize.x;
+		ccSpecs.Height = m_CameraPreviewSize.y;
+		m_CurrentCameraFramebuffer = Framebuffer::Create(ccSpecs);
+
 		m_ActiveScene = CreateRef<Scene>();
 
 		//Serialization
@@ -38,7 +49,7 @@ namespace Acorn
 		else
 		{
 			SceneSerializer serializer(m_ActiveScene);
-			std::string defaultProject = "res/scenes/PinkCube.acorn";
+			std::string defaultProject = "res/scenes/PhysicsTest.acorn";
 			serializer.Deserialize(defaultProject);
 			m_CurrentFilePath = defaultProject;
 		}
@@ -53,7 +64,7 @@ namespace Acorn
 		m_LogPanel->set_pattern("%^[%=8n][%T][%l]: %v%$");
 		Log::AddSink(m_LogPanel);
 
-		m_ContentBrowserPanel = CreateRef<ContentBrowserPanel>();
+		m_ContentBrowserPanel = CreateRef<ContentBrowserPanel>(this);
 	}
 
 	void OakLayer::OnDetach()
@@ -116,6 +127,34 @@ namespace Acorn
 		}
 
 		m_Framebuffer->Unbind();
+
+		//Render Main Camera
+		if (m_SceneState == SceneState::Edit)
+		{
+			Entity selected = m_PinnedEntity;
+			if (!selected)
+				selected = m_SceneHierarchyPanel.GetSelectedEntity();
+
+			if (selected && selected.HasComponent<Components::CameraComponent>())
+			{
+				if (m_CurrentCameraFramebuffer->GetSpecs().Width != m_CameraPreviewSize.x ||
+					m_CurrentCameraFramebuffer->GetSpecs().Height != m_CameraPreviewSize.y)
+				{
+					//TODO aspect Ratio should be viewport aspect ratio?
+					m_CurrentCameraFramebuffer->Resize((uint32_t)m_CameraPreviewSize.x, (uint32_t)m_CameraPreviewSize.y);
+					auto& camera = selected.GetComponent<Components::CameraComponent>();
+					camera.Camera.SetViewportSize((uint32_t)m_CameraPreviewSize.x, (uint32_t)m_CameraPreviewSize.y);
+				}
+				//FIXME fix aspect Ratio?
+				m_CurrentCameraFramebuffer->Bind();
+				RenderCommand::SetClearColor({0.1f, 0.1f, 0.2f, 1});
+				RenderCommand::Clear();
+
+				m_ActiveScene->RenderFromCamera(selected);
+
+				m_CurrentCameraFramebuffer->Unbind();
+			}
+		}
 	}
 
 	void OakLayer::OnImGuiRender(Timestep t)
@@ -285,7 +324,7 @@ namespace Acorn
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM");
+				const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET");
 
 				if (payload != nullptr)
 				{
@@ -293,6 +332,17 @@ namespace Acorn
 					std::filesystem::path fsPath(path);
 
 					OpenScene(path);
+				}
+
+				const ImGuiPayload* texturePayload = ImGui::AcceptDragDropPayload("TEXTURE_ASSET");
+
+				if (texturePayload != nullptr && m_HoveredEntity && m_HoveredEntity.HasComponent<Components::SpriteRenderer>())
+				{
+					auto& spriteRenderer = m_HoveredEntity.GetComponent<Components::SpriteRenderer>();
+					auto textureAssetPath = (const wchar_t*)texturePayload->Data;
+					std::filesystem::path fsPath(textureAssetPath);
+
+					spriteRenderer.Texture = Texture2d::Create(fsPath.string());
 				}
 
 				ImGui::EndDragDropTarget();
@@ -351,44 +401,52 @@ namespace Acorn
 				}
 			}
 
-			// {
-			// 	//Camera Icon
-			// 	//TODO there is definitely a better way to do this
-			// 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
-			// 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
-			// 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
-
-			// 	for (Entity entity : m_ActiveScene->GetEntitiesWithComponent<Components::CameraComponent>())
-			// 	{
-			// 		if (entity == m_SceneHierarchyPanel.GetSelectedEntity())
-			// 			continue;
-			// 		auto& transform = entity.GetComponent<Components::Transform>();
-			// 		ImVec2 windowPos = ImGui::GetWindowPos();
-			// 		ImVec2 windowSize = ImGui::GetWindowSize();
-
-			// 		glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
-			// 		glm::vec3 pos = glm::project(translation, (glm::mat4)transform, m_EditorCamera.GetViewProjection(), glm::vec4{0.0f, 0.0f, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y});
-			// 		pos.y = windowSize.y - pos.y;
-
-			// 		ImVec2 charSize = ImGui::CalcTextSize(ICON_FA_CAMERA);
-			// 		ImVec2 gizmoPos = ImVec2{pos.x - (charSize.x * 0.5f), pos.y - (charSize.y * 0.5f)};
-
-			// 		if (gizmoPos.x > 0 && gizmoPos.x < m_ViewportSize.x - charSize.x && gizmoPos.y > 0 && gizmoPos.y < m_ViewportSize.y - charSize.y)
-			// 		{
-			// 			ImGui::SetCursorPos(gizmoPos);
-			// 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
-			// 			if (ImGui::Button(ICON_FA_CAMERA, charSize))
-			// 			{
-			// 				m_SceneHierarchyPanel.SetSelectedEntity(entity);
-			// 			}
-			// 			ImGui::PopStyleVar();
-			// 		}
-			// 	}
-			// 	ImGui::PopStyleColor(3);
-			// }
-
 			ImGui::End();
 
+			ImGui::PopStyleVar();
+		}
+
+		Entity selected = m_PinnedEntity;
+		if (!selected)
+			selected = m_SceneHierarchyPanel.GetSelectedEntity();
+		if (m_SceneState == SceneState::Edit && selected && selected.HasComponent<Components::CameraComponent>())
+		{
+
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+
+			ImGui::Begin("Camera Preview", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
+			{
+				bool isPinned = selected == m_PinnedEntity;
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.205f, 0.8f, 0.0f));
+				if (isPinned)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.205f, 0.8f, 1.0f));
+				}
+
+				if (ImGui::Button(ICON_FA_THUMB_TACK, ImVec2(0, 0)))
+				{
+					if (!m_PinnedEntity)
+						m_PinnedEntity = selected;
+					else
+						m_PinnedEntity = {};
+				}
+				if (isPinned)
+					ImGui::PopStyleColor();
+				ImGui::PopStyleColor();
+
+				ImGui::BeginChild("PreviewImage", ImVec2{0, 0}, false, ImGuiWindowFlags_NoInputs);
+				ImVec2 availableSize = ImGui::GetContentRegionAvail();
+
+				if ((availableSize.x > 0 && availableSize.y > 0) && (availableSize.x != m_CameraPreviewSize.x || availableSize.y != m_CameraPreviewSize.y))
+				{
+					m_CameraPreviewSize.x = availableSize.x;
+					m_CameraPreviewSize.y = availableSize.y;
+				}
+
+				ImGui::Image((void*)(intptr_t)(m_CurrentCameraFramebuffer->GetColorAttachmentRendererId()), ImVec2{m_CameraPreviewSize.x, m_CameraPreviewSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
+				ImGui::EndChild();
+			}
+			ImGui::End();
 			ImGui::PopStyleVar();
 		}
 
@@ -552,12 +610,14 @@ namespace Acorn
 
 	void OakLayer::OnScenePlay()
 	{
+		m_ActiveScene->Snapshot();
 		m_ActiveScene->InitializeRuntime();
 		m_SceneState = SceneState::Play;
 	}
 
 	void OakLayer::OnSceneStop()
 	{
+		m_ActiveScene->LoadLastSnapshot();
 		m_ActiveScene->DestroyRuntime();
 		m_SceneState = SceneState::Edit;
 	}
@@ -590,6 +650,26 @@ namespace Acorn
 			else if (m_SceneState == SceneState::Play)
 				OnSceneStop();
 		}
+
+		const char* text = "Gizmos " ICON_FA_CHEVRON_DOWN;
+		float textWidth = ImGui::CalcTextSize(text).x;
+		ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - textWidth - ImGui::GetTextLineHeight());
+
+		if (ImGui::Button(text))
+		{
+			ImGui::OpenPopup("##gizmos");
+		}
+
+		if (ImGui::BeginPopup("##gizmos"))
+		{
+			SceneOptions& options = m_ActiveScene->GetOptions();
+			ImGui::Checkbox("Show Colliders", &options.ShowColliders);
+			ImGui::Checkbox("Show Camera Frustums", &options.ShowCameraFrustums);
+			ImGui::Checkbox("Show Icons", &options.ShowIcons);
+
+			ImGui::EndPopup();
+		}
+
 		ImGui::End();
 		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(3);
