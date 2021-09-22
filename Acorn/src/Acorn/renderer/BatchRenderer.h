@@ -11,17 +11,17 @@
 
 namespace Acorn
 {
-	template <typename Vertex, size_t IndicesPerObject, size_t VerticesPerObject>
+	template <typename Vertex, size_t IndicesPerObject, size_t VerticesPerObject, bool DrawLines = false>
 	class BatchRenderer
 	{
 	public:
 		struct Statistics
 		{
 			uint32_t DrawCalls = 0;
-			uint32_t QuadCount = 0;
+			uint32_t ObjectCount = 0;
 
-			uint32_t GetTotalVertexCount() const { return QuadCount * VerticesPerObject; }
-			uint32_t GetTotalIndexCount() const { return QuadCount * IndicesPerObject; }
+			uint32_t GetTotalVertexCount() const { return ObjectCount * VerticesPerObject; }
+			uint32_t GetTotalIndexCount() const { return ObjectCount * IndicesPerObject; }
 		};
 
 	public:
@@ -77,6 +77,7 @@ namespace Acorn
 
 		void Begin()
 		{
+			//TODO do we need this? Since it does not get accessed during BatchRenderer::Draw calls... -> Bind at End() instead and allow multiple BatchRenderers
 			m_Shader->Bind();
 			m_VertexArray->Bind();
 
@@ -103,7 +104,11 @@ namespace Acorn
 			}
 
 			m_Shader->Bind();
-			RenderCommand::DrawIndexed(m_VertexArray, m_IndexCount);
+			m_VertexArray->Bind();
+			if constexpr (DrawLines)
+				RenderCommand::DrawLines(m_VertexArray, m_IndexCount);
+			else
+				RenderCommand::DrawIndexed(m_VertexArray, m_IndexCount);
 
 			m_Statistics.DrawCalls++;
 		}
@@ -124,6 +129,23 @@ namespace Acorn
 			m_MinTextureSlotIndex++;
 		}
 
+		void Draw(const std::array<Vertex, VerticesPerObject>& vertices)
+		{
+			if (m_IndexCount > MAX_BATCH_SIZE * IndicesPerObject)
+			{
+				FlushAndReset();
+			}
+
+			for (size_t i = 0; i < vertices.size(); i++)
+			{
+				*m_VertexBufferPtr = vertices[i];
+				m_VertexBufferPtr++;
+			}
+
+			m_IndexCount += IndicesPerObject;
+			m_Statistics.ObjectCount++;
+		}
+
 		void Draw(uint32_t textureIndex, const std::array<Vertex, VerticesPerObject>& vertices)
 		{
 			if (m_IndexCount > MAX_BATCH_SIZE * IndicesPerObject)
@@ -140,9 +162,10 @@ namespace Acorn
 			}
 
 			m_IndexCount += IndicesPerObject;
-			m_Statistics.QuadCount++;
+			m_Statistics.ObjectCount++;
 		}
 
+		//TODO template check for Vertex.TexIndex
 		void Draw(const Ref<Texture2d>& texture, const std::array<Vertex, VerticesPerObject>& vertices)
 		{
 			if (m_IndexCount > MAX_BATCH_SIZE * IndicesPerObject)
@@ -180,7 +203,7 @@ namespace Acorn
 			}
 
 			m_IndexCount += IndicesPerObject;
-			m_Statistics.QuadCount++;
+			m_Statistics.ObjectCount++;
 		}
 
 		Ref<Shader> GetShader()

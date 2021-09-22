@@ -14,6 +14,8 @@
 #include <yaml-cpp/emittermanip.h>
 #include <yaml-cpp/yaml.h>
 
+//TODO integrate with cereal
+
 namespace YAML
 {
 	template <>
@@ -199,6 +201,11 @@ namespace Acorn
 		out << YAML::Key << "Type" << YAML::Value << magic_enum::enum_name<Components::RigidBody2d::BodyType>(rigidBody.Type).data();
 		out << YAML::Key << "FixedRotation" << YAML::Value << rigidBody.FixedRotation;
 
+		out << YAML::Key << "Density" << YAML::Value << rigidBody.Density;
+		out << YAML::Key << "Friction" << YAML::Value << rigidBody.Friction;
+		out << YAML::Key << "Restitution" << YAML::Value << rigidBody.Restitution;
+		out << YAML::Key << "RestitutionThreshold" << YAML::Value << rigidBody.RestitutionThreshold;
+
 		out << YAML::EndMap; //RigidBody2d
 		return out;
 	}
@@ -209,11 +216,6 @@ namespace Acorn
 
 		out << YAML::Key << "Size" << YAML::Value << boxCollider.Size;
 		out << YAML::Key << "Offset" << YAML::Value << boxCollider.Offset;
-
-		out << YAML::Key << "Density" << YAML::Value << boxCollider.Density;
-		out << YAML::Key << "Friction" << YAML::Value << boxCollider.Friction;
-		out << YAML::Key << "Restitution" << YAML::Value << boxCollider.Restitution;
-		out << YAML::Key << "RestitutionThreshold" << YAML::Value << boxCollider.RestitutionThreshold;
 
 		out << YAML::EndMap; //BoxCollider2d
 
@@ -396,6 +398,11 @@ namespace Acorn
 
 					rb.FixedRotation = rigidBodyComponent["FixedRotation"].as<bool>();
 					rb.Type = magic_enum::enum_cast<Components::RigidBody2d::BodyType>(rigidBodyComponent["Type"].as<std::string>()).value_or(Components::RigidBody2d::BodyType::Static);
+
+					rb.Density = rigidBodyComponent["Density"].as<float>();
+					rb.Friction = rigidBodyComponent["Friction"].as<float>();
+					rb.Restitution = rigidBodyComponent["Restitution"].as<float>();
+					rb.RestitutionThreshold = rigidBodyComponent["RestitutionThreshold"].as<float>();
 				}
 
 				auto boxColliderComponent = entity["BoxCollider2d"];
@@ -405,11 +412,6 @@ namespace Acorn
 
 					bc.Size = boxColliderComponent["Size"].as<glm::vec2>();
 					bc.Offset = boxColliderComponent["Offset"].as<glm::vec2>();
-
-					bc.Density = boxColliderComponent["Density"].as<float>();
-					bc.Friction = boxColliderComponent["Friction"].as<float>();
-					bc.Restitution = boxColliderComponent["Restitution"].as<float>();
-					bc.RestitutionThreshold = boxColliderComponent["RestitutionThreshold"].as<float>();
 				}
 			}
 		}

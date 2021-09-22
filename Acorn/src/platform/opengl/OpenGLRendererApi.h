@@ -14,6 +14,7 @@ namespace Acorn
 		virtual void Clear() override;
 
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count) override;
+		virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count) override;
 
 		virtual const char* GetRenderer() const override;
 		virtual const char* GetVersion() const override;

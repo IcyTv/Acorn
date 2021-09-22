@@ -14,7 +14,14 @@
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
 
+#include <magic_enum.hpp>
+
+#include <entt/entity/fwd.hpp>
+#include <entt/entity/helper.hpp>
+#include <entt/entity/registry.hpp>
+#include <entt/entity/snapshot.hpp>
 #include <glm/glm.hpp>
+#include <magic_enum.hpp>
 
 namespace Acorn
 {
@@ -31,6 +38,13 @@ namespace Acorn
 		}
 		AC_CORE_ASSERT(false, "Invalid box2d body type");
 		return b2_staticBody;
+	}
+
+	template <class T>
+	static void CopyComponents(const entt::registry& src, entt::registry& dst)
+	{
+		auto view = src.view<T>();
+		dst.insert(view.data(), view.data() + view.size(), view.raw());
 	}
 
 	Scene::Scene()
@@ -83,14 +97,14 @@ namespace Acorn
 				auto& collider = entity.GetComponent<Components::BoxCollider2d>();
 
 				b2PolygonShape shape;
-				shape.SetAsBox(collider.Size.x * transform.Scale.x, collider.Size.y * transform.Scale.y);
+				shape.SetAsBox(collider.Size.x * transform.Scale.x, collider.Size.y * transform.Scale.y, b2Vec2{collider.Offset.x, collider.Offset.y}, 0.0f);
 
 				b2FixtureDef fixtureDef;
 				fixtureDef.shape = &shape;
-				fixtureDef.density = collider.Density;
-				fixtureDef.friction = collider.Friction;
-				fixtureDef.restitution = collider.Restitution;
-				fixtureDef.restitutionThreshold = collider.RestitutionThreshold;
+				fixtureDef.density = rigidBody.Density;
+				fixtureDef.friction = rigidBody.Friction;
+				fixtureDef.restitution = rigidBody.Restitution;
+				fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
 
 				body->CreateFixture(&fixtureDef);
 			}
@@ -136,26 +150,38 @@ namespace Acorn
 	{
 		ext2d::Renderer::BeginScene(camera);
 		auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
+
 		for (auto&& [entity, transform, sprite] : group.each())
 		{
 			// ext2d::Renderer::FillQuad((glm::mat4)transform, sprite.Color);
-			ext2d::Renderer::DrawSprite((glm::mat4)transform, sprite, (int)entity);
+			ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 		}
 
 		ext2d::Renderer::EndScene();
 
-		// {
-		// 	//Draw Icon Gizmos
-		// 	debug::Renderer::Begin(camera);
+		{
+			//Draw Icon Gizmos
+			debug::Renderer::Begin(camera);
 
-		// 	auto group = m_Registry.group<Components::CameraComponent>(entt::get<Components::Transform>);
-		// 	for (auto&& [entity, camera, transform] : group.each())
-		// 	{
-		// 		debug::Renderer::DrawGizmo(debug::GizmoType::Camera, transform.Translation, (int)entity);
-		// 	}
+			auto cameraGroup = m_Registry.group<Components::CameraComponent>(entt::get<Components::Transform>);
+			for (auto&& [entity, camera, transform] : cameraGroup.each())
+			{
+				if (m_Options.ShowIcons)
+					debug::Renderer::DrawGizmo(debug::GizmoType::Camera, transform.Translation, (int)entity);
+				if (m_Options.ShowCameraFrustums)
+					debug::Renderer::DrawCameraFrustum(camera, transform);
+			}
 
-		// 	debug::Renderer::End();
-		// }
+			auto b2dColliderGroup = m_Registry.group<Components::BoxCollider2d>(entt::get<Components::Transform>);
+			for (auto&& [entity, collider, transform] : b2dColliderGroup.each())
+			{
+				//TODO Think about, if we even need zDepth for colliders?
+				if (m_Options.ShowColliders)
+					debug::Renderer::DrawB2dCollider(collider, transform);
+			}
+
+			debug::Renderer::End();
+		}
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
@@ -235,7 +261,7 @@ namespace Acorn
 			auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
 			for (auto&& [entity, transform, sprite] : group.each())
 			{
-				ext2d::Renderer::DrawSprite((glm::mat4)transform, sprite, (int)entity);
+				ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 			}
 
 			ext2d::Renderer::EndScene();
@@ -260,6 +286,69 @@ namespace Acorn
 					camera.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+
+	void Scene::RenderFromCamera(Entity entity)
+	{
+		AC_CORE_ASSERT(entity.HasComponent<Components::CameraComponent>(), "Entity does not have a camera component");
+		auto& camera = entity.GetComponent<Components::CameraComponent>();
+		auto& transform = entity.GetComponent<Components::Transform>();
+
+		ext2d::Renderer::BeginScene(camera.Camera, transform.GetTransform());
+
+		auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
+		for (auto&& [entity, transform, sprite] : group.each())
+		{
+			ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+		}
+
+		ext2d::Renderer::EndScene();
+	}
+
+	void Scene::Snapshot()
+	{
+		{
+			cereal::JSONOutputArchive output{m_Snapshot};
+			entt::snapshot{m_Registry}
+				.entities(output)
+				.component<
+					Components::Tag,
+					Components::Transform,
+					Components::CameraComponent,
+					Components::SpriteRenderer,
+					// Components::NativeScript,
+					Components::JSScript,
+					Components::RigidBody2d,
+					Components::BoxCollider2d>(output);
+		}
+	}
+
+	void Scene::LoadLastSnapshot()
+	{
+		entt::registry backupReg;
+		cereal::JSONInputArchive input{m_Snapshot};
+		entt::snapshot_loader loader{backupReg};
+		loader.entities(input)
+			.component<
+				Components::Tag,
+				Components::Transform,
+				Components::CameraComponent,
+				Components::SpriteRenderer,
+				// Components::NativeScript,
+				Components::JSScript,
+				Components::RigidBody2d,
+				Components::BoxCollider2d>(input)
+			.orphans();
+
+		auto view = backupReg.view<Components::CameraComponent>();
+		for (auto&& [entity, camera] : view.each())
+		{
+			camera.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		}
+
+		m_Registry = std::move(backupReg);
+
+		m_Snapshot.clear();
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

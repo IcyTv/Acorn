@@ -13,16 +13,13 @@
 #include "core/Core.h"
 #include "utils/fonts/IconsFontAwesome4.h"
 
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-#define length(array) ((sizeof(array)) / (sizeof(array[0])))
-
-constexpr int FONT_SIZE = 48;
-constexpr int FONT_TEXTURE_SIZE = 1024;
+#include <glad/glad.h>
+#include <glm/matrix.hpp>
 
 namespace Acorn
 {
@@ -40,14 +37,21 @@ namespace Acorn
 			int EntityId = -1;
 		};
 
+		struct LineVertex
+		{
+			glm::vec3 Position;
+			glm::vec4 Color;
+		};
+
 		struct DebugRendererStorage
 		{
-			const float SizeScalar = 0.1f;
+			const float SizeScalar = 0.3f;
 
 			uint32_t CurrentWidth = 0;
 			uint32_t CurrentHeight = 0;
 
 			Ref<Shader> BillboardShader;
+			Ref<Shader> BasicShader;
 			std::unordered_map<unsigned long, Ref<ext2d::SubTexture>> TextureMap;
 
 			Ref<Texture2d> IconTexture;
@@ -55,15 +59,21 @@ namespace Acorn
 			glm::vec4 QuadVertexPositions[4];
 
 			Scope<BatchRenderer<DebugVertex, 6, 4>> QuadRenderer;
+			Scope<BatchRenderer<LineVertex, 2, 2, true>> LineRenderer;
 
-			// FT_Library FreeTypeLibrary;
-			// FT_Face IconFont;
-
-			struct CameraData
+			struct BillboardData
 			{
 				glm::mat4 ViewProjection;
 				glm::vec4 CameraRight;
 				glm::vec4 CameraUp;
+			};
+
+			BillboardData BillboardData;
+			Ref<UniformBuffer> BillboardUniform;
+
+			struct CameraData
+			{
+				glm::mat4 ViewProjection;
 			};
 
 			CameraData CameraBuffer;
@@ -71,39 +81,6 @@ namespace Acorn
 		};
 
 		static DebugRendererStorage s_Data;
-
-		static void LoadChar(unsigned long charCode)
-		{
-			if (s_Data.TextureMap.find(charCode) != s_Data.TextureMap.end())
-				return;
-
-			// AC_CORE_TRACE("Char Code Test {0:x}", charCode);
-			// AC_CORE_ASSERT(s_Data.FreeTypeLibrary, "Freetype Library not loaded");
-			// AC_CORE_ASSERT(s_Data.IconFont, "Font not loaded");
-
-			// FT_ULong charIndex = FT_Get_Char_Index(s_Data.IconFont, charCode);
-			// //FIXME access violation nullptr
-			// if (FT_Load_Glyph(s_Data.IconFont, charIndex, FT_LOAD_DEFAULT))
-			// 	AC_CORE_ASSERT(false, "Failed to load glyph!");
-			// if (FT_Render_Glyph(s_Data.IconFont->glyph, FT_RENDER_MODE_NORMAL))
-			// 	AC_CORE_ASSERT(false, "Failed to render glyph!");
-
-			// FT_GlyphSlot glyph = s_Data.IconFont->glyph;
-			// int width = glyph->bitmap.width;
-			// int height = glyph->bitmap.rows;
-
-			// s_Data.IconTexture->SetSubData(glyph->bitmap.buffer, width * height, s_Data.CurrentWidth, s_Data.CurrentHeight, width, height);
-
-			// Ref<ext2d::SubTexture> subTexture = ext2d::SubTexture::CreateFromCoords(s_Data.IconTexture, {s_Data.CurrentWidth, s_Data.CurrentHeight}, {width, height});
-			// s_Data.TextureMap.insert(std::make_pair(charCode, subTexture));
-
-			// s_Data.CurrentWidth += width;
-			// if (s_Data.CurrentWidth > FONT_TEXTURE_SIZE)
-			// {
-			// 	s_Data.CurrentWidth = 0;
-			// 	s_Data.CurrentHeight += height;
-			// }
-		}
 
 		void Renderer::Init()
 		{
@@ -114,48 +91,6 @@ namespace Acorn
 			s_Data.QuadVertexPositions[2] = {0.5f, 0.5f, 0.0f, 1.0f};
 			s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
 
-			// s_Data.IconTexture = Texture2d::Create(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 1);
-			// char* data = new char[1024 * 1024]{0};
-			// s_Data.IconTexture->SetData(data, FONT_TEXTURE_SIZE * FONT_TEXTURE_SIZE);
-			// delete[] data;
-
-			// s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
-
-			// if (FT_Init_FreeType(&s_Data.FreeTypeLibrary))
-			// {
-			// 	AC_CORE_ASSERT(false, "Failed to initialize FreeType Library");
-			// }
-
-			// error = FT_New_Face(s_Data.FreeTypeLibrary, "res/fonts/fontawesome-webfont.ttf", 0, &s_Data.IconFont);
-			// if (error == FT_Err_Unknown_File_Format)
-			// {
-			// 	AC_CORE_ASSERT(false, "Failed to load font, unknown file format");
-			// }
-			// else if (error)
-			// {
-			// 	AC_CORE_ASSERT(false, "Failed to load font");
-			// }
-
-			// if (FT_Set_Pixel_Sizes(s_Data.IconFont, 0, FONT_SIZE))
-			// {
-			// 	AC_CORE_ASSERT(false, "Failed to set font size");
-			// }
-
-			// FT_Matrix matrix;
-			// float angle = glm::radians(180.0f);
-			// matrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
-			// matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
-			// matrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
-			// matrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
-			// FT_Set_Transform(s_Data.IconFont, &matrix, 0);
-
-			// LoadChar(ICON_FA_CAMERA_HEX);
-			// LoadChar(ICON_FA_ANGLE_RIGHT_HEX);
-
-			// FT_Done_Face(s_Data.IconFont);
-			// FT_Done_FreeType(s_Data.FreeTypeLibrary);
-
-			// AC_CORE_TRACE("Loaded fonts");
 			s_Data.IconTexture = Texture2d::Create("res/textures/icon-texture.png");
 			s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
 
@@ -172,13 +107,22 @@ namespace Acorn
 				 {ShaderDataType::Float, "a_TexIndex"},
 				 {ShaderDataType::Int, "a_EntityId"}};
 			s_Data.BillboardShader = Shader::Create("res/shaders/Billboard.shader");
+			s_Data.BasicShader = Shader::Create("res/shaders/Basic.shader");
 
 			s_Data.QuadRenderer = CreateScope<BatchRenderer<DebugVertex, 6, 4>>(s_Data.BillboardShader, indices, layout);
 			s_Data.QuadRenderer->AddDefaultTexture(s_Data.IconTexture);
 
+			std::array<uint32_t, 2> lineIndices = {0, 1};
+
+			BufferLayout lineLayout =
+				{{ShaderDataType::Float3, "a_Position"},
+				 {ShaderDataType::Float4, "a_Color"}};
+			s_Data.LineRenderer = CreateScope<BatchRenderer<LineVertex, 2, 2, true>>(s_Data.BasicShader, lineIndices, lineLayout);
+
 			s_Data.BillboardShader->Bind();
 
 			s_Data.CameraUniform = UniformBuffer::Create(sizeof(DebugRendererStorage::CameraData), 0);
+			s_Data.BillboardUniform = UniformBuffer::Create(sizeof(DebugRendererStorage::BillboardData), 1);
 		}
 
 		void Renderer::ShutDown()
@@ -190,20 +134,25 @@ namespace Acorn
 			AC_PROFILE_FUNCTION();
 
 			s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
-			s_Data.CameraBuffer.CameraRight = glm::vec4(camera.GetRightDirection(), 0.0f);
-			s_Data.CameraBuffer.CameraUp = glm::vec4(camera.GetUpDirection(), 0.0f);
 			s_Data.CameraUniform->SetData(&s_Data.CameraBuffer, sizeof(DebugRendererStorage::CameraData));
+
+			s_Data.BillboardData.ViewProjection = camera.GetViewProjection();
+			s_Data.BillboardData.CameraRight = glm::vec4{camera.GetRightDirection(), 1.0f};
+			s_Data.BillboardData.CameraUp = glm::vec4{camera.GetUpDirection(), 1.0f};
+			s_Data.BillboardUniform->SetData(&s_Data.BillboardData, sizeof(DebugRendererStorage::BillboardData));
 
 			s_Data.QuadRenderer->Begin();
 
-			// s_Data.QuadRenderer->GetShader()->SetMat4("u_ViewProjection", camera.GetViewProjection());
-			// s_Data.QuadRenderer->GetShader()->SetFloat3("u_CameraRight", camera.GetRightDirection());
-			// s_Data.QuadRenderer->GetShader()->SetFloat3("u_CameraUp", camera.GetUpDirection());
+			s_Data.LineRenderer->Begin();
 		}
 
 		void Renderer::End()
 		{
+
+			s_Data.BillboardUniform->Bind();
 			s_Data.QuadRenderer->End();
+			s_Data.CameraUniform->Bind();
+			s_Data.LineRenderer->End();
 		}
 
 		void Renderer::DrawGizmo(GizmoType type, const glm::vec3& position, int entityId, const glm::vec4& color, const glm::vec2& scale)
@@ -243,6 +192,91 @@ namespace Acorn
 			s_Data.QuadRenderer->Draw(0, vertices);
 		}
 
+		void Renderer::DrawCameraFrustum(const Components::CameraComponent& camera, const Components::Transform& transform)
+		{
+			if (camera.Camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+			{
+				glm::mat4 cameraToWorld = camera.Camera.GetProjection() * glm::inverse(transform.GetTransform());
+				glm::vec3 axisX = cameraToWorld[0];
+				glm::vec3 axisY = cameraToWorld[1];
+				glm::vec3 axisZ = cameraToWorld[2];
+
+				float zn = camera.Camera.GetPerspectiveNearClip();
+				float zf = camera.Camera.GetPerspectiveFarClip();
+
+				glm::vec3 nearCenter = axisZ * zn;
+				glm::vec3 farCenter = axisZ * zf;
+
+				float e = tan(camera.Camera.GetPerspectiveFov() * 0.5f);
+				float nearExtY = e * zn;
+				float nearExtX = nearExtY * camera.Camera.GetAspectRatio();
+				float farExtY = e * zf;
+				float farExtX = farExtY * camera.Camera.GetAspectRatio();
+
+				glm::vec3 v[8];
+
+				v[0] = nearCenter - axisX * nearExtX - axisY * nearExtY;
+				v[1] = nearCenter - axisX * nearExtX + axisY * nearExtY;
+				v[2] = nearCenter + axisX * nearExtX + axisY * nearExtY;
+				v[3] = nearCenter + axisX * nearExtX - axisY * nearExtY;
+				v[4] = farCenter - axisX * farExtX - axisY * farExtY;
+				v[5] = farCenter - axisX * farExtX + axisY * farExtY;
+				v[6] = farCenter + axisX * farExtX + axisY * farExtY;
+				v[7] = farCenter + axisX * farExtX - axisY * farExtY;
+
+				for (size_t i = 0; i < 8; i++)
+				{
+					v[i] = v[i] + transform.Translation;
+				}
+
+				DrawLine(v[0], v[1]);
+				DrawLine(v[1], v[2]);
+				DrawLine(v[2], v[3]);
+				DrawLine(v[3], v[0]);
+				DrawLine(v[4], v[5]);
+				DrawLine(v[5], v[6]);
+				DrawLine(v[6], v[7]);
+				DrawLine(v[7], v[4]);
+				DrawLine(v[0], v[4]);
+				DrawLine(v[1], v[5]);
+				DrawLine(v[2], v[6]);
+				DrawLine(v[3], v[7]);
+			}
+		}
+
+		void Renderer::DrawB2dCollider(const Components::BoxCollider2d& collider, const Components::Transform& transform)
+		{
+			//TODO Collider layering
+			//This makes sure the collider is offset AND at z=0
+			glm::vec4 offset = glm::vec4(collider.Offset, -transform.Translation.z, 0.0f);
+
+			glm::vec3 tl = ((glm::mat4)transform) * (glm::vec4{-collider.Size, 0.0f, 1.0f} + offset);
+			glm::vec3 tr = ((glm::mat4)transform) * (glm::vec4{collider.Size.x, -collider.Size.y, 0.0f, 1.0f} + offset);
+			glm::vec3 bl = ((glm::mat4)transform) * (glm::vec4{-collider.Size.x, collider.Size.y, 0.0f, 1.0f} + offset);
+			glm::vec3 br = ((glm::mat4)transform) * (glm::vec4{collider.Size, 0.0f, 1.0f} + offset);
+
+			constexpr glm::vec4 color{0.0f, 0.0f, 1.0f, 1.0f};
+
+			DrawLine(tl, tr, color);
+			DrawLine(tr, br, color);
+			DrawLine(br, bl, color);
+			DrawLine(bl, tl, color);
+			DrawLine(tl, br, color);
+		}
+
+		void Renderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color)
+		{
+			std::array<LineVertex, 2> vertices;
+
+			vertices[0].Position = start;
+			vertices[0].Color = color;
+
+			vertices[1].Position = end;
+			vertices[1].Color = color;
+
+			s_Data.LineRenderer->Draw(vertices);
+		}
+
 		uint32_t Renderer::GetDrawCalls()
 		{
 			return s_Data.QuadRenderer->GetStats().DrawCalls;
@@ -250,7 +284,7 @@ namespace Acorn
 
 		uint32_t Renderer::GetQuadCount()
 		{
-			return s_Data.QuadRenderer->GetStats().QuadCount;
+			return s_Data.QuadRenderer->GetStats().ObjectCount;
 		}
 
 		uint32_t Renderer::GetIndexCount()

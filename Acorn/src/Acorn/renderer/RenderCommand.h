@@ -36,6 +36,11 @@ namespace Acorn
 			s_RendererApi->DrawIndexed(vertexArray, count);
 		}
 
+		inline static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count = 0)
+		{
+			s_RendererApi->DrawLines(vertexArray, count);
+		}
+
 		inline static const char* GetVendor() { return s_RendererApi->GetVendor(); }
 		inline static const char* GetRenderer() { return s_RendererApi->GetRenderer(); }
 		inline static const char* GetVersion() { return s_RendererApi->GetVersion(); }

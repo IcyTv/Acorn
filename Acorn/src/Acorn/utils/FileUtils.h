@@ -11,5 +11,8 @@ namespace Acorn::Utils
 
 		std::string ReadFile(const std::string& filePath);
 		void WriteFile(const std::string& filePath, const std::string& data);
+
+		std::string MD5HashFilePath(const std::string& filePath);
+		std::string MD5HashString(const std::string& data);
 	}
 }

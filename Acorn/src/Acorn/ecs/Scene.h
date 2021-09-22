@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cereal/archives/json.hpp>
+#include <entt/entity/fwd.hpp>
+#include <entt/entity/snapshot.hpp>
 #include <entt/entt.hpp>
 
 #include "core/Timestep.h"
@@ -12,10 +15,18 @@ namespace Acorn
 	class Entity;
 	class SceneSerializer;
 
+	struct SceneOptions
+	{
+		bool ShowColliders = true;
+		bool ShowCameraFrustums = true;
+		bool ShowIcons = true;
+	};
+
 	class Scene
 	{
 	public:
 		Scene();
+		Scene(const Scene& other);
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = "");
@@ -27,6 +38,13 @@ namespace Acorn
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnUpdateRuntime(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
+
+		void RenderFromCamera(Entity entity);
+
+		SceneOptions& GetOptions() { return m_Options; }
+
+		void Snapshot();
+		void LoadLastSnapshot();
 
 		template <typename T>
 		std::vector<Entity> GetEntitiesWithComponent()
@@ -48,12 +66,22 @@ namespace Acorn
 		template <typename T>
 		void OnComponentAdded(Entity entity, T& component);
 
+		inline const entt::registry& GetCurrentRegistry() const
+		{
+			return m_Registry;
+		}
+
 	private:
 		entt::registry m_Registry;
+		std::stringstream m_Snapshot;
+
+		// Scope<entt::basic_snapshot<entt::entity>> m_Snapshot;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 		b2World* m_PhysicsWorld = nullptr;
+
+		SceneOptions m_Options;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

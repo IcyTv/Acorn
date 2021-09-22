@@ -60,7 +60,7 @@ namespace Acorn
 			if (!m_Minimized)
 			{
 				{
-					AC_PROFILE_SCOPE("Application::Run::OnUpdate")
+					AC_PROFILE_SCOPE("Application::Run::OnUpdate");
 					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(timestep);
 				}
@@ -68,11 +68,11 @@ namespace Acorn
 
 			{
 
-				AC_PROFILE_SCOPE("Application::Run::ImGui")
+				AC_PROFILE_SCOPE("Application::Run::ImGui");
 				m_ImGuiLayer->Begin();
 
 				{
-					AC_PROFILE_SCOPE("Application::Run::OnImGuiRender")
+					AC_PROFILE_SCOPE("Application::Run::OnImGuiRender");
 					for (Layer* layer : m_LayerStack)
 						layer->OnImGuiRender(timestep);
 				}
@@ -81,7 +81,7 @@ namespace Acorn
 			}
 
 			{
-				AC_PROFILE_SCOPE("Application::Run::WindowUpdate")
+				AC_PROFILE_SCOPE("Application::Run::WindowUpdate");
 				m_Window->OnUpdate();
 			}
 		}

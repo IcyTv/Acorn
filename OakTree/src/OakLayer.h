@@ -24,6 +24,8 @@ namespace Acorn
 		virtual void OnImGuiRender(Timestep t) override;
 		virtual void OnEvent(Event& e) override;
 
+		void OpenScene(const std::filesystem::path& path);
+
 	private:
 		enum class GizmoType : int
 		{
@@ -41,7 +43,6 @@ namespace Acorn
 		void SaveScene();
 		void SaveSceneAs();
 		void OpenScene();
-		void OpenScene(const std::filesystem::path& path);
 
 		void OnScenePlay();
 		void OnSceneStop();
@@ -65,15 +66,16 @@ namespace Acorn
 			Play = 1,
 		};
 
-		Ref<Texture2d>
-			m_CheckerboardTexture;
+		Ref<Texture2d> m_CheckerboardTexture;
 		Ref<Texture2d> m_SpriteSheet;
 		Ref<Framebuffer> m_Framebuffer;
+		Ref<Framebuffer> m_CurrentCameraFramebuffer;
 
 		Ref<Scene> m_ActiveScene;
 		Entity m_Square;
 		Entity m_Camera;
 		Entity m_HoveredEntity;
+		Entity m_PinnedEntity;
 
 		EditorCamera m_EditorCamera;
 
@@ -82,6 +84,8 @@ namespace Acorn
 
 		glm::vec2 m_ViewportSize{0.0f};
 		glm::vec2 m_ViewportBounds[2];
+
+		glm::vec2 m_CameraPreviewSize{1280.0f, 720.0f};
 
 		SceneState m_SceneState = SceneState::Edit;
 
