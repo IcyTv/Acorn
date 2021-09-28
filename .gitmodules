@@ -1,3 +1,6 @@
 [submodule "Acorn/vendor/v8pp"]
 	path = Acorn/vendor/v8pp
 	url = https://github.com/pmed/v8pp
+[submodule "Acorn/vendor/tracy"]
+	path = Acorn/vendor/tracy
+	url = https://github.com/wolfpld/tracy
