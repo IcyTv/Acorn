@@ -1,10 +1,10 @@
 #include "acpch.h"
 
 #include "Scene.h"
+#include "ecs/components/ScriptableEntity.h"
 
 #include "Entity.h"
 #include "components/Components.h"
-#include "ecs/components/Components.h"
 #include "ecs/components/V8Script.h"
 #include "renderer/2d/Renderer2D.h"
 #include "renderer/DebugRenderer.h"
@@ -21,7 +21,6 @@
 #include <entt/entity/registry.hpp>
 #include <entt/entity/snapshot.hpp>
 #include <glm/glm.hpp>
-#include <magic_enum.hpp>
 
 namespace Acorn
 {
@@ -55,9 +54,10 @@ namespace Acorn
 	{
 	}
 
-	Entity Scene::CreateEntity(const std::string& name)
+	Entity Scene::CreateEntity(const std::string& name, const UUID& uuid)
 	{
 		Entity entity = {m_Registry.create(), this};
+		entity.AddComponent<Components::ID>(uuid);
 		entity.AddComponent<Components::Transform>();
 		auto& tag = entity.AddComponent<Components::Tag>();
 		tag.TagName = name.empty() ? "Entity" : name;
@@ -312,6 +312,7 @@ namespace Acorn
 			entt::snapshot{m_Registry}
 				.entities(output)
 				.component<
+					Components::ID,
 					Components::Tag,
 					Components::Transform,
 					Components::CameraComponent,
@@ -330,6 +331,7 @@ namespace Acorn
 		entt::snapshot_loader loader{backupReg};
 		loader.entities(input)
 			.component<
+				Components::ID,
 				Components::Tag,
 				Components::Transform,
 				Components::CameraComponent,
@@ -366,10 +368,10 @@ namespace Acorn
 		return {};
 	}
 
+	//TODO remove template specialization
 	template <typename T>
-	void Scene::OnComponentAdded(Entity entity, T& component)
+	void Scene::OnComponentAdded(Entity entity, T&)
 	{
-		static_assert(false, "Component not supported");
 	}
 
 	template <>

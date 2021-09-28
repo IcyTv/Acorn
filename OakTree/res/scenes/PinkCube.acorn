@@ -1,15 +1,24 @@
 Scene: Untitled Scene
 Entities:
-  - Entity: 1234567890
+  - Entity: b577a028-c6f4-4720-b371-72c89922de9d
     Tag:
-      Tag: Top
+      Tag: Left
     Transform:
-      Translation: [0, 0.5, 0]
-      Rotation: [1.57079637, 0.785398185, 0]
+      Translation: [-0.354999989, 0, 0.349999994]
+      Rotation: [0, -0.785398185, 0]
       Scale: [1, 1, 1]
     SpriteRenderer:
-      Color: [0.876447856, 0, 0.834712803, 1]
-  - Entity: 1234567890
+      Color: [1, 0, 0.949807167, 1]
+  - Entity: c4a8ebd8-7465-4355-8d7b-1d4b61ac6234
+    Tag:
+      Tag: Right
+    Transform:
+      Translation: [0.351999998, 0, 0.349999994]
+      Rotation: [0, 0.785398185, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [0.54842025, 0, 0.586872578, 1]
+  - Entity: 44ecc549-d4a6-4b36-bb13-8b6a9474547f
     Tag:
       Tag: Camera
     Transform:
@@ -29,21 +38,14 @@ Entities:
       Primary: true
     JSScript:
       Path: res\scripts\camera.ts
-  - Entity: 1234567890
+      Parameters:
+        {}
+  - Entity: 331dd7b5-333c-409b-aab1-ff1f1b513dfb
     Tag:
-      Tag: Right
+      Tag: Top
     Transform:
-      Translation: [0.351999998, 0, 0.349999994]
-      Rotation: [0, 0.785398185, 0]
+      Translation: [0, 0.5, 0]
+      Rotation: [1.57079637, 0.785398185, 0]
       Scale: [1, 1, 1]
     SpriteRenderer:
-      Color: [0.54842025, 0, 0.586872578, 1]
-  - Entity: 1234567890
-    Tag:
-      Tag: Left
-    Transform:
-      Translation: [-0.354999989, 0, 0.349999994]
-      Rotation: [0, -0.785398185, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      Color: [1, 0, 0.949807167, 1]
+      Color: [0.876447856, 0, 0.834712803, 1]

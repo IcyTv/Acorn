@@ -1,12 +1,14 @@
 #pragma once
 
+#include "core/Timestep.h"
+#include "renderer/EditorCamera.h"
+
 #include <cereal/archives/json.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/snapshot.hpp>
 #include <entt/entt.hpp>
 
-#include "core/Timestep.h"
-#include "renderer/EditorCamera.h"
+#include "core/UUID.h"
 
 class b2World;
 
@@ -29,7 +31,7 @@ namespace Acorn
 		Scene(const Scene& other);
 		~Scene();
 
-		Entity CreateEntity(const std::string& name = "");
+		Entity CreateEntity(const std::string& name = "", const UUID& uuid = UUID());
 		void DestroyEntity(Entity entity);
 
 		void InitializeRuntime();

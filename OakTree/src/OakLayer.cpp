@@ -289,7 +289,10 @@ namespace Acorn
 			ImGui::Begin("Stats", &m_WindowsOpen.Stats);
 			ImGui::Text("Renderer2d Stats");
 			if (m_HoveredEntity)
-				ImGui::Text("Hovered Entity %s", m_HoveredEntity.GetComponent<Components::Tag>().TagName.c_str());
+			{
+				std::string id = m_HoveredEntity.GetUUID();
+				ImGui::Text("Hovered Entity %s %s", m_HoveredEntity.GetComponent<Components::Tag>().TagName.c_str(), id.c_str());
+			}
 			else
 				ImGui::Text("Hovered Entity None");
 			ImGui::Text("Quad Count %d", ext2d::Renderer::GetQuadCount());

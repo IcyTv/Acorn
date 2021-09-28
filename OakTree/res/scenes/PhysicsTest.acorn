@@ -1,6 +1,6 @@
 Scene: Untitled Scene
 Entities:
-  - Entity: 1234567890
+  - Entity: a908b92b-4071-4edc-98d6-d01f9df620ae
     Tag:
       Tag: Camera
     Transform:
@@ -18,7 +18,7 @@ Entities:
         PerspectiveFarClip: 1000
       FixedAspectRatio: false
       Primary: true
-  - Entity: 1234567890
+  - Entity: 344b6230-779b-4e30-9b8a-218d6dfe8726
     Tag:
       Tag: Box 1
     Transform:
@@ -41,7 +41,7 @@ Entities:
     BoxCollider2d:
       Size: [0.5, 0.5]
       Offset: [0, 0]
-  - Entity: 1234567890
+  - Entity: b9fd0238-fb60-4cf0-a326-c50c456e3c2f
     Tag:
       Tag: Ground
     Transform:
@@ -60,7 +60,7 @@ Entities:
     BoxCollider2d:
       Size: [0.5, 0.5]
       Offset: [0, 0]
-  - Entity: 1234567890
+  - Entity: a27e36a1-925f-4eda-9e27-e5692a4f0caa
     Tag:
       Tag: Wall 1
     Transform:
@@ -77,7 +77,7 @@ Entities:
     BoxCollider2d:
       Size: [0.5, 0.5]
       Offset: [0, 0]
-  - Entity: 1234567890
+  - Entity: 49ca5aee-4878-446b-8f07-c6b707091ba8
     Tag:
       Tag: Wall 2
     Transform:
@@ -94,7 +94,7 @@ Entities:
     BoxCollider2d:
       Size: [0.5, 0.5]
       Offset: [0, 0]
-  - Entity: 1234567890
+  - Entity: 6da7675f-7a6d-405a-a7e7-85d8c601fd1d
     Tag:
       Tag: Box 2
     Transform:
@@ -113,7 +113,7 @@ Entities:
     BoxCollider2d:
       Size: [0.5, 0.5]
       Offset: [0, 0]
-  - Entity: 1234567890
+  - Entity: b7d40817-9dbc-4bbe-9332-13cd0330e799
     Tag:
       Tag: Roof
     Transform:

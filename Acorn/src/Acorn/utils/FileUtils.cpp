@@ -3,6 +3,7 @@
 #include "FileUtils.h"
 
 #include <chrono>
+#include <corecrt.h>
 #include <filesystem>
 #include <fstream>
 #include <openssl/md5.h>
@@ -13,10 +14,11 @@ namespace Acorn::Utils
 	namespace File
 	{
 		//TODO think about a better way to do this
-		//TODO also thingk about a better config file layout (maybe add to scene?)
+		//TODO also think about a better config file layout (maybe add to scene?)
 
 		bool HasShaderFileChanged(const std::string& filePath)
 		{
+			AC_PROFILE_FUNCTION();
 			std::filesystem::path fsPath(filePath);
 
 			if (!std::filesystem::exists(fsPath))
@@ -92,21 +94,44 @@ namespace Acorn::Utils
 
 		std::string ReadFile(const std::string& filePath)
 		{
-			std::ifstream file(filePath);
-			std::stringstream buffer;
-			if (file)
-			{
-				buffer << file.rdbuf();
-			}
-			else
-			{
-				AC_CORE_ASSERT(false, "Failed to open file!");
-			}
-			return buffer.str();
+			AC_PROFILE_FUNCTION();
+			// std::ifstream file(filePath);
+			// std::stringstream buffer;
+			// if (file)
+			// {
+			// 	buffer << file.rdbuf();
+			// }
+			// else
+			// {
+			// 	AC_CORE_ASSERT(false, "Failed to open file!");
+			// }
+			// return buffer.str();
+
+			FILE* file;
+			errno_t err;
+			err = fopen_s(&file, filePath.c_str(), "rb");
+
+			AC_CORE_ASSERT(err == 0, "Failed to open file!");
+
+			fseek(file, 0, SEEK_END);
+			size_t size = ftell(file);
+			fseek(file, 0, SEEK_SET);
+
+			char* buffer = new char[size + 1];
+			fread(buffer, 1, size, file);
+			buffer[size] = '\0';
+
+			fclose(file);
+
+			std::string result(buffer);
+			delete[] buffer;
+
+			return result;
 		}
 
 		void WriteFile(const std::string& filePath, const std::string& data)
 		{
+			AC_PROFILE_FUNCTION();
 			std::ofstream file(filePath);
 			if (file)
 			{
@@ -120,6 +145,7 @@ namespace Acorn::Utils
 
 		std::string MD5HashFilePath(const std::string& filePath)
 		{
+			AC_PROFILE_FUNCTION();
 			std::basic_ifstream<unsigned char> file(filePath);
 			file.seekg(0, std::ios::end);
 			size_t fileSize = file.tellg();
@@ -145,6 +171,7 @@ namespace Acorn::Utils
 
 		std::string MD5HashString(const std::string& data)
 		{
+			AC_PROFILE_FUNCTION();
 			unsigned char outBuf[16]; //MD5 digest size
 			MD5(reinterpret_cast<const unsigned char*>(data.c_str()), data.size(), outBuf);
 

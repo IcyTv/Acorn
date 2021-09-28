@@ -1,15 +1,6 @@
 Scene: Untitled Scene
 Entities:
-  - Entity: 1234567890
-    Tag:
-      Tag: Square
-    Transform:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      Color: [1, 1, 0, 1]
-  - Entity: 1234567890
+  - Entity: 40488c42-535f-4be5-abbd-e331c4df042e
     Tag:
       Tag: Camera
     Transform:
@@ -27,3 +18,12 @@ Entities:
         PerspectiveFarClip: 1000
       FixedAspectRatio: false
       Primary: true
+  - Entity: fdd3f81d-7534-429c-87a0-530a2841ba89
+    Tag:
+      Tag: Square
+    Transform:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 0, 1]
