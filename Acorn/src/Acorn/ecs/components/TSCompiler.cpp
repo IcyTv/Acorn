@@ -170,7 +170,7 @@ namespace Acorn
 		{
 			v8::Isolate::Scope isolate_scope(isolate);
 			v8::HandleScope handle_scope(isolate);
-			BindImport(isolate);
+			V8Import::BindImport(isolate);
 
 			v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
 			global->Set(v8pp::to_v8(isolate, "print"), v8::FunctionTemplate::New(isolate, Print));
@@ -191,10 +191,10 @@ namespace Acorn
 				std::string source = Utils::File::ReadFile("res/scripts/builtins/compiler.js");
 				try
 				{
-					v8::Local<v8::Module> module = checkModule(loadModule(source, "res/scripts/builtins/compiler.js", context), context);
+					v8::Local<v8::Module> module = V8Import::checkModule(V8Import::loadModule(source, "res/scripts/builtins/compiler.js", context), context);
 					AC_CORE_ASSERT(module->GetStatus() == v8::Module::kInstantiated, "Failed to instantiate compiler.js module!");
 					//TODO load filepath into script
-					v8::Local<v8::Value> ret = execModule(module, context);
+					v8::Local<v8::Value> ret = V8Import::execModule(module, context);
 					if (try_catch.HasCaught())
 						AC_CORE_ERROR("Compiler error: {0}", v8pp::from_v8<std::string>(isolate, try_catch.Message()->Get()));
 
@@ -219,9 +219,9 @@ namespace Acorn
 					WaitForPendingPromise(promise, isolate, try_catch);
 
 					std::string getTypesSrc = Utils::File::ReadFile("res/scripts/builtins/getTypes.js");
-					v8::Local<v8::Module> getTypedefsModule = checkModule(loadModule(getTypesSrc, "res/scripts/builtins/getTypes.js", context), context);
+					v8::Local<v8::Module> getTypedefsModule = V8Import::checkModule(V8Import::loadModule(getTypesSrc, "res/scripts/builtins/getTypes.js", context), context);
 					AC_CORE_ASSERT(getTypedefsModule->GetStatus() == v8::Module::kInstantiated, "Failed to instantiate getTypes.js module!");
-					v8::Local<v8::Value> ret2 = execModule(getTypedefsModule, context);
+					v8::Local<v8::Value> ret2 = V8Import::execModule(getTypedefsModule, context);
 
 					if (ret2.IsEmpty())
 					{

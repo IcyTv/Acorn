@@ -231,7 +231,9 @@ namespace Acorn
 	{
 		out << YAML::BeginMap; //Entity
 
-		out << YAML::Key << "Entity" << YAML::Value << "1234567890"; //TODO: entity id goes here
+		AC_CORE_ASSERT(entity.HasComponent<Components::ID>(), "Entity does not have an ID, cannot be serialized!");
+
+		out << YAML::Key << "Entity" << YAML::Value << (std::string)entity.GetUUID();
 
 		if (entity.HasComponent<Components::Tag>())
 		{
@@ -330,7 +332,9 @@ namespace Acorn
 		{
 			for (auto entity : entities)
 			{
-				uint64_t uuid = entity["Entity"].as<uint64_t>();
+				// uint64_t uuid = entity["Entity"].as<uint64_t>();
+				// uint64_t uuid = 0;
+				std::string uuid = entity["Entity"].as<std::string>();
 
 				std::string name;
 				auto tagComponent = entity["Tag"];
@@ -341,7 +345,7 @@ namespace Acorn
 
 				AC_CORE_TRACE("Deserialized entity [id = {}, name = {}]", uuid, name);
 
-				Entity deserializedEntity = m_Scene->CreateEntity(name);
+				Entity deserializedEntity = m_Scene->CreateEntity(name, uuid);
 
 				auto transformComponent = entity["Transform"];
 

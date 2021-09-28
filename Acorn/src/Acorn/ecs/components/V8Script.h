@@ -154,6 +154,8 @@ namespace Acorn
 		v8::Persistent<v8::Object> m_Class;
 		v8::Persistent<v8::Function> m_OnUpdate;
 
+		// Scope<v8::SnapshotCreator> m_SnapshotCreator;
+
 		float m_LastExecutionTime = 0.0f;
 	};
 }

@@ -10,6 +10,7 @@
 #include "input/Input.h"
 #include "input/KeyCodes.h"
 #include "utils/FileUtils.h"
+#include "utils/v8/V8Import.h"
 #include "v8pp/ptr_traits.hpp"
 
 #include <boost/variant/detail/apply_visitor_delayed.hpp>
@@ -211,6 +212,7 @@ namespace Acorn
 
 	static void Print(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
+		AC_PROFILE_FUNCTION();
 		std::stringstream ss;
 		v8::HandleScope handle_scope(args.GetIsolate());
 		for (int i = 0; i < args.Length(); i++)
@@ -224,6 +226,7 @@ namespace Acorn
 
 	static void ScriptSuperClassConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
+		AC_PROFILE_FUNCTION();
 		v8::Isolate* isolate = args.GetIsolate();
 		if (!args.IsConstructCall())
 		{
@@ -238,6 +241,7 @@ namespace Acorn
 
 	static void ScriptSuperClassHasComponent(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
+		AC_PROFILE_FUNCTION();
 		v8::Isolate* isolate = args.GetIsolate();
 		v8::HandleScope handle_scope(isolate);
 
@@ -279,6 +283,7 @@ namespace Acorn
 
 	static void ScriptSuperClassGetComponent(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
+		AC_PROFILE_FUNCTION();
 		v8::Isolate* isolate = args.GetIsolate();
 		// v8::HandleScope handle_scope(isolate);
 
@@ -429,6 +434,8 @@ namespace Acorn
 
 	void V8Engine::Initialize()
 	{
+		AC_PROFILE_FUNCTION();
+		V8Import::Init();
 		std::string const v8_flags = "--expose_gc";
 		v8::V8::SetFlagsFromString(v8_flags.data(), (int)v8_flags.length());
 		ApplicationCommandLineArgs args = Application::Get().GetCommandLineArgs();
@@ -444,12 +451,14 @@ namespace Acorn
 
 	void V8Engine::Shutdown()
 	{
+		AC_PROFILE_FUNCTION();
 		if (!m_KeepRunning)
 		{
 			v8::V8::Dispose();
 			v8::V8::ShutdownPlatform();
 			m_Running = false;
 			m_Platform.reset();
+			V8Import::Save();
 		}
 	}
 
@@ -487,6 +496,7 @@ namespace Acorn
 	//TODO ts->js filename interop
 	void V8Script::Load(Entity entity)
 	{
+		AC_PROFILE_FUNCTION();
 		V8Engine::instance().AddScript(this);
 
 		// v8::StartupData startup_data;
@@ -499,182 +509,186 @@ namespace Acorn
 
 		std::string md5Hash = Utils::File::MD5HashString(sourceCode);
 
-		std::filesystem::path snapshotPath(SNAPSHOT_DATA_PATH);
-		if (!std::filesystem::exists(snapshotPath))
-			std::filesystem::create_directories(snapshotPath);
+		// std::filesystem::path snapshotPath(SNAPSHOT_DATA_PATH);
+		// if (!std::filesystem::exists(snapshotPath))
+		// 	std::filesystem::create_directories(snapshotPath);
 
-		snapshotPath /= md5Hash;
-		snapshotPath += ".snapshot";
+		// snapshotPath /= md5Hash;
+		// snapshotPath += ".snapshot";
 
-		AC_CORE_INFO("Trying to load Snapshot from {}", snapshotPath.string());
-		v8::StartupData* snapshot = nullptr;
-		if (std::filesystem::exists(snapshotPath))
-		{
-			std::ifstream file(snapshotPath.string(), std::ios::binary);
-			AC_CORE_ASSERT(file.is_open(), "Failed to open snapshot file!");
-			file.seekg(0, std::ios::end);
-			std::size_t size = file.tellg();
-			file.seekg(0, std::ios::beg);
-			char* data = new char[size];
-			file.read(data, size);
-			file.close();
+		// AC_CORE_INFO("Trying to load Snapshot from {}", snapshotPath.string());
+		// v8::StartupData* snapshot = nullptr;
+		// if (std::filesystem::exists(snapshotPath))
+		// {
+		// 	std::ifstream file(snapshotPath.string(), std::ios::binary);
+		// 	AC_CORE_ASSERT(file.is_open(), "Failed to open snapshot file!");
+		// 	file.seekg(0, std::ios::end);
+		// 	std::size_t size = file.tellg();
+		// 	file.seekg(0, std::ios::beg);
+		// 	char* data = new char[size];
+		// 	file.read(data, size);
+		// 	file.close();
 
-			snapshot = new v8::StartupData();
-			snapshot->data = data;
-			snapshot->raw_size = size;
-		}
+		// 	snapshot = new v8::StartupData();
+		// 	snapshot->data = std::move(data);
+		// 	snapshot->raw_size = size;
 
-		v8::SnapshotCreator snapshotCreator(m_Isolate, nullptr, snapshot);
+		// 	if (!snapshot->IsValid())
+		// 	{
+		// 		AC_CORE_ERROR("Snapshot is not valid");
+		// 		AC_CORE_BREAK();
+		// 		delete[] snapshot->data;
+		// 		delete snapshot;
+		// 		snapshot = nullptr;
+		// 	}
+		// }
+		// else
+		// {
+		// 	AC_CORE_INFO("Creating new snapshot, because no exising snapshot was found!");
+		// }
 
-		AC_CORE_ASSERT(m_Isolate, "Failed to create V8 isolate!");
-		AC_CORE_ASSERT(m_Isolate != nullptr, "V8 Isolate is null!");
+		// AC_CORE_ASSERT(m_Isolate, "Failed to create V8 isolate!");
+		// AC_CORE_ASSERT(m_Isolate != nullptr, "V8 Isolate is null!");
 
 		m_Data = TSCompiler::Compile(m_Isolate, m_TSFilePath);
 
+		AC_CORE_TRACE("TSCompilation succeeded");
+
 		AC_CORE_ASSERT(std::filesystem::exists(m_JSFilePath), "Failed to find compiled script!");
 
+		// m_SnapshotCreator = CreateScope<v8::SnapshotCreator>(m_Isolate, nullptr, snapshot);
+
 		v8::Isolate::Scope isolate_scope(m_Isolate);
-		// Create a stack-allocated handle scope.
-		v8::HandleScope handle_scope(m_Isolate);
-
-		v8::Local<v8::Context> context = CreateShellContext();
-
-		snapshotCreator.SetDefaultContext(context);
-
-		// m_Context = context;
-		// m_Context.Reset(m_Isolate, context);
-		m_Context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(m_Isolate, context);
-		// m_Context = context;
-
-		AC_CORE_ASSERT(!context.IsEmpty(), "Failed to create V8 context!");
-		// Enter the context for compiling and running the hello world script.
-		v8::Context::Scope context_scope(context);
+		//Block for destroying handle scope before creating startup blob
 		{
-			// Create a string containing the JavaScript source code.
-			v8::Local<v8::String> source =
-				v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
-			// Compile the source code.
-			v8::Local<v8::Script> script = v8::Script::Compile(context, source).ToLocalChecked();
+			// Create a stack-allocated handle scope.
+			v8::HandleScope handle_scope(m_Isolate);
 
-			v8::TryCatch trycatch(m_Isolate);
-			v8::MaybeLocal<v8::Value> v = script->Run(context);
-			if (v.IsEmpty())
+			v8::Local<v8::Context> context = CreateShellContext();
+
+			// m_SnapshotCreator->SetDefaultContext(context);
+
+			AC_CORE_TRACE("Serialized Context!");
+
+			// m_Context = context;
+			// m_Context.Reset(m_Isolate, context);
+			m_Context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(m_Isolate, context);
+			// m_Context = context;
+
+			AC_CORE_ASSERT(!context.IsEmpty(), "Failed to create V8 context!");
+			// Enter the context for compiling and running the hello world script.
+			v8::Context::Scope context_scope(context);
 			{
-				std::string msg = v8pp::from_v8<std::string>(m_Isolate, trycatch.Exception());
-				AC_CORE_ERROR("[V8]: Failed to run script: {0}", msg);
-			}
+				// Create a string containing the JavaScript source code.
+				v8::Local<v8::String> source =
+					v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
+				// Compile the source code.
+				v8::Local<v8::Script> script = v8::Script::Compile(context, source).ToLocalChecked();
 
-			v8::Local<v8::Value> moduleObject = context->Global()->Get(context, v8::String::NewFromUtf8(m_Isolate, "module").ToLocalChecked()).ToLocalChecked();
-			v8::Local<v8::Object> module = v8::Local<v8::Object>::Cast(moduleObject);
-			v8::MaybeLocal<v8::Value> maybeExports = module->Get(context, v8::String::NewFromUtf8(m_Isolate, "exports").ToLocalChecked());
-
-			AC_CORE_ASSERT(!maybeExports.IsEmpty(), "Failed to get module exports!");
-
-			v8::Local<v8::Value> exports = maybeExports.ToLocalChecked();
-
-			AC_CORE_ASSERT(exports->IsFunction(), "[V8]: Wrong Export Type!");
-
-			v8::Local<v8::Function> classObj = v8::Local<v8::Function>::Cast(exports);
-
-			m_Name = v8pp::from_v8<std::string>(m_Isolate, classObj->GetDebugName());
-			v8::Local<v8::Object> instance = classObj->NewInstance(context).ToLocalChecked();
-			ScriptSuperClass* obj = (ScriptSuperClass*)instance->GetInternalField(0).As<v8::External>()->Value();
-			obj->m_Entity = entity;
-
-			for (auto& params : m_Parameters)
-			{
-				v8::Local<v8::String> name = v8pp::to_v8(m_Isolate, params.first);
-
-				v8::Local<v8::Value> value;
-				if (params.second.type() == typeid(float))
+				v8::TryCatch trycatch(m_Isolate);
+				v8::MaybeLocal<v8::Value> v = script->Run(context);
+				if (v.IsEmpty())
 				{
-					value = v8pp::to_v8<float>(m_Isolate, boost::get<float>(params.second));
+					std::string msg = v8pp::from_v8<std::string>(m_Isolate, trycatch.Exception());
+					AC_CORE_ERROR("[V8]: Failed to run script: {0}", msg);
 				}
-				else if (params.second.type() == typeid(bool))
+
+				v8::Local<v8::Value> moduleObject = context->Global()->Get(context, v8::String::NewFromUtf8(m_Isolate, "module").ToLocalChecked()).ToLocalChecked();
+				v8::Local<v8::Object> module = v8::Local<v8::Object>::Cast(moduleObject);
+				v8::MaybeLocal<v8::Value> maybeExports = module->Get(context, v8::String::NewFromUtf8(m_Isolate, "exports").ToLocalChecked());
+
+				AC_CORE_ASSERT(!maybeExports.IsEmpty(), "Failed to get module exports!");
+
+				v8::Local<v8::Value> exports = maybeExports.ToLocalChecked();
+
+				AC_CORE_ASSERT(exports->IsFunction(), "[V8]: Wrong Export Type!");
+
+				v8::Local<v8::Function> classObj = v8::Local<v8::Function>::Cast(exports);
+
+				m_Name = v8pp::from_v8<std::string>(m_Isolate, classObj->GetDebugName());
+				v8::Local<v8::Object> instance = classObj->NewInstance(context).ToLocalChecked();
+				ScriptSuperClass* obj = (ScriptSuperClass*)instance->GetInternalField(0).As<v8::External>()->Value();
+				obj->m_Entity = entity;
+
+				for (auto& params : m_Parameters)
 				{
-					value = v8pp::to_v8<bool>(m_Isolate, boost::get<bool>(params.second));
+					v8::Local<v8::String> name = v8pp::to_v8(m_Isolate, params.first);
+
+					v8::Local<v8::Value> value;
+					if (params.second.type() == typeid(float))
+					{
+						value = v8pp::to_v8<float>(m_Isolate, boost::get<float>(params.second));
+					}
+					else if (params.second.type() == typeid(bool))
+					{
+						value = v8pp::to_v8<bool>(m_Isolate, boost::get<bool>(params.second));
+					}
+					else if (params.second.type() == typeid(std::string))
+					{
+						value = v8pp::to_v8<std::string>(m_Isolate, boost::get<std::string>(params.second));
+					}
+					else
+					{
+						AC_CORE_FATAL("[V8]: Unknown parameter type!");
+						AC_CORE_BREAK();
+					}
+
+					v8::Maybe<bool> result = instance->Set(context, name, value);
+					AC_CORE_ASSERT(result.IsJust(), "Failed to set parameter {}!", params.first);
 				}
-				else if (params.second.type() == typeid(std::string))
+
+				m_Class.Reset(m_Isolate, instance);
+
+				v8::Local<v8::Function> OnUpdatefunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnUpdate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
+
+				m_OnUpdate.Reset(m_Isolate, OnUpdatefunc);
+
+				v8::Local<v8::Function> OnCreateFunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnCreate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
+				auto ret = OnCreateFunc->Call(context, instance, 0, nullptr);
+				if (ret.IsEmpty() && trycatch.HasCaught())
 				{
-					value = v8pp::to_v8<std::string>(m_Isolate, boost::get<std::string>(params.second));
+					AC_CORE_ERROR("[V8]: Exception {}", v8pp::from_v8<std::string>(m_Isolate, trycatch.Message()->Get()));
 				}
-				else
+				else if (ret.IsEmpty())
 				{
-					AC_CORE_FATAL("[V8]: Unknown parameter type!");
+					AC_CORE_ERROR("[V8]: Failed to call OnCreate!");
 					AC_CORE_BREAK();
 				}
 
-				v8::Maybe<bool> result = instance->Set(context, name, value);
-				AC_CORE_ASSERT(result.IsJust(), "Failed to set parameter {}!", params.first);
+				//OnDestroy
+				//...
 			}
-
-			m_Class.Reset(m_Isolate, instance);
-
-			v8::Local<v8::Function> OnUpdatefunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnUpdate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
-
-			m_OnUpdate.Reset(m_Isolate, OnUpdatefunc);
-
-			v8::Local<v8::Function> OnCreateFunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnCreate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
-			auto ret = OnCreateFunc->Call(context, instance, 0, nullptr);
-			if (ret.IsEmpty() && trycatch.HasCaught())
-			{
-				AC_CORE_ERROR("[V8]: Exception {}", v8pp::from_v8<std::string>(m_Isolate, trycatch.Message()->Get()));
-			}
-
-			//OnDestroy
-			//...
 		}
 
-		v8::StartupData serializedData = snapshotCreator.CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kKeep);
+		// v8::StartupData serializedData = m_SnapshotCreator->CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kClear);
 
-		AC_CORE_INFO("Writing Snapshot to {}", snapshotPath.string());
+		// AC_CORE_ASSERT(serializedData.data != nullptr, "Failed to create snapshot!");
+		// AC_CORE_ASSERT(serializedData.raw_size > 0, "Failed to create snapshot!");
 
-		std::ofstream out(snapshotPath.string(), std::ios::binary);
+		// AC_CORE_INFO("Writing Snapshot to {}", snapshotPath.string());
 
-		AC_CORE_ASSERT(out, "Failed to write snapshot");
+		// std::ofstream out(snapshotPath.string(), std::ios::binary);
 
-		out.write(reinterpret_cast<const char*>(serializedData.data), serializedData.raw_size);
+		// AC_CORE_ASSERT(out, "Failed to write snapshot");
 
-		out.close();
+		// out.write(reinterpret_cast<const char*>(serializedData.data), serializedData.raw_size);
 
-		AC_CORE_INFO("Snapshot written to {}", snapshotPath.string());
+		// out.close();
+
+		// AC_CORE_INFO("Snapshot written to {}", snapshotPath.string());
 	}
 
 	void V8Script::Dispose()
 	{
-		// if (m_Isolate == nullptr)
-		// 	return;
-
-		// if (!m_Isolate)
-		// 	return;
-		// if (m_Isolate->IsDead())
-		// 	return;
-
+		AC_PROFILE_FUNCTION();
 		AC_CORE_INFO("V8 Isolate {} != {}", (void*)m_Isolate, (void*)NULL);
-
-		// //TODO there is definitevly a better way to do this
-		// if (!V8Engine::instance().m_Running)
-		// {
-		// 	V8Engine::instance().KeepRunning();
-		// }
-		//Clean up Persistent handles
-		// if (!m_Class.IsEmpty())
-		// m_Class.Reset();
-		// // if (!m_Context.IsEmpty())
-		// m_Context.Reset();
-		// // if (!m_OnUpdate.IsEmpty())
-		// m_OnUpdate.Reset();
-
-		//Clean up Isolate
-
-		// m_Isolate->Dispose();
 		m_Isolate = nullptr;
 		V8Engine::instance().RemoveScript(this);
-		// V8Engine::instance().Stop();
 	}
 
 	void V8Script::OnUpdate(Timestep ts)
 	{
+		AC_PROFILE_FUNCTION();
 		Timer timer;
 		AC_CORE_ASSERT(m_Isolate != nullptr, "V8 Isolate is null!");
 
@@ -714,6 +728,7 @@ namespace Acorn
 
 	v8::Local<v8::Context> V8Script::CreateShellContext()
 	{
+		AC_PROFILE_FUNCTION();
 		v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(m_Isolate);
 		global->Set(v8::String::NewFromUtf8(m_Isolate, "print", v8::NewStringType::kNormal).ToLocalChecked(), v8::FunctionTemplate::New(m_Isolate, Print));
 
@@ -748,7 +763,7 @@ namespace Acorn
 
 	void V8Script::DeclareTypes(v8::Local<v8::ObjectTemplate>& global)
 	{
-
+		AC_PROFILE_FUNCTION();
 		v8::HandleScope handle_scope(m_Isolate);
 		v8pp::module mathModule(m_Isolate);
 
