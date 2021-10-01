@@ -26,6 +26,7 @@ namespace Acorn
 {
 	static b2BodyType GetBodyType(Components::RigidBody2d::BodyType type)
 	{
+		AC_PROFILE_FUNCTION();
 		switch (type)
 		{
 			case Components::RigidBody2d::BodyType::Static:
@@ -39,11 +40,20 @@ namespace Acorn
 		return b2_staticBody;
 	}
 
-	template <class T>
-	static void CopyComponents(const entt::registry& src, entt::registry& dst)
+	template <typename Component>
+	static void CopyComponent(entt::registry& dst, const entt::registry& src, const std::unordered_map<UUID, entt::entity>& entityMap)
 	{
-		auto view = src.view<T>();
-		dst.insert(view.data(), view.data() + view.size(), view.raw());
+		AC_PROFILE_FUNCTION();
+		auto view = src.view<Component>();
+		for (auto entity : view)
+		{
+			UUID uuid = src.get<Components::ID>(entity).UUID;
+			AC_CORE_ASSERT(entityMap.find(uuid) != entityMap.end(), "Entity not found in entity map");
+			entt::entity enttId = entityMap.at(uuid);
+
+			auto& component = src.get<Component>(entity);
+			dst.emplace_or_replace<Component>(enttId, component);
+		}
 	}
 
 	Scene::Scene()
@@ -54,8 +64,45 @@ namespace Acorn
 	{
 	}
 
+	Ref<Scene> Scene::Copy(Ref<Scene> src)
+	{
+		AC_PROFILE_FUNCTION();
+		auto dst = CreateRef<Scene>();
+
+		dst->m_ViewportWidth = src->m_ViewportWidth;
+		dst->m_ViewportHeight = src->m_ViewportHeight;
+
+		auto& srcSceneReg = src->m_Registry;
+		auto& dstSceneReg = dst->m_Registry;
+		auto idView = srcSceneReg.view<Components::ID>();
+
+		std::unordered_map<UUID, entt::entity> entityMap;
+
+		for (auto e : idView)
+		{
+			Entity entity{e, src.get()};
+			UUID uuid = entity.GetUUID();
+			const auto& name = entity.GetComponent<Components::Tag>().TagName;
+
+			entt::entity newEntity = dst->CreateEntity(name, uuid);
+
+			entityMap[uuid] = newEntity;
+		}
+
+		CopyComponent<Components::Transform>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::SpriteRenderer>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::CameraComponent>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::NativeScript>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::JSScript>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::RigidBody2d>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::BoxCollider2d>(dstSceneReg, srcSceneReg, entityMap);
+
+		return dst;
+	}
+
 	Entity Scene::CreateEntity(const std::string& name, const UUID& uuid)
 	{
+		AC_PROFILE_FUNCTION();
 		Entity entity = {m_Registry.create(), this};
 		entity.AddComponent<Components::ID>(uuid);
 		entity.AddComponent<Components::Transform>();
@@ -67,11 +114,13 @@ namespace Acorn
 
 	void Scene::DestroyEntity(Entity entity)
 	{
+		AC_PROFILE_FUNCTION();
 		m_Registry.destroy(entity);
 	}
 
 	void Scene::InitializeRuntime()
 	{
+		AC_PROFILE_FUNCTION();
 		m_PhysicsWorld = new b2World(b2Vec2(0.0f, -9.8f));
 
 		auto rigidBodies = m_Registry.view<Components::RigidBody2d>();
@@ -130,6 +179,7 @@ namespace Acorn
 
 	void Scene::DestroyRuntime()
 	{
+		AC_PROFILE_FUNCTION();
 		auto view = m_Registry.view<Components::JSScript>();
 		for (auto entity : view)
 		{
@@ -148,6 +198,7 @@ namespace Acorn
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
+		AC_PROFILE_FUNCTION();
 		ext2d::Renderer::BeginScene(camera);
 		auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
 
@@ -186,6 +237,7 @@ namespace Acorn
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
+		AC_PROFILE_FUNCTION();
 		//Update Scripts
 		{
 			m_Registry.view<Components::NativeScript>().each(
@@ -274,6 +326,7 @@ namespace Acorn
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
+		AC_PROFILE_FUNCTION();
 		m_ViewportWidth = width;
 		m_ViewportHeight = height;
 
@@ -290,6 +343,7 @@ namespace Acorn
 
 	void Scene::RenderFromCamera(Entity entity)
 	{
+		AC_PROFILE_FUNCTION();
 		AC_CORE_ASSERT(entity.HasComponent<Components::CameraComponent>(), "Entity does not have a camera component");
 		auto& camera = entity.GetComponent<Components::CameraComponent>();
 		auto& transform = entity.GetComponent<Components::Transform>();
@@ -307,54 +361,15 @@ namespace Acorn
 
 	void Scene::Snapshot()
 	{
-		{
-			cereal::JSONOutputArchive output{m_Snapshot};
-			entt::snapshot{m_Registry}
-				.entities(output)
-				.component<
-					Components::ID,
-					Components::Tag,
-					Components::Transform,
-					Components::CameraComponent,
-					Components::SpriteRenderer,
-					// Components::NativeScript,
-					Components::JSScript,
-					Components::RigidBody2d,
-					Components::BoxCollider2d>(output);
-		}
 	}
 
 	void Scene::LoadLastSnapshot()
 	{
-		entt::registry backupReg;
-		cereal::JSONInputArchive input{m_Snapshot};
-		entt::snapshot_loader loader{backupReg};
-		loader.entities(input)
-			.component<
-				Components::ID,
-				Components::Tag,
-				Components::Transform,
-				Components::CameraComponent,
-				Components::SpriteRenderer,
-				// Components::NativeScript,
-				Components::JSScript,
-				Components::RigidBody2d,
-				Components::BoxCollider2d>(input)
-			.orphans();
-
-		auto view = backupReg.view<Components::CameraComponent>();
-		for (auto&& [entity, camera] : view.each())
-		{
-			camera.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
-		}
-
-		m_Registry = std::move(backupReg);
-
-		m_Snapshot.clear();
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()
 	{
+		AC_PROFILE_FUNCTION();
 
 		auto view = m_Registry.view<Components::CameraComponent>();
 		for (auto&& [entity, camera] : view.each())

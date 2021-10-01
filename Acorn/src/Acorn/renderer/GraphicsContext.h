@@ -3,7 +3,7 @@
 namespace Acorn
 {
 	class GraphicsContext
-	{ 
+	{
 	public:
 		virtual ~GraphicsContext() = default;
 

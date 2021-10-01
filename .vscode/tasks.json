@@ -4,25 +4,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "OakTree:Build",
+            "label": "Run Tracy",
             "type": "shell",
-            "command": "${command:msbuild-tools.build}",
-            "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "always"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            // "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "Premake",
-            "type": "shell",
-            "command": "premake5",
-            "group": "build",
-            "args": [
-                "vs2019"
-            ],
+            "command": "./bin/Tracy.exe",
+            "linux": {
+                "command": "./bin/Tracy"
+            }
         }
     ]
 }

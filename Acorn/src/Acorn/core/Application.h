@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/Core.h"
+
 #include "Window.h"
 #include "events/ApplicationEvent.h"
 #include "events/Event.h"
@@ -56,8 +58,6 @@ namespace Acorn
 		LayerStack m_LayerStack;
 
 		float m_LastFrameTime = 0.0f;
-
-		bool m_IsProfiling = false;
 
 		ApplicationCommandLineArgs m_CommandLineArgs;
 

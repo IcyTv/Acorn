@@ -3,7 +3,6 @@
 #include "core/Core.h"
 #include "renderer/Camera.h"
 
-#include <cereal/access.hpp>
 #include <magic_enum.hpp>
 
 #define GET_SET(name)                                   \
@@ -64,41 +63,5 @@ namespace Acorn
 		float m_AspectRatio = 1.0f;
 
 		ProjectionType m_ProjectionType = ProjectionType::Orthographic;
-
-		//Cereal
-	private:
-		friend class cereal::access;
-
-		template <class Archive>
-		void save(Archive& ar) const
-		{
-			int type = *magic_enum::enum_index(m_ProjectionType); //NOTE static cast?
-			ar(
-				m_OrthographicSize,
-				m_OrthographicNearClip,
-				m_OrthographicFarClip,
-				m_PerspectiveFov,
-				m_PerspectiveNearClip,
-				m_PerspectiveFarClip,
-				type,
-				m_AspectRatio);
-		}
-
-		template <class Archive>
-		void load(Archive& ar)
-		{
-			int type;
-			ar(
-				m_OrthographicSize,
-				m_OrthographicNearClip,
-				m_OrthographicFarClip,
-				m_PerspectiveFov,
-				m_PerspectiveNearClip,
-				m_PerspectiveFarClip,
-				type,
-				m_AspectRatio);
-			m_ProjectionType = magic_enum::enum_value<ProjectionType>(type);
-			RecalculateProjectionMatrix();
-		}
 	};
 }

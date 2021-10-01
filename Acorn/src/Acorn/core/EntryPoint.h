@@ -14,17 +14,17 @@ int main(int argc, char** argv)
 
 	AC_CORE_INFO("Acorn Engine Initialized");
 
-	AC_PROFILE_BEGIN_SESSION("Startup", "AcornProfile-Startup.json");
+	// AC_PROFILE_BEGIN_SESSION("Startup", "AcornProfile-Startup.json");
 	Acorn::Application* application = Acorn::CreateApplication({argc, argv});
-	AC_PROFILE_END_SESSION();
+	// AC_PROFILE_END_SESSION();
 
 	application->Run();
 
-	AC_PROFILE_END_SESSION();
+	// AC_PROFILE_END_SESSION();
 
-	AC_PROFILE_BEGIN_SESSION("Shutdown", "AcornProfile-Shutdown.json");
+	// AC_PROFILE_BEGIN_SESSION("Shutdown", "AcornProfile-Shutdown.json");
 	delete application;
-	AC_PROFILE_END_SESSION();
+	// AC_PROFILE_END_SESSION();
 }
 
 	#define AC_ENTRY(class)                                                           \

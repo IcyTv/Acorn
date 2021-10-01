@@ -72,6 +72,7 @@ namespace Acorn
 		Ref<Framebuffer> m_CurrentCameraFramebuffer;
 
 		Ref<Scene> m_ActiveScene;
+		Ref<Scene> m_EditorScene;
 		Entity m_Square;
 		Entity m_Camera;
 		Entity m_HoveredEntity;

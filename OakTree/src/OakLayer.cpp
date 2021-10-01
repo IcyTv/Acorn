@@ -23,6 +23,7 @@ namespace Acorn
 
 	void OakLayer::OnAttach()
 	{
+		AC_PROFILE_FUNCTION();
 
 		FrameBufferSpecs fbSpecs;
 		fbSpecs.Attachments = {FBTF::RGBA8, FBTF::R32I, FBTF::Depth};
@@ -36,29 +37,36 @@ namespace Acorn
 		ccSpecs.Height = m_CameraPreviewSize.y;
 		m_CurrentCameraFramebuffer = Framebuffer::Create(ccSpecs);
 
-		m_ActiveScene = CreateRef<Scene>();
+		// m_EditorScene = CreateRef<Scene>();
 
-		//Serialization
+		// //Serialization
+		// auto commandLineArgs = Application::Get().GetCommandLineArgs();
+		// if (commandLineArgs.Count > 1)
+		// {
+		// 	auto sceneFilePath = commandLineArgs[1];
+		// 	SceneSerializer serializer(m_EditorScene);
+		// 	serializer.Deserialize(sceneFilePath);
+		// }
+		// else
+		// {
+		// 	SceneSerializer serializer(m_EditorScene);
+		// 	std::string defaultProject = "res/scenes/PhysicsTest.acorn";
+		// 	serializer.Deserialize(defaultProject);
+		// 	m_CurrentFilePath = defaultProject;
+		// }
+
 		auto commandLineArgs = Application::Get().GetCommandLineArgs();
 		if (commandLineArgs.Count > 1)
 		{
 			auto sceneFilePath = commandLineArgs[1];
-			SceneSerializer serializer(m_ActiveScene);
-			serializer.Deserialize(sceneFilePath);
+			OpenScene(sceneFilePath);
 		}
 		else
 		{
-			SceneSerializer serializer(m_ActiveScene);
-			std::string defaultProject = "res/scenes/PhysicsTest.acorn";
-			serializer.Deserialize(defaultProject);
-			m_CurrentFilePath = defaultProject;
+			OpenScene("res/scenes/PhysicsTest.acorn");
 		}
 
 		m_EditorCamera = EditorCamera(30.0f, 1.78f, 0.1f, 1000.0f);
-
-		//Panels
-
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 		m_LogPanel = std::make_shared<LogPanel>();
 		m_LogPanel->set_pattern("%^[%=8n][%T][%l]: %v%$");
@@ -469,6 +477,7 @@ namespace Acorn
 
 	bool OakLayer::OnKeyPressed(KeyPressedEvent& e)
 	{
+		AC_PROFILE_FUNCTION();
 		//Shortcuts
 		if (e.GetRepeatCount() > 0)
 			return false;
@@ -552,6 +561,7 @@ namespace Acorn
 
 	bool OakLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
+		AC_PROFILE_FUNCTION();
 		if (m_ViewportHovered && e.GetMouseButton() == AC_MOUSE_BUTTON_LEFT && !Input::IsKeyPressed(KeyCode::LeftAlt) && !ImGuizmo::IsOver())
 		{
 			m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
@@ -562,14 +572,17 @@ namespace Acorn
 
 	void OakLayer::NewScene()
 	{
-		m_ActiveScene = CreateRef<Scene>();
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		AC_PROFILE_FUNCTION();
+		m_EditorScene = CreateRef<Scene>();
+		m_EditorScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 		m_CurrentFilePath = "";
+		m_ActiveScene = m_EditorScene;
 	}
 
 	void OakLayer::SaveScene()
 	{
+		AC_PROFILE_FUNCTION();
 		if (!m_CurrentFilePath.empty())
 		{
 			AC_CORE_INFO("Saving Scene to {}", m_CurrentFilePath);
@@ -583,6 +596,7 @@ namespace Acorn
 
 	void OakLayer::SaveSceneAs()
 	{
+		AC_PROFILE_FUNCTION();
 		std::string filename = PlatformUtils::SaveFile("Acorn Scene (*.acorn)\0*.acorn\0");
 		if (!filename.empty())
 		{
@@ -594,6 +608,10 @@ namespace Acorn
 
 	void OakLayer::OpenScene()
 	{
+		AC_PROFILE_FUNCTION();
+		if (m_SceneState != SceneState::Edit)
+			OnSceneStop();
+
 		std::string filename = PlatformUtils::OpenFile("Acorn Scene (*.acorn)\0*.acorn\0");
 		if (!filename.empty())
 		{
@@ -603,30 +621,44 @@ namespace Acorn
 
 	void OakLayer::OpenScene(const std::filesystem::path& path)
 	{
-		m_ActiveScene = CreateRef<Scene>();
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-		m_CurrentFilePath = path.string();
+		AC_PROFILE_FUNCTION();
+		if (m_SceneState != SceneState::Edit)
+			OnSceneStop();
 
-		SceneSerializer(m_ActiveScene).Deserialize(path.string());
+		AC_CORE_INFO("Opening Scene from {}", path.string());
+
+		m_EditorScene = CreateRef<Scene>();
+		if (SceneSerializer(m_EditorScene).Deserialize(path.string()))
+		{
+			m_EditorScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
+			m_CurrentFilePath = path.string();
+
+			m_ActiveScene = m_EditorScene;
+		}
 	}
 
 	void OakLayer::OnScenePlay()
 	{
-		m_ActiveScene->Snapshot();
+		AC_PROFILE_FUNCTION();
+		m_ActiveScene = Scene::Copy(m_EditorScene);
+
 		m_ActiveScene->InitializeRuntime();
 		m_SceneState = SceneState::Play;
 	}
 
 	void OakLayer::OnSceneStop()
 	{
-		m_ActiveScene->LoadLastSnapshot();
+		AC_PROFILE_FUNCTION();
 		m_ActiveScene->DestroyRuntime();
 		m_SceneState = SceneState::Edit;
+
+		m_ActiveScene = m_EditorScene;
 	}
 
 	void OakLayer::UI_Toolbar()
 	{
+		AC_PROFILE_FUNCTION();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));

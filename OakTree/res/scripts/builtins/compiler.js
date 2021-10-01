@@ -1,5 +1,7 @@
+///<reference path="../declarations.d.ts" />
 import ts from "./typescript/typescript";
 import compilerHost from "./compilerHost";
+import swc from "./swc/wasm";
 function compile(fileNames, options) {
     let program = ts.createProgram(fileNames, options, compilerHost);
     let emitResult = program.emit();
@@ -20,10 +22,12 @@ function compile(fileNames, options) {
         outputText: (emitResult.emittedFiles || []).join(","),
     };
 }
+print(swc);
 if (!AcornFileSystem.CurrentFile) {
     throw new Error("No file to compile!");
 }
 export const result = compile([AcornFileSystem.CurrentFile], {
     module: ts.ModuleKind.ESNext,
     target: ts.ScriptTarget.ESNext,
+    skipLibCheck: true,
 });

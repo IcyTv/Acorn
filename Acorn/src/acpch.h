@@ -19,11 +19,16 @@
 
 #include <mutex>
 
+#if AC_PROFILE
+	#include <Tracy.hpp>
+#endif
+
 #include "Acorn/core/Log.h"
 
 #include "Acorn/debug/Instrumentor.h"
 
 #ifdef AC_PLATFORM_WINDOWS
 	#define NOMINMAX
+	#define _WINSOCKAPI_
 	#include <Windows.h>
 #endif

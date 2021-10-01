@@ -1,5 +1,7 @@
+///<reference path="../declarations.d.ts" />
 import ts from "./typescript/typescript";
 import compilerHost from "./compilerHost";
+import swc from "./swc/wasm"
 
 function compile(fileNames: string[], options: ts.CompilerOptions): ts.TranspileOutput {
     let program = ts.createProgram(fileNames, options, compilerHost);
@@ -24,6 +26,8 @@ function compile(fileNames: string[], options: ts.CompilerOptions): ts.Transpile
     }
 }
 
+print(swc);
+
 if (!AcornFileSystem.CurrentFile) {
     throw new Error("No file to compile!");
 }
@@ -31,5 +35,5 @@ if (!AcornFileSystem.CurrentFile) {
 export const result = compile([AcornFileSystem.CurrentFile], {
     module: ts.ModuleKind.ESNext,
     target: ts.ScriptTarget.ESNext,
-
-})
+    skipLibCheck: true,
+});

@@ -6,6 +6,11 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#if AC_PROFILE
+	#include <Tracy.hpp>
+	#include <TracyOpenGL.hpp>
+#endif
+
 void gl_error_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	switch (severity)
@@ -45,6 +50,9 @@ namespace Acorn
 		glfwMakeContextCurrent(m_WindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		AC_CORE_ASSERT(status, "Failed to Load Glad");
+#if AC_PROFILE
+		TracyGpuContext;
+#endif
 
 #ifdef AC_DEBUG
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -64,13 +72,29 @@ namespace Acorn
 
 		AC_CORE_ASSERT(majorVersion > 4 || (majorVersion == 4 && minorVersion >= 5), "Acorn requires OpenGL 4.5 or above");
 #endif
+
+#if AC_PROFILE
+		m_FrameProfiler = FrameProfiler::Create();
+#endif
 	}
 
 	void OpenGLContext::SwapBuffers()
 	{
 		AC_PROFILE_FUNCTION();
 
+#if AC_PROFILE
+		//Send Current Frame to Tracy
+		int width, height;
+		glfwGetWindowSize(m_WindowHandle, &width, &height);
+		m_FrameProfiler->SendFrame(width, height);
+#endif
+
 		glfwSwapBuffers(m_WindowHandle);
+
+#if AC_PROFILE
+		//Collect GPU Events
+		TracyGpuCollect;
+#endif
 	}
 
 }

@@ -95,6 +95,8 @@ namespace Acorn::Utils
 		std::string ReadFile(const std::string& filePath)
 		{
 			AC_PROFILE_FUNCTION();
+
+			ZoneText(filePath.c_str(), filePath.length());
 			// std::ifstream file(filePath);
 			// std::stringstream buffer;
 			// if (file)

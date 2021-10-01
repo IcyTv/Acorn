@@ -6,6 +6,8 @@
 
 #include <glad/glad.h>
 
+#include <TracyOpenGL.hpp>
+
 namespace Acorn
 {
 	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
@@ -43,6 +45,7 @@ namespace Acorn
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexArray::OpenGLVertexArray");
 
 		glCreateVertexArrays(1, &m_RendererId);
 	}
@@ -50,6 +53,7 @@ namespace Acorn
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexArray::~OpenGLVertexArray");
 
 		glDeleteVertexArrays(1, &m_RendererId);
 	}
@@ -57,6 +61,7 @@ namespace Acorn
 	void OpenGLVertexArray::Bind() const
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexArray::Bind");
 
 		glBindVertexArray(m_RendererId);
 	}
@@ -64,6 +69,7 @@ namespace Acorn
 	void OpenGLVertexArray::Unbind() const
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexArray::Unbind");
 
 		glBindVertexArray(0);
 	}
@@ -71,6 +77,7 @@ namespace Acorn
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexArray::AddVertexBuffer");
 
 		AC_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
@@ -141,6 +148,7 @@ namespace Acorn
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexArray::SetIndexBuffer");
 
 		glBindVertexArray(m_RendererId);
 		indexBuffer->Bind();
