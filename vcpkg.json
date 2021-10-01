@@ -24,10 +24,6 @@
 		"glm",
 		"stb",
 		"entt",
-		{
-			"name": "freetype",
-			"version>=": "2.11.0"
-		},
 		"imguizmo",
 		"implot",
 		"yaml-cpp",
@@ -36,7 +32,7 @@
 		"boost-variant",
 		"boost-uuid",
 		"box2d",
-		"cereal",
-		"openssl"
+		"openssl",
+		"spirv-cross"
 	]
 }

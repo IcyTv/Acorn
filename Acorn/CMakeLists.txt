@@ -24,13 +24,13 @@ if(NOT Vulkan_FOUND)
 endif()
 
 if(WIN32)
-    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_sharedd;spirv-cross-cored;spirv-cross-glsld")
+    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_sharedd")
 else()
-    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_shared;spirv-cross-core;spirv-cross-glsl")
+    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_shared")
 endif()
 
 foreach(LIB_NAME ${VULKAN_DEBUG_LIBS_NAMES})
-    find_library(FOUND_LIB_${LIB_NAME} NAMES "${LIB_NAME}" HINTS "${VULKAN_PATH}/Lib" "${VULKAN_PATH}/Bin" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
+    find_library(FOUND_LIB_${LIB_NAME} NAMES "${LIB_NAME}" HINTS "${VULKAN_PATH}/Bin" "${VULKAN_PATH}/Lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
     if(NOT FOUND_LIB_${LIB_NAME})
         message(FATAL_ERROR "Failed to locate ${LIB_NAME}")
     else()
@@ -38,12 +38,12 @@ foreach(LIB_NAME ${VULKAN_DEBUG_LIBS_NAMES})
     endif()
 endforeach()
 
-set(VULKAN_RELEASE_LIBS "shaderc_shared;spirv-cross-core;spirv-cross-glsl")
+set(VULKAN_RELEASE_LIBS "shaderc_shared")
 
 find_package(ImGui CONFIG REQUIRED)
 find_package(implot CONFIG REQUIRED)
 find_package(imguizmo CONFIG REQUIRED)
-find_package(freetype CONFIG REQUIRED)
+# find_package(freetype CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -55,8 +55,10 @@ find_package(Threads REQUIRED)
 find_package(V8 CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 find_package(box2d REQUIRED)
-find_package(cereal REQUIRED)
+# find_package(cereal REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(spirv_cross_core REQUIRED)
+find_package(spirv_cross_glsl REQUIRED)
 find_path(STB_INCLUDE_DIRS "stb.h")
 find_path(MAGIC_ENUM_INCLUDE_DIRS "magic_enum.hpp")
 
@@ -65,10 +67,13 @@ file(GLOB_RECURSE SOURCE_FILES
     "src/*.cpp"
     "vendor/stb_image/stb_image.cpp"
     "vendor/v8pp/v8pp/*.cpp"
+    "vendor/tracy/TracyClient.cpp"
 )
 file(GLOB_RECURSE HEADER_FILES
     CONFIGURE_DEPENDS
     "src/*.h"
+    "vendor/tracy/Tracy.hpp"
+    "vendor/tracy/TracyOpenGL.hpp"
 )
 
 #Add Library
@@ -85,7 +90,7 @@ target_precompile_headers(Acorn PRIVATE src/acpch.h)
 # set_target_properties(Acorn PROPERTIES UNITY_BUILD ON)
 
 # Include Directories
-target_include_directories(Acorn
+target_include_directories(Acorn AFTER
     PRIVATE 
         "${VULKAN_PATH}/Include"
         "${STB_INCLUDE_DIRS}"
@@ -99,10 +104,19 @@ target_include_directories(Acorn
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/Acorn>
         $<INSTALL_INTERFACE:vendor/v8pp>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vendor/v8pp>
+        $<INSTALL_INTERFACE:vendor/tracy>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy>
 )
 
+if(ENABLE_PROFILING)
+    message(STATUS "Enabled Profiling")
+    target_compile_definitions(Acorn PRIVATE -DAC_PROFILE=1 -DTRACY_ENABLE)
+else()
+    message(STATUS "Disabled Profiling")
+    target_compile_definitions(Acorn PRIVATE -DAC_PROFILE=0)
+endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_PROFILE=1 -DAC_DEBUG)
+    target_compile_definitions(Acorn PRIVATE -DAC_ENABLE_ASSERTS -DPSNIP_DEBUG -DAC_DEBUG)
 endif()
 
 if(WIN32)
@@ -113,20 +127,22 @@ endif()
 # include(GenerateExportHeader)
 # generate_export_header(Acorn)
 
-target_compile_definitions(Acorn PRIVATE -DGLFW_INCLUDE_NONE -DAcorn_EXPORTS)
+target_compile_definitions(Acorn PRIVATE -DGLFW_INCLUDE_NONE -DAcorn_EXPORTS $<$<BOOL:${ENABLE_PROFILING}>:TRACY_CALLSTACK=10>)
 
 set_target_properties(Acorn PROPERTIES
     CXX_STANDARD 20
     PUBLIC_HEADER "${HEADER_FILES}"
     ENABLE_EXPORTS ON
 )
+set_property(TARGET Acorn PROPERTY
+  MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 target_compile_options(Acorn PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
     -Wall -Wextra -Wpedantic -DV8_COMPRESS_POINTERS>)
     # -Werror>)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" )
     target_compile_options(Acorn PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
         -O0 -ggdb -fno-omit-frame-pointer -g -Wno-unused-parameter>
@@ -137,7 +153,7 @@ endif()
 
 target_link_directories(Acorn PRIVATE "${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" )
     set(V8_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v142-x64.9.3.345.3/lib/Debug")
     # target_link_directories(Acorn PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../vendor/v8-v140-x64.7.4.288.11/lib/Debug")
 else()
@@ -152,7 +168,7 @@ target_link_libraries(Acorn PRIVATE glad::glad)
 target_link_libraries(Acorn PUBLIC glfw ${OPENGL_gl_LIBRARY})
 target_link_libraries(Acorn PUBLIC glm::glm)
 target_link_libraries(Acorn PUBLIC spdlog::spdlog)
-target_link_libraries(Acorn PUBLIC freetype)
+# target_link_libraries(Acorn PUBLIC freetype)
 target_link_libraries(Acorn PUBLIC imgui::imgui)
 target_link_libraries(Acorn PRIVATE implot::implot)
 target_link_libraries(Acorn PRIVATE imguizmo::imguizmo)
@@ -161,7 +177,8 @@ target_link_libraries(Acorn PRIVATE Threads::Threads)
 target_link_libraries(Acorn PUBLIC V8::V8)
 target_link_libraries(Acorn PRIVATE Boost::boost bcrypt)
 target_link_libraries(Acorn PRIVATE box2d::box2d)
-target_link_libraries(Acorn PRIVATE cereal)
+target_link_libraries(Acorn PRIVATE spirv-cross-core spirv-cross-glsl)
+# target_link_libraries(Acorn PRIVATE cereal)
 target_link_libraries(Acorn PRIVATE OpenSSL::Crypto)
 
 # set(V8_LIB_PATH "${CMAKE_SOURCE_DIR}/../v8/v8/out.gn/x64.debug/obj")
@@ -180,7 +197,7 @@ target_link_libraries(Acorn PRIVATE OpenSSL::Crypto)
 # target_link_libraries(Acorn PUBLIC v8_monolith)
 # target_link_libraries(Acorn PRIVATE v8pp) # TODO add support for Release
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug"  )
     target_link_libraries(Acorn PRIVATE ${VULKAN_DEBUG_LIBS})
 else()
     target_link_libraries(Acorn PRIVATE ${VULKAN_RELEASE_LIBS})

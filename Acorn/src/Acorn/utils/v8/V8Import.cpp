@@ -1,28 +1,32 @@
+#include "Tracy.hpp"
 #include "acpch.h"
 
 #include "V8Import.h"
 #include "utils/FileUtils.h"
+#include "v8pp/convert.hpp"
 
+#include <magic_enum.hpp>
 #include <unordered_map>
+#include <v8.h>
 #include <yaml-cpp/node/node.h>
 #include <yaml-cpp/yaml.h>
 
 namespace YAML
 {
 	template <>
-	struct convert<std::unordered_map<std::string, std::filesystem::path>>
+	struct convert<std::unordered_map<std::string, Acorn::ModuleData>>
 	{
-		static Node encode(const std::unordered_map<std::string, std::filesystem::path>& rhs)
+		static Node encode(const std::unordered_map<std::string, Acorn::ModuleData>& rhs)
 		{
 			Node node;
 			for (const auto& [key, value] : rhs)
 			{
-				node[key] = value.string();
+				node[key] = value;
 			}
 			return node;
 		}
 
-		static bool decode(const Node& node, std::unordered_map<std::string, std::filesystem::path>& rhs)
+		static bool decode(const Node& node, std::unordered_map<std::string, Acorn::ModuleData>& rhs)
 		{
 			if (!node.IsMap())
 			{
@@ -31,8 +35,37 @@ namespace YAML
 
 			for (auto n : node)
 			{
-				rhs[n.first.as<std::string>()] = n.second.as<std::string>();
+				rhs[n.first.as<std::string>()] = n.second.as<Acorn::ModuleData>();
 			}
+
+			return true;
+		}
+	};
+
+	template <>
+	struct convert<Acorn::ModuleData>
+	{
+		static Node encode(const Acorn::ModuleData& rhs)
+		{
+			Node node;
+			node["CachePath"] = rhs.CachePath.string();
+			node["Type"] = magic_enum::enum_name(rhs.Type).data();
+
+			return node;
+		}
+
+		static bool decode(const Node& node, Acorn::ModuleData& rhs)
+		{
+			if (!node.IsMap())
+			{
+				return false;
+			}
+
+			rhs.CachePath = node["CachePath"].as<std::string>();
+			auto typeEnum = magic_enum::enum_cast<Acorn::ModuleType>(node["Type"].as<std::string>());
+			if (!typeEnum.has_value())
+				return false;
+			rhs.Type = typeEnum.value();
 
 			return true;
 		}
@@ -41,10 +74,12 @@ namespace YAML
 
 namespace Acorn
 {
+
 	V8Import::CompilerData V8Import::s_Data;
 
 	void V8Import::Init()
 	{
+		AC_PROFILE_FUNCTION();
 		std::ifstream configFile(Utils::File::CONFIG_FILENAME);
 
 		if (!configFile.is_open())
@@ -54,7 +89,7 @@ namespace Acorn
 
 		if (config["v8"]["moduleCache"].IsDefined())
 		{
-			s_Data.CompileCache = config["v8"]["moduleCache"].as<std::unordered_map<std::string, std::filesystem::path>>();
+			s_Data.CompileCache = config["v8"]["moduleCache"].as<std::unordered_map<std::string, Acorn::ModuleData>>();
 
 			for (const auto& [key, value] : s_Data.CompileCache)
 			{
@@ -69,6 +104,7 @@ namespace Acorn
 
 	void V8Import::Save()
 	{
+		AC_PROFILE_FUNCTION();
 		std::ifstream configFile(Utils::File::CONFIG_FILENAME);
 
 		YAML::Node config;
@@ -92,8 +128,15 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 		AC_CORE_TRACE("Loading {}", name);
 
+		ModuleType type = ModuleType::ES6;
+		if (code.find("module.exports"))
+		{
+			type = ModuleType::CommonJS;
+		}
+
 		std::string md5Hash = Utils::File::MD5HashString(code);
 		AC_CORE_TRACE("MD5HashString {} {}", name, md5Hash);
+
 		v8::Local<v8::String> vcode;
 		{
 			AC_PROFILE_SCOPE("Converting code to v8");
@@ -111,12 +154,14 @@ namespace Acorn
 		v8::Context::Scope context_scope(cx);
 
 		//Check cache
-		if (s_Data.CompileCache.find(md5Hash) != s_Data.CompileCache.end() && std::filesystem::exists(s_Data.CompileCache[md5Hash]))
+		if (s_Data.CompileCache.find(md5Hash) != s_Data.CompileCache.end() && std::filesystem::exists(s_Data.CompileCache[md5Hash].CachePath))
 		{
 			AC_PROFILE_SCOPE("Cache Hit");
 
+			AC_CORE_ASSERT(s_Data.CompileCache[md5Hash].Type == type, "Cache type mismatch");
+
 			//Load from cache
-			std::filesystem::path cachePath = s_Data.CompileCache[md5Hash];
+			std::filesystem::path cachePath = s_Data.CompileCache[md5Hash].CachePath;
 			// std::basic_ifstream<uint8_t> cacheFile(cachePath.string(), std::ios::binary);
 			uint8_t* cacheData;
 			size_t cacheSize;
@@ -149,9 +194,16 @@ namespace Acorn
 			v8::ScriptCompiler::Source source(vcode, origin, v8cachedData);
 
 			v8::MaybeLocal<v8::Module> mod;
+			if (type == ModuleType::ES6)
 			{
-				AC_PROFILE_SCOPE("Compiling Module");
+				AC_PROFILE_SCOPE("Compiling ES6 Cached Module");
 				mod = v8::ScriptCompiler::CompileModule(cx->GetIsolate(), &source, v8::ScriptCompiler::CompileOptions::kConsumeCodeCache);
+			}
+			else
+			{
+				AC_PROFILE_SCOPE("Compiling CommonJS Cached Module");
+
+				AC_CORE_BREAK();
 			}
 
 			return mod;
@@ -163,9 +215,16 @@ namespace Acorn
 			//Compile
 
 			v8::MaybeLocal<v8::Module> mod;
+			if (type == ModuleType::ES6)
 			{
-				AC_PROFILE_SCOPE("Compiling Module");
+				AC_PROFILE_SCOPE("Compiling ES6 Module");
 				mod = v8::ScriptCompiler::CompileModule(cx->GetIsolate(), &source);
+			}
+			else
+			{
+				AC_PROFILE_SCOPE("Compiling CommonJS Module");
+
+				AC_CORE_BREAK();
 			}
 
 			v8::ScriptCompiler::CachedData* data;
@@ -176,7 +235,6 @@ namespace Acorn
 			}
 			AC_CORE_ASSERT(data != nullptr, "Failed to create code cache");
 
-			//TODO naming? [first 2]/[rest]?
 			{
 				AC_PROFILE_SCOPE("Writing cache");
 				std::filesystem::path cachePath = MODULE_CACHE_PATH;
@@ -201,7 +259,9 @@ namespace Acorn
 				// cacheFile.write(data->data, data->length);
 				// cacheFile.close();
 
-				s_Data.CompileCache[md5Hash] = cachePath;
+				s_Data.CompileCache[md5Hash] = {
+					cachePath,
+					type};
 			}
 
 			return mod;
@@ -272,6 +332,8 @@ namespace Acorn
 
 		v8::Maybe<bool> result = mod->InstantiateModule(cx, callResolve);
 
+		AC_CORE_INFO("IsSourceText {}; IsSynthetic {}", mod->IsSourceTextModule(), mod->IsSyntheticModule());
+
 		if (result.IsNothing())
 		{
 			AC_CORE_ERROR("Can't instantiate module");
@@ -286,7 +348,8 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 		v8::Local<v8::Value> retVal;
 		{
-			AC_PROFILE_SCOPE("V8 Module Evaluation");
+			// AC_PROFILE_SCOPE("V8 Module Evaluation");
+			ZoneScopedNS("V8 Module Evaluation", 10);
 			if (!mod->Evaluate(cx).ToLocal(&retVal))
 			{
 				AC_CORE_ERROR("Failed to evaluate module");
@@ -300,6 +363,9 @@ namespace Acorn
 			AC_CORE_BREAK();
 		}
 		AC_CORE_ASSERT(mod->GetStatus() == v8::Module::kEvaluated, "Module status should be evaluated");
+
+		auto ns = mod->GetModuleNamespace();
+		AC_CORE_INFO("Module namespace: {0}", v8pp::from_v8<std::string>(cx->GetIsolate(), ns));
 
 		if (nsObject)
 			return mod->GetModuleNamespace();

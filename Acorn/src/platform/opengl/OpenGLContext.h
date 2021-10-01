@@ -2,6 +2,10 @@
 
 #include "Acorn/renderer/GraphicsContext.h"
 
+#if AC_PROFILE
+	#include "debug/FrameProfiler.h"
+#endif
+
 struct GLFWwindow;
 
 namespace Acorn
@@ -17,5 +21,9 @@ namespace Acorn
 
 	private:
 		GLFWwindow* m_WindowHandle;
+
+#if AC_PROFILE
+		Ref<FrameProfiler> m_FrameProfiler;
+#endif
 	};
 }

@@ -1,0 +1,29 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      long: Emit Debug Information
+      buildType: Debug
+    release: 
+      short: Release
+      long: Optimize generated Code
+      buildType: Release
+    relwithdebinfo:
+      short: RelWithDebInfo
+      long: Optimize generated Code, include debug information
+      buildType: RelWithDebInfo
+    
+profiling:
+  default: 'no'
+  choices:
+    'yes':
+      short: Profiling On
+      long: Enable profiling
+      settings:
+        ENABLE_PROFILING: yes
+    'no':
+      short: Profiling Off
+      long: Disable profiling
+      settings:
+        ENABLE_PROFILING: no

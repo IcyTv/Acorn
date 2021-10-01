@@ -16,6 +16,7 @@
 #include <boost/variant/detail/apply_visitor_delayed.hpp>
 #include <boost/variant/get.hpp>
 #include <boost/variant/static_visitor.hpp>
+#include <corecrt_wstdio.h>
 #include <fstream>
 #include <functional>
 #include <glm/detail/qualifier.hpp>
@@ -436,10 +437,11 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		V8Import::Init();
-		std::string const v8_flags = "--expose_gc";
-		v8::V8::SetFlagsFromString(v8_flags.data(), (int)v8_flags.length());
-		ApplicationCommandLineArgs args = Application::Get().GetCommandLineArgs();
+		// std::string const v8_flags = "--turbo_instruction_scheduling --native-code-counters --expose_gc --print_builtin_code --print_code_verbose --profile_deserialization --serialization_statistics --random-seed 314159265";
+		// v8::V8::SetFlagsFromString(v8_flags.data(), (int)v8_flags.length());
+		v8::V8::SetFlagsFromString("--random-seed 314159265");
 
+		ApplicationCommandLineArgs args = Application::Get().GetCommandLineArgs();
 		v8::V8::InitializeICUDefaultLocation(args.Args[0]);
 		v8::V8::InitializeExternalStartupData(args.Args[0]);
 		m_Platform = v8::platform::NewDefaultPlatform();
@@ -499,8 +501,6 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 		V8Engine::instance().AddScript(this);
 
-		// v8::StartupData startup_data;
-
 		v8::Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
 		m_Isolate = v8::Isolate::New(create_params);
@@ -508,47 +508,6 @@ namespace Acorn
 		std::string sourceCode = Utils::File::ReadFile(m_JSFilePath);
 
 		std::string md5Hash = Utils::File::MD5HashString(sourceCode);
-
-		// std::filesystem::path snapshotPath(SNAPSHOT_DATA_PATH);
-		// if (!std::filesystem::exists(snapshotPath))
-		// 	std::filesystem::create_directories(snapshotPath);
-
-		// snapshotPath /= md5Hash;
-		// snapshotPath += ".snapshot";
-
-		// AC_CORE_INFO("Trying to load Snapshot from {}", snapshotPath.string());
-		// v8::StartupData* snapshot = nullptr;
-		// if (std::filesystem::exists(snapshotPath))
-		// {
-		// 	std::ifstream file(snapshotPath.string(), std::ios::binary);
-		// 	AC_CORE_ASSERT(file.is_open(), "Failed to open snapshot file!");
-		// 	file.seekg(0, std::ios::end);
-		// 	std::size_t size = file.tellg();
-		// 	file.seekg(0, std::ios::beg);
-		// 	char* data = new char[size];
-		// 	file.read(data, size);
-		// 	file.close();
-
-		// 	snapshot = new v8::StartupData();
-		// 	snapshot->data = std::move(data);
-		// 	snapshot->raw_size = size;
-
-		// 	if (!snapshot->IsValid())
-		// 	{
-		// 		AC_CORE_ERROR("Snapshot is not valid");
-		// 		AC_CORE_BREAK();
-		// 		delete[] snapshot->data;
-		// 		delete snapshot;
-		// 		snapshot = nullptr;
-		// 	}
-		// }
-		// else
-		// {
-		// 	AC_CORE_INFO("Creating new snapshot, because no exising snapshot was found!");
-		// }
-
-		// AC_CORE_ASSERT(m_Isolate, "Failed to create V8 isolate!");
-		// AC_CORE_ASSERT(m_Isolate != nullptr, "V8 Isolate is null!");
 
 		m_Data = TSCompiler::Compile(m_Isolate, m_TSFilePath);
 

@@ -221,6 +221,7 @@ namespace Acorn
 
 	int OpenGLFrameBuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
 	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererId);
 		AC_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "Invalid Attachment Index {}", attachmentIndex);
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
 		int readPixel = 0;

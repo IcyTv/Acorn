@@ -4,12 +4,16 @@
 
 #include <glad/glad.h>
 
+//NOTE Since our profiling is linked to the tracy macro, we don't actually need a profiling check...
+//Maybe it's worth it to add some custom wrapper macros
+#include <TracyOpenGL.hpp>
 namespace Acorn
 {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLVertexBuffer::OpenGLVertexBuffer");
 
 		glCreateBuffers(1, &m_RendererId);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererId);
@@ -28,7 +32,7 @@ namespace Acorn
 	void OpenGLVertexBuffer::Bind() const
 	{
 		AC_PROFILE_FUNCTION();
-
+		TracyGpuZone("OpenGLVertexBuffer::Bind");
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererId);
 	}
 
@@ -36,13 +40,17 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLVertexBuffer::Unbind");
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
 	{
 		AC_PROFILE_FUNCTION();
-		
+
+		TracyGpuZone("OpenGLVertexBuffer::SetData");
+
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererId);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
@@ -50,6 +58,8 @@ namespace Acorn
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
 		AC_PROFILE_FUNCTION();
+
+		TracyGpuZone("OpenGLVertexBuffer::DeleteBuffers");
 
 		glDeleteBuffers(1, &m_RendererId);
 	}
@@ -61,6 +71,8 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLIndexBuffer::OpenGLIndexBuffer");
+
 		glCreateBuffers(1, &m_RendererId);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererId);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), vertices, GL_STATIC_DRAW);
@@ -69,6 +81,7 @@ namespace Acorn
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLIndexBuffer::~OpenGLIndexBuffer");
 
 		glDeleteBuffers(1, &m_RendererId);
 	}
@@ -77,6 +90,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLIndexBuffer::Bind");
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererId);
 	}
 
@@ -84,6 +98,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLIndexBuffer::Unbind");
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 

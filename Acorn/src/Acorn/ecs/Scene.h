@@ -3,7 +3,6 @@
 #include "core/Timestep.h"
 #include "renderer/EditorCamera.h"
 
-#include <cereal/archives/json.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/snapshot.hpp>
 #include <entt/entt.hpp>
@@ -30,6 +29,8 @@ namespace Acorn
 		Scene();
 		Scene(const Scene& other);
 		~Scene();
+
+		static Ref<Scene> Copy(Ref<Scene> other);
 
 		Entity CreateEntity(const std::string& name = "", const UUID& uuid = UUID());
 		void DestroyEntity(Entity entity);
@@ -75,9 +76,6 @@ namespace Acorn
 
 	private:
 		entt::registry m_Registry;
-		std::stringstream m_Snapshot;
-
-		// Scope<entt::basic_snapshot<entt::entity>> m_Snapshot;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 

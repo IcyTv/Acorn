@@ -21,6 +21,17 @@ constexpr const char* MODULE_CACHE_PATH = "res/cache/scripts";
 
 namespace Acorn
 {
+	enum class ModuleType
+	{
+		CommonJS,
+		ES6
+	};
+	struct ModuleData
+	{
+		std::filesystem::path CachePath;
+		ModuleType Type;
+	};
+
 	class V8Import
 	{
 	public:
@@ -30,7 +41,7 @@ namespace Acorn
 		{
 			//NOTE maybe just save unsigned char*
 			//Map hash to cache file path
-			std::unordered_map<std::string, std::filesystem::path> CompileCache;
+			std::unordered_map<std::string, ModuleData> CompileCache;
 		};
 
 		static CompilerData s_Data;

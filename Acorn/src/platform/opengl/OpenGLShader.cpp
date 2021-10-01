@@ -15,6 +15,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include <TracyOpenGL.hpp>
+
 #ifdef AC_DEBUG
 	#define CHECK_PROGRAM_BOUND                 \
 		int id;                                 \
@@ -198,6 +200,8 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLShader::~OpenGLShader");
+
 		glDeleteProgram(m_RendererId);
 	}
 
@@ -205,6 +209,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLShader::Bind");
 		//TODO race condition?
 		if (s_CurrentShader == m_RendererId)
 			return;
@@ -216,6 +221,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		TracyGpuZone("OpenGLShader::Unbind");
 		s_CurrentShader = 0;
 		glUseProgram(0);
 	}

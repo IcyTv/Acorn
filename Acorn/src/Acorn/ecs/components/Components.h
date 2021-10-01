@@ -8,7 +8,6 @@
 #include "renderer/Texture.h"
 #include "utils/FileUtils.h"
 
-#include <cereal/types/string.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <magic_enum.hpp>
@@ -27,21 +26,6 @@ namespace Acorn
 			ID(const ID&) = default;
 			ID(const Acorn::UUID& uuid)
 				: UUID(uuid) {}
-
-			template <class Archive>
-			void save(Archive& ar) const
-			{
-				std::string uuid = (std::string)UUID;
-				ar(uuid);
-			}
-
-			template <class Archive>
-			void load(Archive& ar)
-			{
-				std::string uuid;
-				ar(uuid);
-				UUID = uuid;
-			}
 		};
 
 		struct Tag
@@ -52,12 +36,6 @@ namespace Acorn
 			Tag(const Tag&) = default;
 			Tag(const std::string& tag)
 				: TagName(tag) {}
-
-			template <class Archive>
-			void serialize(Archive& ar)
-			{
-				ar(TagName);
-			}
 		};
 
 		struct Transform
@@ -95,21 +73,6 @@ namespace Acorn
 								 glm::scale(glm::mat4(1.0f), Scale);
 				return transform;
 			}
-
-			template <class Archive>
-			void serialize(Archive& ar)
-			{
-				ar(
-					Translation.x,
-					Translation.y,
-					Translation.z,
-					Rotation.x,
-					Rotation.y,
-					Rotation.z,
-					Scale.x,
-					Scale.y,
-					Scale.z);
-			}
 		};
 
 		struct SpriteRenderer
@@ -122,40 +85,6 @@ namespace Acorn
 			SpriteRenderer(const SpriteRenderer&) = default;
 			SpriteRenderer(glm::vec4 color)
 				: Color(color) {}
-
-			template <class Archive>
-			void save(Archive& ar) const
-			{
-				std::string texture = "";
-				if (Texture)
-				{
-					texture = Texture->GetPath();
-				}
-				ar(
-					texture,
-					Color.x,
-					Color.y,
-					Color.z,
-					Color.w,
-					TilingFactor);
-			}
-
-			template <class Archive>
-			void load(Archive& ar)
-			{
-				std::string texture;
-				ar(texture, Color.x, Color.y, Color.z, Color.w, TilingFactor);
-				Texture.reset();
-				// Texture = Texture2d::Create(1, 1);
-				if (texture.length() > 0)
-				{
-					Texture = Texture2d::Create(texture);
-				}
-				else
-				{
-					Texture = nullptr;
-				}
-			}
 		};
 
 		struct CameraComponent
@@ -166,15 +95,6 @@ namespace Acorn
 
 			CameraComponent() = default;
 			CameraComponent(const CameraComponent&) = default;
-
-			template <class Archive>
-			void serialize(Archive& ar)
-			{
-				ar(
-					Camera,
-					Primary,
-					FixedAspectRatio);
-			}
 		};
 		struct NativeScript
 		{
@@ -196,12 +116,6 @@ namespace Acorn
 					script->Instance = nullptr;
 				};
 			}
-
-			// template <class Archive>
-			// void serialize(Archive& ar)
-			// {
-			// 	ar();
-			// }
 		};
 
 		struct JSScript
@@ -233,38 +147,6 @@ namespace Acorn
 					Script->OnUpdate(ts);
 				}
 			}
-
-			template <class Archive>
-			void save(Archive& archive) const
-			{
-				if (Script)
-				{
-					std::string path = Script->GetFilePath();
-					archive(path);
-				}
-				else
-				{
-					archive("");
-				}
-			}
-
-			template <class Archive>
-			void load(Archive& archive)
-			{
-				std::string path;
-				archive(path);
-				if (path.length() > 0)
-				{
-					Script = new V8Script(path);
-				}
-			}
-
-			// template <class Archive>
-			// void serialize(Archive& ar)
-			// {
-			// 	//TODO serialize member variables!
-			// 	ar(Path);
-			// }
 		};
 
 		//Physics
@@ -293,31 +175,6 @@ namespace Acorn
 			RigidBody2d(const RigidBody2d&) = default;
 
 			void AddForce(const glm::vec2& force);
-
-			template <class Archive>
-			void save(Archive& ar) const
-			{
-				int type = *magic_enum::enum_index(Type);
-				ar(type,
-				   FixedRotation,
-				   Density,
-				   Friction,
-				   Restitution,
-				   RestitutionThreshold);
-			}
-
-			template <class Archive>
-			void load(Archive& ar)
-			{
-				int type;
-				ar(type,
-				   FixedRotation,
-				   Density,
-				   Friction,
-				   Restitution,
-				   RestitutionThreshold);
-				Type = magic_enum::enum_value<BodyType>(type);
-			}
 		};
 
 		struct BoxCollider2d
@@ -331,16 +188,6 @@ namespace Acorn
 
 			BoxCollider2d() = default;
 			BoxCollider2d(const BoxCollider2d&) = default;
-
-			template <class Archive>
-			void serialize(Archive& ar)
-			{
-				ar(
-					Offset.x,
-					Offset.y,
-					Size.x,
-					Size.y);
-			}
 		};
 	}
 }

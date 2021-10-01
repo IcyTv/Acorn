@@ -60,13 +60,17 @@ target_compile_options(OakTree PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
     -Wall -Wextra -Wpedantic -DV8_COMPRESS_POINTERS>)
 
+
+set_property(TARGET OakTree PROPERTY
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 # target_link_directories(OakTree PUBLIC "${CMAKE_SOURCE_DIR}/../v8/v8/out.gn/x64.debug/obj")
 # target_link_libraries(OakTree v8_monolith)
 
-add_custom_command(TARGET OakTree
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/bin/snapshot_blob.bin" "${CMAKE_CURRENT_BINARY_DIR}/snapshot_blob.bin"
-)
+# add_custom_command(TARGET OakTree
+#     POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/bin/snapshot_blob.bin" "${CMAKE_CURRENT_BINARY_DIR}/snapshot_blob.bin"
+# )
 
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

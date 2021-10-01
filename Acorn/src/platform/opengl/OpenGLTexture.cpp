@@ -7,6 +7,8 @@
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
 
+#include <TracyOpenGL.hpp>
+
 namespace Acorn
 {
 	OpenGLAsyncTextureLoader::OpenGLAsyncTextureLoader(const std::string& path, int width, int height)
@@ -16,6 +18,7 @@ namespace Acorn
 
 	void OpenGLAsyncTextureLoader::Load()
 	{
+		AC_PROFILE_FUNCTION();
 		stbi_set_flip_vertically_on_load(true);
 		if (m_Width < 0 && m_Height < 0)
 		{
@@ -35,6 +38,7 @@ namespace Acorn
 
 	Ref<Texture2d> OpenGLAsyncTextureLoader::Upload()
 	{
+		AC_PROFILE_FUNCTION();
 		Ref<Texture2d> texture = Texture2d::Create(m_Width, m_Height, m_Channels);
 		texture->SetData(m_Data, m_Width * m_Height * m_Channels);
 		return texture;
@@ -43,7 +47,7 @@ namespace Acorn
 	OpenGLTexture2d::OpenGLTexture2d(uint32_t width, uint32_t height, uint32_t bpp)
 		: m_Width(width), m_Height(height)
 	{
-
+		AC_PROFILE_FUNCTION();
 		if (bpp == 4)
 		{
 			m_InternalFormat = GL_RGBA8;
@@ -65,8 +69,7 @@ namespace Acorn
 			m_InternalFormat = GL_RGBA8;
 			m_DataFormat = GL_RGBA;
 		}
-
-		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::OpenGLTexture2d");
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererId);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -89,6 +92,7 @@ namespace Acorn
 		: m_Width(width), m_Height(height), m_InternalFormat(GL_RGBA8), m_DataFormat(GL_RGBA)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::OpenGLTexture2d");
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererId);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -105,6 +109,7 @@ namespace Acorn
 		: m_Width(width), m_Height(height), m_Path(path)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::OpenGLTexture2d");
 
 		stbi_set_flip_vertically_on_load(1);
 
@@ -157,6 +162,7 @@ namespace Acorn
 		: m_Path(path)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::OpenGLTexture2d");
 
 		stbi_set_flip_vertically_on_load(1);
 
@@ -209,6 +215,7 @@ namespace Acorn
 	OpenGLTexture2d::~OpenGLTexture2d()
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::~OpenGLTexture2d");
 
 		glDeleteTextures(1, &m_RendererId);
 	}
@@ -216,6 +223,7 @@ namespace Acorn
 	void OpenGLTexture2d::SetData(void* data, uint32_t size)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::SetData");
 
 		// uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
 		uint32_t bpp = 4;
@@ -234,6 +242,7 @@ namespace Acorn
 	void OpenGLTexture2d::SetSubData(void* data, uint32_t dataSize, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::SetSubData");
 
 		uint32_t bpp = 4;
 		if (m_DataFormat == GL_RGB)
@@ -270,6 +279,7 @@ namespace Acorn
 	void OpenGLTexture2d::Bind(uint8_t slot) const
 	{
 		AC_PROFILE_FUNCTION();
+		TracyGpuZone("OpenGLTexture2d::Bind");
 
 		glBindTextureUnit(slot, m_RendererId);
 	}
