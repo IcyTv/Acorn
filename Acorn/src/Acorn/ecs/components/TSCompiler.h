@@ -9,6 +9,15 @@
 
 namespace Acorn
 {
+	enum class TsType
+	{
+		Unknown = -1,
+		Number = 0,
+		String = 1,
+		Boolean = 2,
+		BigInt = 3,
+	};
+
 	struct TSField
 	{
 		std::string Name;
