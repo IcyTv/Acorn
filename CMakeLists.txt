@@ -34,6 +34,13 @@ option(OVERRIDE_VCPKG_REQUIREMENT OFF)
 
 # add_subdirectory(Acorn/vendor/v8pp)
 # add_subdirectory(vendor/v8-cmake)
+add_subdirectory(../swc-cpp swc-cpp)
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
 add_subdirectory(Acorn)
 add_subdirectory(OakTree)
 

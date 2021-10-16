@@ -3,7 +3,8 @@ class Test extends ScriptSuperClass {
     #rigidBody: Components.RigidBody2d;
     #isPressing = false;
     #initialPosition = new math.vec2(0, 0);
-    forceScale = 5;
+    forceScale: number = 5;
+    test = false;
 
     OnCreate() {
         this.#rigidBody = this.GetComponent(ComponentTypes.RigidBody2d);
@@ -20,5 +21,7 @@ class Test extends ScriptSuperClass {
         }
     }
 }
+
+let a = Test;
 
 module.exports = Test;

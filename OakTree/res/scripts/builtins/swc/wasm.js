@@ -1,3 +1,4 @@
+/// <reference path="../../declarations.d.ts" />
 let imports = {};
 imports['__wbindgen_placeholder__'] = module.exports;
 let wasm;
@@ -42,16 +43,16 @@ let cachedTextEncoder = new TextEncoder('utf-8');
 
 const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
     ? function (arg, view) {
-    return cachedTextEncoder.encodeInto(arg, view);
-}
+        return cachedTextEncoder.encodeInto(arg, view);
+    }
     : function (arg, view) {
-    const buf = cachedTextEncoder.encode(arg);
-    view.set(buf);
-    return {
-        read: arg.length,
-        written: buf.length
-    };
-});
+        const buf = cachedTextEncoder.encode(arg);
+        view.set(buf);
+        return {
+            read: arg.length,
+            written: buf.length
+        };
+    });
 
 function passStringToWasm0(arg, malloc, realloc) {
 
@@ -115,7 +116,7 @@ function takeObject(idx) {
 * @param {any} opts
 * @returns {any}
 */
-module.exports.minifySync = function(s, opts) {
+export const minifySync = function (s, opts) {
     var ptr0 = passStringToWasm0(s, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len0 = WASM_VECTOR_LEN;
     var ret = wasm.minifySync(ptr0, len0, addHeapObject(opts));
@@ -127,7 +128,7 @@ module.exports.minifySync = function(s, opts) {
 * @param {any} opts
 * @returns {any}
 */
-module.exports.parseSync = function(s, opts) {
+export const parseSync = function (s, opts) {
     var ptr0 = passStringToWasm0(s, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len0 = WASM_VECTOR_LEN;
     var ret = wasm.parseSync(ptr0, len0, addHeapObject(opts));
@@ -139,7 +140,7 @@ module.exports.parseSync = function(s, opts) {
 * @param {any} opts
 * @returns {any}
 */
-module.exports.printSync = function(s, opts) {
+export const printSync = function (s, opts) {
     var ret = wasm.printSync(addHeapObject(s), addHeapObject(opts));
     return takeObject(ret);
 };
@@ -149,19 +150,19 @@ module.exports.printSync = function(s, opts) {
 * @param {any} opts
 * @returns {any}
 */
-module.exports.transformSync = function(s, opts) {
+export const transformSync = function (s, opts) {
     var ptr0 = passStringToWasm0(s, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len0 = WASM_VECTOR_LEN;
     var ret = wasm.transformSync(ptr0, len0, addHeapObject(opts));
     return takeObject(ret);
 };
 
-module.exports.__wbindgen_json_parse = function(arg0, arg1) {
+export const __wbindgen_json_parse = function (arg0, arg1) {
     var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
+export const __wbindgen_json_serialize = function (arg0, arg1) {
     const obj = getObject(arg1);
     var ret = JSON.stringify(obj === undefined ? null : obj);
     var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -170,21 +171,21 @@ module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
+export const __wbindgen_string_new = function (arg0, arg1) {
     var ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_object_drop_ref = function(arg0) {
+export const __wbindgen_object_drop_ref = function (arg0) {
     takeObject(arg0);
 };
 
-module.exports.__wbg_new_59cb74e423758ede = function() {
+export const __wbg_new_59cb74e423758ede = function () {
     var ret = new Error();
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_stack_558ba5917b466edd = function(arg0, arg1) {
+export const __wbg_stack_558ba5917b466edd = function (arg0, arg1) {
     var ret = getObject(arg1).stack;
     var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len0 = WASM_VECTOR_LEN;
@@ -192,7 +193,7 @@ module.exports.__wbg_stack_558ba5917b466edd = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
-module.exports.__wbg_error_4bb6c2a97407129a = function(arg0, arg1) {
+export const __wbg_error_4bb6c2a97407129a = function (arg0, arg1) {
     try {
         console.error(getStringFromWasm0(arg0, arg1));
     } finally {
@@ -200,15 +201,18 @@ module.exports.__wbg_error_4bb6c2a97407129a = function(arg0, arg1) {
     }
 };
 
-module.exports.__wbindgen_rethrow = function(arg0) {
+export const __wbindgen_rethrow = function (arg0) {
     throw takeObject(arg0);
 };
 
-const path = require('path').join(__dirname, 'wasm_bg.wasm');
-const bytes = require('fs').readFileSync(path);
+//TODO
+// const path = require('path').join(__dirname, 'wasm_bg.wasm');
+const path = "res/scripts/builtins/swc/wasm_bg.wasm";
+// const bytes = require('fs').readFileSync(path);
+const bytes = AcornFileSystem.ReadFile(path);
 
 const wasmModule = new WebAssembly.Module(bytes);
 const wasmInstance = new WebAssembly.Instance(wasmModule, imports);
 wasm = wasmInstance.exports;
-module.exports.__wasm = wasm;
+export const __wasm = wasm;
 

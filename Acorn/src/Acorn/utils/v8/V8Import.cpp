@@ -129,10 +129,10 @@ namespace Acorn
 		AC_CORE_TRACE("Loading {}", name);
 
 		ModuleType type = ModuleType::ES6;
-		if (code.find("module.exports"))
-		{
-			type = ModuleType::CommonJS;
-		}
+		// if (code.find("module.exports") != std::string::npos)
+		// {
+		// 	type = ModuleType::CommonJS;
+		// }
 
 		std::string md5Hash = Utils::File::MD5HashString(code);
 		AC_CORE_TRACE("MD5HashString {} {}", name, md5Hash);
@@ -202,8 +202,7 @@ namespace Acorn
 			else
 			{
 				AC_PROFILE_SCOPE("Compiling CommonJS Cached Module");
-
-				AC_CORE_BREAK();
+				AC_CORE_ASSERT(false, "CommonJS modules not supported!");
 			}
 
 			return mod;
@@ -223,45 +222,47 @@ namespace Acorn
 			else
 			{
 				AC_PROFILE_SCOPE("Compiling CommonJS Module");
-
-				AC_CORE_BREAK();
+				AC_CORE_ASSERT(false, "CommonJS modules not supported!");
 			}
 
 			v8::ScriptCompiler::CachedData* data;
+			if (type == ModuleType::ES6)
 			{
-				AC_PROFILE_SCOPE("Getting Cache from v8");
-				v8::Local<v8::UnboundModuleScript> script = mod.ToLocalChecked()->GetUnboundModuleScript();
-				data = v8::ScriptCompiler::CreateCodeCache(script);
-			}
-			AC_CORE_ASSERT(data != nullptr, "Failed to create code cache");
+				{
+					AC_PROFILE_SCOPE("Getting Cache from v8");
+					v8::Local<v8::UnboundModuleScript> script = mod.ToLocalChecked()->GetUnboundModuleScript();
+					data = v8::ScriptCompiler::CreateCodeCache(script);
+				}
+				AC_CORE_ASSERT(data != nullptr, "Failed to create code cache");
 
-			{
-				AC_PROFILE_SCOPE("Writing cache");
-				std::filesystem::path cachePath = MODULE_CACHE_PATH;
-				if (!std::filesystem::exists(cachePath))
-					std::filesystem::create_directories(cachePath);
+				{
+					AC_PROFILE_SCOPE("Writing cache");
+					std::filesystem::path cachePath = MODULE_CACHE_PATH;
+					if (!std::filesystem::exists(cachePath))
+						std::filesystem::create_directories(cachePath);
 
-				cachePath /= md5Hash;
-				cachePath += ".js.cache";
+					cachePath /= md5Hash;
+					cachePath += ".js.cache";
 
-				FILE* cacheFile;
-				errno_t err;
-				err = fopen_s(&cacheFile, cachePath.string().c_str(), "wb");
+					FILE* cacheFile;
+					errno_t err;
+					err = fopen_s(&cacheFile, cachePath.string().c_str(), "wb");
 
-				AC_CORE_ASSERT(cacheFile, "Could not open cache file!");
-				AC_CORE_ASSERT(err == 0, "Could not open cache file!");
+					AC_CORE_ASSERT(cacheFile, "Could not open cache file!");
+					AC_CORE_ASSERT(err == 0, "Could not open cache file!");
 
-				fwrite(data->data, 1, data->length, cacheFile);
+					fwrite(data->data, 1, data->length, cacheFile);
 
-				fclose(cacheFile);
+					fclose(cacheFile);
 
-				// std::basic_ofstream<uint8_t> cacheFile(cachePath.string(), std::ios::binary);
-				// cacheFile.write(data->data, data->length);
-				// cacheFile.close();
+					// std::basic_ofstream<uint8_t> cacheFile(cachePath.string(), std::ios::binary);
+					// cacheFile.write(data->data, data->length);
+					// cacheFile.close();
 
-				s_Data.CompileCache[md5Hash] = {
-					cachePath,
-					type};
+					s_Data.CompileCache[md5Hash] = {
+						cachePath,
+						type};
+				}
 			}
 
 			return mod;
@@ -281,6 +282,8 @@ namespace Acorn
 		v8::String::Utf8Value str(context->GetIsolate(), specifier);
 
 		std::filesystem::path path(*str);
+
+		AC_CORE_INFO("Resolving {}", path.string());
 
 		if (!path.has_extension() || path.extension() != ".js")
 		{

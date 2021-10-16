@@ -181,6 +181,10 @@ target_link_libraries(Acorn PRIVATE spirv-cross-core spirv-cross-glsl)
 # target_link_libraries(Acorn PRIVATE cereal)
 target_link_libraries(Acorn PRIVATE OpenSSL::Crypto)
 
+target_link_libraries(Acorn PRIVATE "${swc-cpp_SOURCE_DIR}/target/debug/swc_cpp.lib")
+target_link_libraries(Acorn PRIVATE userenv)
+target_include_directories(Acorn PRIVATE "${swc-cpp_SOURCE_DIR}/include")
+
 # set(V8_LIB_PATH "${CMAKE_SOURCE_DIR}/../v8/v8/out.gn/x64.debug/obj")
 
 # get_filename_component(V8_LIB_NAME ${V8_LIB_PATH} ABSOLUTE)
