@@ -108,6 +108,7 @@ namespace Acorn
 	class BufferLayout
 	{
 	public:
+		//TODO struct reflection
 		BufferLayout() {}
 		BufferLayout(const std::initializer_list<BufferElement>& elements)
 			: m_Elements(elements)

@@ -12,6 +12,7 @@ namespace Acorn
 
 		virtual void SetClearColor(const glm::vec4 color) override;
 		virtual void Clear() override;
+		virtual void ClearDepth() override;
 
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count) override;
 		virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count) override;

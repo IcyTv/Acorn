@@ -10,6 +10,11 @@
             "linux": {
                 "command": "./bin/Tracy"
             }
+        },
+        {
+            "label": "Build With Cmake",
+            "type": "process",
+            "command": "${command:cmake.build}"
         }
     ]
 }

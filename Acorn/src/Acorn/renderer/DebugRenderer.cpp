@@ -11,14 +11,18 @@
 #include "BatchRenderer.h"
 
 #include "core/Core.h"
+#include "renderer/2d/Renderer2D.h"
 #include "utils/fonts/IconsFontAwesome4.h"
 
+#include <glm/exponential.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <glad/glad.h>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/matrix.hpp>
 
 namespace Acorn
@@ -43,6 +47,17 @@ namespace Acorn
 			glm::vec4 Color;
 		};
 
+		struct CircleVertex
+		{
+			glm::vec3 WorldPosition;
+			glm::vec3 LocalPosition;
+			glm::vec4 Color;
+			float Thickness;
+			float Fade;
+
+			int EntityId;
+		};
+
 		struct DebugRendererStorage
 		{
 			const float SizeScalar = 0.3f;
@@ -52,6 +67,7 @@ namespace Acorn
 
 			Ref<Shader> BillboardShader;
 			Ref<Shader> BasicShader;
+			Ref<Shader> CircleShader;
 			std::unordered_map<unsigned long, Ref<ext2d::SubTexture>> TextureMap;
 
 			Ref<Texture2d> IconTexture;
@@ -59,6 +75,7 @@ namespace Acorn
 			glm::vec4 QuadVertexPositions[4];
 
 			Scope<BatchRenderer<DebugVertex, 6, 4>> QuadRenderer;
+			Scope<BatchRenderer<CircleVertex, 6, 4>> CircleRenderer;
 			Scope<BatchRenderer<LineVertex, 2, 2, true>> LineRenderer;
 
 			struct BillboardData
@@ -123,6 +140,18 @@ namespace Acorn
 
 			s_Data.CameraUniform = UniformBuffer::Create(sizeof(DebugRendererStorage::CameraData), 0);
 			s_Data.BillboardUniform = UniformBuffer::Create(sizeof(DebugRendererStorage::BillboardData), 1);
+
+			BufferLayout circleLayout = {
+				{ShaderDataType::Float3, "a_WorldPosition"},
+				{ShaderDataType::Float3, "a_LocalPosition"},
+				{ShaderDataType::Float4, "a_Color"},
+				{ShaderDataType::Float, "a_Thickness"},
+				{ShaderDataType::Float, "a_Fade"},
+				{ShaderDataType::Int, "a_EntityId"},
+			};
+
+			s_Data.CircleShader = Shader::Create("res/shaders/Circle.shader");
+			s_Data.CircleRenderer = CreateScope<BatchRenderer<CircleVertex, 6, 4>>(s_Data.CircleShader, indices, circleLayout);
 		}
 
 		void Renderer::ShutDown()
@@ -142,17 +171,20 @@ namespace Acorn
 			s_Data.BillboardUniform->SetData(&s_Data.BillboardData, sizeof(DebugRendererStorage::BillboardData));
 
 			s_Data.QuadRenderer->Begin();
-
 			s_Data.LineRenderer->Begin();
+			s_Data.CircleRenderer->Begin();
 		}
 
 		void Renderer::End()
 		{
-
+			AC_PROFILE_FUNCTION();
 			s_Data.BillboardUniform->Bind();
 			s_Data.QuadRenderer->End();
 			s_Data.CameraUniform->Bind();
+			//Clear Depth buffer to render Colliders on top (and apperantly view frustums...)
+			RenderCommand::ClearDepth();
 			s_Data.LineRenderer->End();
+			s_Data.CircleRenderer->End();
 		}
 
 		void Renderer::DrawGizmo(GizmoType type, const glm::vec3& position, int entityId, const glm::vec4& color, const glm::vec2& scale)
@@ -262,6 +294,40 @@ namespace Acorn
 			DrawLine(br, bl, color);
 			DrawLine(bl, tl, color);
 			DrawLine(tl, br, color);
+		}
+
+		void Renderer::DrawB2dCollider(const Components::CircleCollider2d& collider, const Components::Transform& transform)
+		{
+			AC_PROFILE_FUNCTION();
+
+			constexpr size_t quadVertexCount = 4;
+			constexpr glm::vec4 color{0.0f, 0.0f, 1.0f, 1.0f};
+
+			std::array<CircleVertex, quadVertexCount> vertices;
+
+			//TODO think about scaling axis...
+			glm::mat4 trans = transform.GetTransform() * glm::scale(glm::mat4{1.0f}, (1.0f / transform.Scale)) * glm::scale(glm::mat4{1.0f}, glm::vec3(transform.Scale.z * collider.Radius * 2)) * glm::translate(glm::mat4{1.0f}, glm::vec3(collider.Offset, 0.0f));
+
+			for (size_t i = 0; i < quadVertexCount; i++)
+			{
+				vertices[i].WorldPosition = trans * s_Data.QuadVertexPositions[i];
+				vertices[i].LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
+				vertices[i].Color = color;
+				//TODO determine consistent thickness
+				vertices[i].Thickness = 0.01f;
+				vertices[i].Fade = 0.0005f;
+				vertices[i].EntityId = -1;
+			}
+
+			s_Data.CircleRenderer->Draw(vertices);
+
+			constexpr float unit = 0.70710678118; // == sqrt(2) / 2;
+
+			float r = collider.Radius * transform.Scale.z;
+			glm::vec3 tl = transform.Translation + glm::vec3{-unit * r, unit * r, 0.0f} + glm::vec3(collider.Offset, 0.0f);
+			glm::vec3 tr = transform.Translation + glm::vec3{unit * r, -unit * r, 0.0f} + glm::vec3(collider.Offset, 0.0f);
+
+			DrawLine(tl, tr, color);
 		}
 
 		void Renderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color)

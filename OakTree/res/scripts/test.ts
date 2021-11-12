@@ -4,7 +4,7 @@ class Test extends ScriptSuperClass {
     #isPressing = false;
     #initialPosition = new math.vec2(0, 0);
     forceScale: number = 5;
-    test = false;
+    test: boolean = false;
 
     OnCreate() {
         this.#rigidBody = this.GetComponent(ComponentTypes.RigidBody2d);

@@ -113,7 +113,8 @@ namespace Acorn
 		else
 			config = YAML::Load("");
 
-		config["v8"]["moduleCache"] = s_Data.CompileCache;
+		if (!s_Data.CompileCache.empty())
+			config["v8"]["moduleCache"] = s_Data.CompileCache;
 
 		std::ofstream outFile(Utils::File::CONFIG_FILENAME);
 		outFile << config;

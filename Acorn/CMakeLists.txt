@@ -106,6 +106,8 @@ target_include_directories(Acorn AFTER
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vendor/v8pp>
         $<INSTALL_INTERFACE:vendor/tracy>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy>
+        $<INSTALL_INTERFACE:vendor/filewatch>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vendor/filewatch>
 )
 
 if(ENABLE_PROFILING)

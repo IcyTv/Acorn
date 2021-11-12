@@ -2,6 +2,8 @@
 
 #include "core/Core.h"
 
+#include <chrono>
+
 namespace Acorn::Utils
 {
 	namespace File
@@ -14,5 +16,12 @@ namespace Acorn::Utils
 
 		std::string MD5HashFilePath(const std::string& filePath);
 		std::string MD5HashString(const std::string& data);
+
+		enum class FileStatus
+		{
+			Created,
+			Modified,
+			Erased,
+		};
 	}
 }

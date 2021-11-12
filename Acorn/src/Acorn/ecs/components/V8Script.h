@@ -31,7 +31,7 @@ namespace Acorn
 		Function,
 	};
 
-	V8Types ToV8Type(const std::string& type);
+	V8Types ToV8Type(const TsType type);
 
 	class V8Engine
 	{
@@ -101,7 +101,7 @@ namespace Acorn
 
 		std::unique_ptr<v8::Platform> m_Platform;
 
-		std::vector<V8Script*> m_Scripts;
+		std::vector<V8Script*> m_Scripts; //TODO change to a ref
 	};
 
 	//TODO rename to TSScript
@@ -116,6 +116,9 @@ namespace Acorn
 
 		void Load(Entity entity);
 		void Dispose();
+
+		void Compile();
+		void Watch();
 
 		void OnUpdate(Timestep ts);
 

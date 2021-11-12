@@ -2,12 +2,14 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "lldb",
+			"name": "VS-Debug",
+			"type": "cppvsdbg",
 			"request": "launch",
-			"name": "Launch",
 			"program": "${command:cmake.launchTargetPath}",
 			"args": [],
+			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/build/OakTree",
+			"environment": [],
 			"console": "integratedTerminal"
 		}
 	]

@@ -59,6 +59,9 @@ namespace Acorn::ext2d //Extension 2d
 		//Sprites
 		static void DrawSprite(const glm::mat4& transform, Components::SpriteRenderer& sprite, int entityId);
 
+		//Circles
+		static void DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness = 1.0f, float fade = 0.005f, int entityId = -1);
+
 		//Stats
 		//FIXME the reason these exist, is because I don't want to expose a header implemented BatchRenderer... Maybe there is a way to implement it in a cpp file?...
 		static uint32_t GetDrawCalls();

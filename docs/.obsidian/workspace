@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Viewport Change Event.md",
+            "file": "Project Folder.md",
             "mode": "source"
           }
         }
@@ -68,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Viewport Change Event.md",
+                "file": "Project Folder.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -88,9 +88,11 @@
   },
   "active": "bf4e671904ff505a",
   "lastOpenFiles": [
+    "Project Folder.md",
+    "assets/Assets.md",
+    "Untitled.md",
     "Viewport Change Event.md",
     "Viewport Changes.md",
-    "README.md",
-    "Untitled.md"
+    "README.md"
   ]
 }

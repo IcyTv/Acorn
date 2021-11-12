@@ -68,6 +68,7 @@ namespace Acorn
 		}
 
 		UUID GetUUID() { return GetComponent<Components::ID>().UUID; }
+		std::string GetName() { return GetComponent<Components::Tag>().TagName; }
 
 		operator bool() const { return m_EntityHandle != entt::null; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
@@ -77,5 +78,17 @@ namespace Acorn
 	private:
 		entt::entity m_EntityHandle{entt::null};
 		Scene* m_Scene = nullptr;
+	};
+}
+
+namespace std
+{
+	template <>
+	struct hash<Acorn::Entity>
+	{
+		size_t operator()(const Acorn::Entity& entity) const
+		{
+			return (size_t)(entt::entity)entity;
+		}
 	};
 }

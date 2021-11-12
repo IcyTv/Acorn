@@ -2,8 +2,6 @@
 
 #include "core/Core.h"
 
-#include <v8.h>
-
 #include <map>
 #include <string>
 
@@ -22,7 +20,7 @@ namespace Acorn
 	{
 		std::string Name;
 		std::string Documentation;
-		std::string Type;
+		TsType Type;
 	};
 
 	struct TSScriptData
@@ -34,7 +32,7 @@ namespace Acorn
 	class TSCompiler
 	{
 	public:
-		static TSScriptData Compile(v8::Isolate* isolate, const std::string& code);
+		static TSScriptData Compile(const std::string& code);
 
 	private:
 	};
