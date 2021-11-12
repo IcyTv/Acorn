@@ -4,3 +4,6 @@
 [submodule "Acorn/vendor/tracy"]
 	path = Acorn/vendor/tracy
 	url = https://github.com/wolfpld/tracy
+[submodule "Acorn/vendor/filewatch"]
+	path = Acorn/vendor/filewatch
+	url = https://github.com/ThomasMonkman/filewatch
