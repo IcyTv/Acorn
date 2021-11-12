@@ -16,6 +16,7 @@
 namespace Acorn
 {
 	class ScriptableEntity;
+	class Entity;
 	namespace Components
 	{
 		struct ID
@@ -87,6 +88,19 @@ namespace Acorn
 				: Color(color) {}
 		};
 
+		struct CircleRenderer
+		{
+			glm::vec4 Color{1.0f};
+			// float Radius = 0.5f;
+			float Thickness = 1.0f;
+			float Fade = 0.005f;
+
+			CircleRenderer() = default;
+			CircleRenderer(const CircleRenderer&) = default;
+			CircleRenderer(glm::vec4 color)
+				: Color(color) {}
+		};
+
 		struct CameraComponent
 		{
 			SceneCamera Camera;
@@ -123,6 +137,7 @@ namespace Acorn
 			//TODO ref, because V8Engine keeps a reference to the Script as well...?
 			//TODO multiple scripts per entity?
 			V8Script* Script = nullptr;
+			bool Watching = false;
 
 			JSScript() = default;
 			JSScript(const std::string& filepath)
@@ -138,6 +153,17 @@ namespace Acorn
 			void LoadScript(const std::string& filepath)
 			{
 				Script = new V8Script(filepath);
+				if (Watching)
+					Script->Watch();
+			}
+
+			void Watch()
+			{
+				if (Script)
+				{
+					Script->Watch();
+				}
+				Watching = true;
 			}
 
 			void OnUpdate(Timestep ts)
@@ -188,6 +214,45 @@ namespace Acorn
 
 			BoxCollider2d() = default;
 			BoxCollider2d(const BoxCollider2d&) = default;
+		};
+
+		struct CircleCollider2d
+		{
+			glm::vec2 Offset = {0.0f, 0.0f};
+			float Radius = 0.5f;
+
+			//Storage for runtime
+			void* RuntimeFixture = nullptr;
+
+			CircleCollider2d() = default;
+			CircleCollider2d(const CircleCollider2d&) = default;
+		};
+
+		struct ParentRelationship
+		{
+			int Parent = -1; //TODO pointer is invalid
+
+			ParentRelationship() = default;
+			ParentRelationship(const ParentRelationship&) = default;
+
+			ParentRelationship(int parent)
+				: Parent(parent) {}
+		};
+
+		struct ChildRelationship
+		{
+			std::vector<Entity> Entities;
+
+			ChildRelationship() = default;
+			ChildRelationship(const ChildRelationship&) = default;
+
+			void AddEntity(Entity parent, Entity child, Ref<Scene> scene);
+			void RemoveEntity(Entity entity);
+			void Clear();
+
+			bool Empty() const;
+			bool Contains(Entity entity);
+			bool Contains(const UUID& uuid);
 		};
 	}
 }

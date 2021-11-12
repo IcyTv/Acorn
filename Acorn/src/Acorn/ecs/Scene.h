@@ -34,13 +34,15 @@ namespace Acorn
 
 		Entity CreateEntity(const std::string& name = "", const UUID& uuid = UUID());
 		void DestroyEntity(Entity entity);
-
-		void InitializeRuntime();
-		void DestroyRuntime();
+		Entity GetEntity(const UUID& uuid);
+		Entity DuplicateEntity(Entity entity);
 
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 		void OnUpdateRuntime(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
+
+		void InitializeRuntime();
+		void DestroyRuntime();
 
 		void RenderFromCamera(Entity entity);
 

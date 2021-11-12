@@ -19,18 +19,31 @@ namespace Acorn::ext2d
 		float TexIndex;
 		float TilingFactor;
 
-		//Editor onyl
+		//Editor only
 		int EntityId = -1;
+	};
+
+	struct CircleVertex
+	{
+		glm::vec3 WorldPosition;
+		glm::vec3 LocalPosition;
+		glm::vec4 Color;
+		float Thickness;
+		float Fade;
+
+		int EntityId;
 	};
 
 	struct Renderer2dStorage
 	{
 		Ref<Texture2d> WhiteTexture;
 		Ref<Shader> TextureShader;
+		Ref<Shader> CircleShader;
 
 		glm::vec4 QuadVertexPositions[4];
 
-		Scope<BatchRenderer<QuadVertex, 6, 4>> BatchRenderer;
+		Scope<BatchRenderer<QuadVertex, 6, 4>> QuadRenderer;
+		Scope<BatchRenderer<CircleVertex, 6, 4>> CircleRenderer;
 
 		struct CameraData
 		{
@@ -67,8 +80,20 @@ namespace Acorn::ext2d
 		s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
 
 		std::array<uint32_t, 6> indices = {0, 1, 2, 2, 3, 0};
-		s_Data.BatchRenderer = CreateScope<BatchRenderer<QuadVertex, 6, 4>>(s_Data.TextureShader, indices, layout);
+		s_Data.QuadRenderer = CreateScope<BatchRenderer<QuadVertex, 6, 4>>(s_Data.TextureShader, indices, layout);
 		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2dStorage::CameraData), 0);
+
+		BufferLayout circleLayout = {
+			{ShaderDataType::Float3, "a_WorldPosition"},
+			{ShaderDataType::Float3, "a_LocalPosition"},
+			{ShaderDataType::Float4, "a_Color"},
+			{ShaderDataType::Float, "a_Thickness"},
+			{ShaderDataType::Float, "a_Fade"},
+			{ShaderDataType::Int, "a_EntityId"},
+		};
+
+		s_Data.CircleShader = Shader::Create("res/shaders/Circle.shader");
+		s_Data.CircleRenderer = CreateScope<BatchRenderer<CircleVertex, 6, 4>>(s_Data.CircleShader, indices, circleLayout);
 	}
 
 	void Renderer::ShutDown()
@@ -83,7 +108,8 @@ namespace Acorn::ext2d
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2dStorage::CameraData));
 
-		s_Data.BatchRenderer->Begin();
+		s_Data.QuadRenderer->Begin();
+		s_Data.CircleRenderer->Begin();
 	}
 
 	void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
@@ -93,7 +119,8 @@ namespace Acorn::ext2d
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2dStorage::CameraData));
 
-		s_Data.BatchRenderer->Begin();
+		s_Data.QuadRenderer->Begin();
+		s_Data.CircleRenderer->Begin();
 	}
 
 	void Renderer::EndScene()
@@ -101,7 +128,8 @@ namespace Acorn::ext2d
 		AC_PROFILE_FUNCTION();
 
 		s_Data.CameraUniformBuffer->Bind();
-		s_Data.BatchRenderer->End();
+		s_Data.QuadRenderer->End();
+		s_Data.CircleRenderer->End();
 	}
 
 	void Renderer::FillQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -191,7 +219,7 @@ namespace Acorn::ext2d
 			vertices[i].EntityId = entityId;
 		}
 
-		s_Data.BatchRenderer->Draw(subTexture->GetTexture(), vertices);
+		s_Data.QuadRenderer->Draw(subTexture->GetTexture(), vertices);
 	}
 
 	void Renderer::FillQuad(const glm::mat4& transform, const Ref<Texture2d>& texture, float tilingfactor /*= 1.0f*/)
@@ -222,8 +250,33 @@ namespace Acorn::ext2d
 			vertices[i].EntityId = entityId;
 		}
 
-		s_Data.BatchRenderer->Draw(texture, vertices);
+		s_Data.QuadRenderer->Draw(texture, vertices);
 	}
+
+	void Renderer::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness, float fade, int entityId)
+	{
+		AC_PROFILE_FUNCTION();
+
+		constexpr size_t quadVertexCount = 4;
+
+		std::array<CircleVertex, quadVertexCount> vertices;
+
+		for (size_t i = 0; i < quadVertexCount; i++)
+		{
+			vertices[i].WorldPosition = transform * s_Data.QuadVertexPositions[i];
+			vertices[i].LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
+			vertices[i].Color = color;
+			vertices[i].Thickness = thickness;
+			vertices[i].Fade = fade;
+			vertices[i].EntityId = entityId;
+		}
+
+		s_Data.CircleRenderer->Draw(vertices);
+	}
+
+	//==============================================================================================
+	//   Convinience functions
+	//==============================================================================================
 
 	void Renderer::FillRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
@@ -292,28 +345,33 @@ namespace Acorn::ext2d
 		}
 	}
 
+	//================================================================
+	//   Renderer Stats
+	//================================================================
+
 	uint32_t Renderer::GetDrawCalls()
 	{
-		return s_Data.BatchRenderer->GetStats().DrawCalls;
+		return s_Data.QuadRenderer->GetStats().DrawCalls + s_Data.CircleRenderer->GetStats().DrawCalls;
 	}
 
 	uint32_t Renderer::GetQuadCount()
 	{
-		return s_Data.BatchRenderer->GetStats().ObjectCount;
+		return s_Data.QuadRenderer->GetStats().ObjectCount + s_Data.CircleRenderer->GetStats().ObjectCount;
 	}
 
 	uint32_t Renderer::GetIndexCount()
 	{
-		return s_Data.BatchRenderer->GetStats().GetTotalIndexCount();
+		return s_Data.QuadRenderer->GetStats().GetTotalIndexCount() + s_Data.CircleRenderer->GetStats().GetTotalIndexCount();
 	}
 
 	uint32_t Renderer::GetVertexCount()
 	{
-		return s_Data.BatchRenderer->GetStats().GetTotalVertexCount();
+		return s_Data.QuadRenderer->GetStats().GetTotalVertexCount() + s_Data.CircleRenderer->GetStats().GetTotalVertexCount();
 	}
 
 	void Renderer::ResetStats()
 	{
-		s_Data.BatchRenderer->ResetStats();
+		s_Data.QuadRenderer->ResetStats();
+		s_Data.CircleRenderer->ResetStats();
 	}
 }

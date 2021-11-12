@@ -185,5 +185,6 @@ namespace Acorn::Utils
 			}
 			return buffer.str();
 		}
+
 	}
 }

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 
 # Variables
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+set(VCPKG_PREFER_SYSTEM_LIBS ON CACHE BOOL "Prefer System Libraries")
 set(ENABLE_PROFILING ON CACHE BOOL "Enable Profiling")
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 set(VCPKG_LIBRARY_LINKAGE static CACHE STRING "Vcpkg dynamic linking")

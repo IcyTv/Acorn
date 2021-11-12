@@ -39,6 +39,12 @@ namespace Acorn
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+	void OpenGLRendererApi::ClearDepth()
+	{
+		AC_PROFILE_FUNCTION();
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
 	void OpenGLRendererApi::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count)
 	{
 		AC_PROFILE_FUNCTION();

@@ -78,8 +78,8 @@ namespace Acorn
 		void Begin()
 		{
 			//TODO do we need this? Since it does not get accessed during BatchRenderer::Draw calls... -> Bind at End() instead and allow multiple BatchRenderers
-			m_Shader->Bind();
-			m_VertexArray->Bind();
+			// m_Shader->Bind();
+			// m_VertexArray->Bind();
 
 			m_TextureSlotIndex = m_MinTextureSlotIndex;
 			m_IndexCount = 0;
@@ -88,6 +88,8 @@ namespace Acorn
 
 		void End()
 		{
+			m_Shader->Bind();
+			m_VertexArray->Bind();
 			// uint32_t size = (uint32_t)((uint8_t*)m_VertexBufferPtr - (uint8_t*)m_VertexBufferBase);
 			uint32_t size = (m_IndexCount / IndicesPerObject) * VerticesPerObject * sizeof(Vertex);
 			m_VertexBuffer->SetData(m_VertexBufferBase, size);

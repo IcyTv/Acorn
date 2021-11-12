@@ -29,15 +29,19 @@ namespace Acorn
 
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
+		AC_PROFILE_FUNCTION();
 		ImGui::Begin("Scene Hierarchy");
+		// ImGui::BeginChild("entity_drop_target", ImVec2(0, -1), false);
 
-		m_Context->m_Registry.each(
-			[&](auto entityID)
-			{
-				Entity entity{entityID, m_Context.get()};
+		//Getting all entities that do not have a parent
+		auto view = m_Context->m_Registry.view<Components::ID>(entt::exclude<Components::ParentRelationship>);
 
-				DrawEntityNode(entity);
-			});
+		for (auto entityID : view)
+		{
+			Entity entity{entityID, m_Context.get()};
+
+			DrawEntityNode(entity);
+		}
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && !ImGui::IsItemHovered())
 		{
@@ -51,6 +55,37 @@ namespace Acorn
 				m_Context->CreateEntity("Empty Entity");
 			}
 			ImGui::EndPopup();
+		}
+
+		// ImGui::EndChild();
+
+		ImVec2 availableSize = ImGui::GetContentRegionAvail();
+		ImGui::Dummy(availableSize);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity");
+
+			if (payload != nullptr)
+			{
+				Entity child = *(Entity*)payload->Data;
+				AC_CORE_INFO("Moving {} to root", child.GetName());
+				if (child.HasComponent<Components::ParentRelationship>())
+				{
+					auto& parentComp = child.GetComponent<Components::ParentRelationship>();
+					Entity parent = Entity{parentComp.Parent, m_Context.get()};
+					AC_CORE_ASSERT(parent.HasComponent<Components::ChildRelationship>(), "Parent does not have any children.");
+					auto& childComp = parent.GetComponent<Components::ChildRelationship>();
+					childComp.RemoveEntity(child);
+
+					if (childComp.Empty())
+					{
+						parent.RemoveComponent<Components::ParentRelationship>();
+					}
+				}
+			}
+
+			ImGui::EndDragDropTarget();
 		}
 
 		ImGui::End();
@@ -81,21 +116,53 @@ namespace Acorn
 
 			ImGui::EndDragDropTarget();
 		}
+
 		ImGui::End();
 	}
 
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
 	{
+		AC_PROFILE_FUNCTION();
 		std::string& tag = entity.GetComponent<Components::Tag>().TagName;
 
 		ImGuiTreeNodeFlags flags =
 			ImGuiTreeNodeFlags_OpenOnArrow |
 			ImGuiTreeNodeFlags_OpenOnDoubleClick |
 			ImGuiTreeNodeFlags_SpanAvailWidth |
+			((!entity.HasComponent<Components::ChildRelationship>() || entity.GetComponent<Components::ChildRelationship>().Empty()) ? ImGuiTreeNodeFlags_Leaf : 0) |
 			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 
 		bool opened = ImGui::TreeNodeEx((void*)(intptr_t)(uint32_t)entity,
 										flags, "%s", tag.c_str());
+
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+		{
+			ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
+			ImGui::Text("%s", tag.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity");
+
+			if (payload != nullptr)
+			{
+				AC_CORE_INFO("DragDropTarget called");
+				Entity* target = (Entity*)payload->Data;
+				if (target->GetUUID() != entity.GetUUID())
+				{
+					if (!entity.HasComponent<Components::ChildRelationship>())
+					{
+						entity.AddComponent<Components::ChildRelationship>();
+					}
+					auto& rel = entity.GetComponent<Components::ChildRelationship>();
+					rel.AddEntity(entity, *target, m_Context);
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
 
 		if (ImGui::IsItemClicked())
 		{
@@ -105,15 +172,30 @@ namespace Acorn
 		bool entityDeleted = false;
 		if (ImGui::BeginPopupContextItem())
 		{
-			if (ImGui::MenuItem("Delete Entity"))
+			if (ImGui::MenuItem("Delete"))
 			{
 				entityDeleted = true;
+			}
+
+			if (ImGui::MenuItem("Duplicate"))
+			{
+				m_Context->DuplicateEntity(entity);
 			}
 			ImGui::EndPopup();
 		}
 
 		if (opened)
 		{
+			if (entity.HasComponent<Components::ChildRelationship>())
+			{
+				auto children = entity.GetComponent<Components::ChildRelationship>().Entities;
+
+				for (auto child : children)
+				{
+					DrawEntityNode(child);
+				}
+			}
+
 			ImGui::TreePop();
 		}
 
@@ -129,6 +211,7 @@ namespace Acorn
 								float resetValue = 0.0f,
 								float columnWidth = 100.0f)
 	{
+		AC_PROFILE_FUNCTION();
 		ImGuiIO& io = ImGui::GetIO();
 		auto boldFont = io.Fonts->Fonts[0];
 
@@ -215,6 +298,7 @@ namespace Acorn
 	static void DrawComponent(const std::string& label, Entity entity,
 							  UIFunc func)
 	{
+		AC_PROFILE_FUNCTION();
 		constexpr ImGuiTreeNodeFlags flags =
 			ImGuiTreeNodeFlags_DefaultOpen |
 			ImGuiTreeNodeFlags_SpanAvailWidth |
@@ -275,6 +359,7 @@ namespace Acorn
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
+		AC_PROFILE_FUNCTION();
 		if (entity.HasComponent<Components::Tag>())
 		{
 			auto& tag = entity.GetComponent<Components::Tag>().TagName;
@@ -302,6 +387,15 @@ namespace Acorn
 				if (ImGui::MenuItem("Sprite Renderer"))
 				{
 					entity.AddComponent<Components::SpriteRenderer>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<Components::SpriteRenderer>())
+			{
+				if (ImGui::MenuItem("Circle Renderer"))
+				{
+					entity.AddComponent<Components::CircleRenderer>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -338,6 +432,15 @@ namespace Acorn
 				if (ImGui::MenuItem("Box Collider 2d"))
 				{
 					entity.AddComponent<Components::BoxCollider2d>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!entity.HasComponent<Components::CircleCollider2d>())
+			{
+				if (ImGui::MenuItem("Circle Collider 2d"))
+				{
+					entity.AddComponent<Components::CircleCollider2d>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -488,6 +591,16 @@ namespace Acorn
 					ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 			});
 
+		DrawComponent<Components::CircleRenderer>(
+			"Circle Renderer", entity,
+			[&](Components::CircleRenderer& circleRenderer)
+			{
+				ImGui::ColorEdit4("Color", glm::value_ptr(circleRenderer.Color));
+				// ImGui::DragFloat("Radius", &circleRenderer.Radius, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+				ImGui::DragFloat("Thickness", &circleRenderer.Thickness, 0.01f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat("Fade", &circleRenderer.Fade, 0.00025f, 0.0f, 1.0f, "%.6f");
+			});
+
 		DrawComponent<Components::JSScript>(
 			"JS Script", entity,
 			[&](Components::JSScript& jsScript)
@@ -555,6 +668,10 @@ namespace Acorn
 								}
 							}
 							break;
+							case V8Types::Unknown:
+							{
+								ImGui::Text("Unknown Type, try specifying as a type");
+							}
 						}
 					}
 					ImGui::PopID();
@@ -600,6 +717,14 @@ namespace Acorn
 			[&](Components::BoxCollider2d& collider)
 			{
 				ImGui::DragFloat2("Size", glm::value_ptr(collider.Size), 0.1f, 0.0f, 10.0f, "%.2f");
+				ImGui::DragFloat2("Offset", glm::value_ptr(collider.Offset), 0.1f, -10.0f, 10.0f, "%.2f");
+			});
+
+		DrawComponent<Components::CircleCollider2d>(
+			"CircleCollider", entity,
+			[&](Components::CircleCollider2d& collider)
+			{
+				ImGui::DragFloat("Radius", &collider.Radius, 0.1f, 0.0f, 10.0f, "%.2f");
 				ImGui::DragFloat2("Offset", glm::value_ptr(collider.Offset), 0.1f, -10.0f, 10.0f, "%.2f");
 			});
 	}

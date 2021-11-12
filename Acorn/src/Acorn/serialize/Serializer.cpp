@@ -11,6 +11,7 @@
 #include <fstream>
 #include <magic_enum.hpp>
 #include <sstream>
+#include <unordered_map>
 #include <yaml-cpp/emittermanip.h>
 #include <yaml-cpp/yaml.h>
 
@@ -89,12 +90,31 @@ namespace YAML
 			return true;
 		}
 	};
+
+	template <>
+	struct convert<Acorn::UUID>
+	{
+		static Node encode(const Acorn::UUID& uuid)
+		{
+			Node node;
+			node.push_back((std::string)uuid);
+			return node;
+		}
+
+		static bool decode(const Node& node, Acorn::UUID& uuid)
+		{
+			std::string u = node[0].as<std::string>();
+			uuid = Acorn::UUID(u);
+			return true;
+		}
+	};
 }
 
 namespace Acorn
 {
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& vec)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Flow;
 		out << YAML::BeginSeq << vec.x << vec.y << YAML::EndSeq;
 		return out;
@@ -102,6 +122,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Flow;
 		out << YAML::BeginSeq << vec.x << vec.y << vec.z << YAML::EndSeq;
 		return out;
@@ -109,6 +130,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& vec)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Flow;
 		out << YAML::BeginSeq << vec.x << vec.y << vec.z << vec.w << YAML::EndSeq;
 		return out;
@@ -116,6 +138,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::Tag& tagComponent)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //TagComponent
 
 		out << YAML::Key << "Tag" << YAML::Value << tagComponent.TagName;
@@ -127,6 +150,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::Transform& transformComponent)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //TransformComponent
 
 		out << YAML::Key << "Translation" << YAML::Value << transformComponent.Translation;
@@ -140,6 +164,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::CameraComponent& camera)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //CameraComponent
 
 		out << YAML::Key << "SceneCamera" << YAML::BeginMap; //SceneCamera
@@ -163,6 +188,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::SpriteRenderer& spriteRenderer)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //SpriteRenderer
 
 		out << YAML::Key << "Color" << YAML::Value << spriteRenderer.Color;
@@ -172,8 +198,23 @@ namespace Acorn
 		return out;
 	}
 
+	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::CircleRenderer& circleRenderer)
+	{
+		AC_PROFILE_FUNCTION();
+		out << YAML::Value << YAML::BeginMap; //CircleRenderer
+
+		out << YAML::Key << "Color" << YAML::Value << circleRenderer.Color;
+		out << YAML::Key << "Thickness" << YAML::Value << circleRenderer.Thickness;
+		out << YAML::Key << "Fade" << YAML::Value << circleRenderer.Fade;
+
+		out << YAML::EndMap; //CircleRenderer
+
+		return out;
+	}
+
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::JSScript& jsScript)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //JSScript
 
 		out << YAML::Key << "Path" << YAML::Value << jsScript.Script->GetFilePath();
@@ -196,6 +237,7 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::RigidBody2d& rigidBody)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //RigidBody2d
 
 		out << YAML::Key << "Type" << YAML::Value << magic_enum::enum_name<Components::RigidBody2d::BodyType>(rigidBody.Type).data();
@@ -212,12 +254,41 @@ namespace Acorn
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::BoxCollider2d& boxCollider)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //BoxCollider2d
 
 		out << YAML::Key << "Size" << YAML::Value << boxCollider.Size;
 		out << YAML::Key << "Offset" << YAML::Value << boxCollider.Offset;
 
 		out << YAML::EndMap; //BoxCollider2d
+
+		return out;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::CircleCollider2d& boxCollider)
+	{
+		AC_PROFILE_FUNCTION();
+		out << YAML::Value << YAML::BeginMap; //BoxCollider2d
+
+		out << YAML::Key << "Radius" << YAML::Value << boxCollider.Radius;
+		out << YAML::Key << "Offset" << YAML::Value << boxCollider.Offset;
+
+		out << YAML::EndMap; //BoxCollider2d
+
+		return out;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const Components::ChildRelationship& childRelationship)
+	{
+		AC_PROFILE_FUNCTION();
+		out << YAML::Value << YAML::BeginSeq; //ChildRelationship
+
+		for (auto e : childRelationship.Entities)
+		{
+			out << e.GetUUID();
+		}
+
+		out << YAML::EndSeq; //ChildRelationship
 
 		return out;
 	}
@@ -229,6 +300,7 @@ namespace Acorn
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
+		AC_PROFILE_FUNCTION();
 		out << YAML::BeginMap; //Entity
 
 		AC_CORE_ASSERT(entity.HasComponent<Components::ID>(), "Entity does not have an ID, cannot be serialized!");
@@ -255,6 +327,11 @@ namespace Acorn
 			out << YAML::Key << "SpriteRenderer" << YAML::Value << entity.GetComponent<Components::SpriteRenderer>();
 		}
 
+		if (entity.HasComponent<Components::CircleRenderer>())
+		{
+			out << YAML::Key << "CircleRenderer" << YAML::Value << entity.GetComponent<Components::CircleRenderer>();
+		}
+
 		if (entity.HasComponent<Components::JSScript>())
 		{
 			out << YAML::Key << "JSScript" << YAML::Value << entity.GetComponent<Components::JSScript>();
@@ -268,6 +345,16 @@ namespace Acorn
 		if (entity.HasComponent<Components::BoxCollider2d>())
 		{
 			out << YAML::Key << "BoxCollider2d" << YAML::Value << entity.GetComponent<Components::BoxCollider2d>();
+		}
+
+		if (entity.HasComponent<Components::CircleCollider2d>())
+		{
+			out << YAML::Key << "CircleCollider2d" << YAML::Value << entity.GetComponent<Components::CircleCollider2d>();
+		}
+
+		if (entity.HasComponent<Components::ChildRelationship>())
+		{
+			out << YAML::Key << "Children" << YAML::Value << entity.GetComponent<Components::ChildRelationship>();
 		}
 
 		out << YAML::EndMap; //Entity
@@ -315,6 +402,7 @@ namespace Acorn
 
 	bool SceneSerializer::Deserialize(const std::string& filePath)
 	{
+		AC_PROFILE_FUNCTION();
 		//TODO error handling
 		std::ifstream fin(filePath);
 		std::stringstream buffer;
@@ -330,6 +418,7 @@ namespace Acorn
 		auto entities = root["Entities"];
 		if (entities)
 		{
+			std::unordered_map<Entity, std::vector<UUID>> parentMap;
 			for (auto entity : entities)
 			{
 				// uint64_t uuid = entity["Entity"].as<uint64_t>();
@@ -387,6 +476,16 @@ namespace Acorn
 					sr.Color = spriteRendererComponent["Color"].as<glm::vec4>();
 				}
 
+				auto circleRendererComponent = entity["CircleRenderer"];
+				if (circleRendererComponent)
+				{
+					auto& cr = deserializedEntity.AddComponent<Components::CircleRenderer>();
+
+					cr.Color = circleRendererComponent["Color"].as<glm::vec4>();
+					cr.Thickness = circleRendererComponent["Thickness"].as<float>();
+					cr.Fade = circleRendererComponent["Fade"].as<float>();
+				}
+
 				auto jsScriptComponent = entity["JSScript"];
 				if (jsScriptComponent)
 				{
@@ -416,6 +515,38 @@ namespace Acorn
 
 					bc.Size = boxColliderComponent["Size"].as<glm::vec2>();
 					bc.Offset = boxColliderComponent["Offset"].as<glm::vec2>();
+				}
+
+				auto circleColliderComponent = entity["CircleCollider2d"];
+				if (circleColliderComponent)
+				{
+					auto& cc = deserializedEntity.AddComponent<Components::CircleCollider2d>();
+
+					cc.Radius = circleColliderComponent["Radius"].as<float>();
+					cc.Offset = circleColliderComponent["Offset"].as<glm::vec2>();
+				}
+
+				auto childRelationship = entity["Children"];
+				if (childRelationship)
+				{
+					// parentMap[deserializedEntity] = childRelationship.as<std::vector<UUID>>();
+					parentMap[deserializedEntity] = std::vector<UUID>();
+					for (auto child : childRelationship)
+					{
+						parentMap[deserializedEntity].push_back(child.as<std::string>());
+					}
+				}
+			}
+
+			for (auto& [parent, children] : parentMap)
+			{
+				Entity p = parent;
+				auto& childRelationship = p.AddComponent<Components::ChildRelationship>();
+
+				for (auto child : children)
+				{
+					Entity c = m_Scene->GetEntity(child);
+					childRelationship.AddEntity(p, c, m_Scene);
 				}
 			}
 		}

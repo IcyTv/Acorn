@@ -38,6 +38,8 @@
 #include <v8pp/module.hpp>
 #include <v8pp/object.hpp>
 
+#include <FileWatch.hpp>
+
 #define COMPONENT_SWITCH_HAS(name) COMPONENT_SWITCH_HAS2(name, name)
 
 #define COMPONENT_SWITCH_HAS2(name, componentName)                                 \
@@ -45,9 +47,6 @@
 		args.GetReturnValue().Set(obj->HasComponent<Components::componentName>()); \
 		break;
 
-constexpr const char* SNAPSHOT_DATA_PATH = "res/cache/snapshots";
-
-//FIXME templating?
 template <>
 struct v8pp::convert<std::pair<float, float>>
 {
@@ -145,6 +144,8 @@ struct v8pp::convert<Acorn::KeyCode>
 
 namespace Acorn
 {
+	std::unordered_map<std::string, V8Script*> s_Scripts;
+
 	class StringVisitor : public boost::static_visitor<std::string>
 	{
 	public:
@@ -164,24 +165,26 @@ namespace Acorn
 		}
 	};
 
-	V8Types ToV8Type(const std::string& type)
+	V8Types ToV8Type(TsType type)
 	{
-		if (type == "number")
+		if (type == TsType::Number)
 			return V8Types::Number;
-		else if (type == "string")
+		else if (type == TsType::String)
 			return V8Types::String;
-		else if (type == "boolean")
+		else if (type == TsType::Boolean)
 			return V8Types::Boolean;
-		else if (type == "object")
-			return V8Types::Object;
-		else if (type == "function")
-			return V8Types::Function;
-		else if (type == "undefined")
-			return V8Types::Undefined;
-		else if (type == "null")
-			return V8Types::Null;
-		else if (type == "array")
-			return V8Types::Array;
+		else if (type == TsType::BigInt)
+			return V8Types::Number; //TODO
+		// else if (type == "object")
+		// 	return V8Types::Object;
+		// else if (type == "function")
+		// 	return V8Types::Function;
+		// else if (type == "undefined")
+		// 	return V8Types::Undefined;
+		// else if (type == "null")
+		// 	return V8Types::Null;
+		// else if (type == "array")
+		// 	return V8Types::Array;
 		else
 			return V8Types::Unknown;
 	}
@@ -488,11 +491,17 @@ namespace Acorn
 		AC_CORE_ASSERT(filePath.ends_with(".ts"), "Script must be a typescript file!");
 		m_TSFilePath = filePath;
 		m_JSFilePath = filePath.substr(0, filePath.length() - 2) + "js";
+
+		s_Scripts.emplace(m_TSFilePath, this);
+
+		m_Data = TSCompiler::Compile(m_TSFilePath);
 	}
 
 	V8Script::~V8Script()
 	{
 		Dispose();
+
+		s_Scripts.erase(s_Scripts.find(m_TSFilePath));
 	}
 
 	//TODO ts->js filename interop
@@ -509,7 +518,7 @@ namespace Acorn
 
 		std::string md5Hash = Utils::File::MD5HashString(sourceCode);
 
-		m_Data = TSCompiler::Compile(m_Isolate, m_TSFilePath);
+		// m_Data = TSCompiler::Compile(m_Isolate, m_TSFilePath);
 
 		AC_CORE_TRACE("TSCompilation succeeded");
 
@@ -643,6 +652,37 @@ namespace Acorn
 		AC_CORE_INFO("V8 Isolate {} != {}", (void*)m_Isolate, (void*)NULL);
 		m_Isolate = nullptr;
 		V8Engine::instance().RemoveScript(this);
+	}
+
+	void V8Script::Compile()
+	{
+		AC_PROFILE_FUNCTION();
+		m_Data = TSCompiler::Compile(m_TSFilePath);
+	}
+
+	void V8Script::Watch()
+	{
+		AC_PROFILE_FUNCTION();
+		AC_CORE_TRACE("Watching {}", m_TSFilePath);
+		filewatch::FileWatch<std::string> watch(
+			m_TSFilePath,
+			[](const std::string& path, const filewatch::Event changeType)
+			{
+				AC_PROFILE_FUNCTION();
+				if (changeType == filewatch::Event::modified)
+				{
+					AC_CORE_INFO("File {} changed!", path);
+					V8Script* script = s_Scripts[path];
+					if (script)
+					{
+						script->Compile();
+					}
+					else
+					{
+						AC_CORE_WARN("Modified Event for unknown script {}!", path);
+					}
+				}
+			});
 	}
 
 	void V8Script::OnUpdate(Timestep ts)
@@ -788,16 +828,16 @@ namespace Acorn
 	{
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
-		AC_ASSERT(field.Type == "boolean", "Tried to set invalid parameter");
+		AC_ASSERT(field.Type == TsType::Boolean, "Tried to set invalid parameter");
 		m_Parameters[parameterName] = value;
 	}
-
 	template <>
+
 	void V8Script::SetValue<float>(std::string parameterName, float value)
 	{
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
-		AC_ASSERT(field.Type == "number", "Tried to set invalid parameter");
+		AC_ASSERT(field.Type == TsType::Number, "Tried to set invalid parameter");
 		m_Parameters[parameterName] = value;
 	}
 
@@ -807,7 +847,7 @@ namespace Acorn
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
 		AC_CORE_TRACE("Setting {}", value);
 		TSField field = m_Data.Fields[parameterName];
-		AC_ASSERT(field.Type == "string", "Tried to set invalid parameter");
+		AC_ASSERT(field.Type == TsType::String, "Tried to set invalid parameter");
 		m_Parameters[parameterName] = value;
 	}
 
@@ -841,7 +881,7 @@ namespace Acorn
 	{
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
-		AC_ASSERT(field.Type == "boolean", "Tried to get invalid parameter for type boolean");
+		AC_ASSERT(field.Type == TsType::Boolean, "Tried to get invalid parameter for type boolean");
 		if (!m_Parameters.contains(parameterName))
 		{
 			//TODO parse default value from typescript
@@ -855,7 +895,7 @@ namespace Acorn
 	{
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
-		AC_ASSERT(field.Type == "number", "Tried to get invalid parameter for type number");
+		AC_ASSERT(field.Type == TsType::Number, "Tried to get invalid parameter for type number");
 		if (!m_Parameters.contains(parameterName))
 		{
 			//TODO parse default value from typescript
@@ -869,7 +909,7 @@ namespace Acorn
 	{
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
-		AC_ASSERT(field.Type == "string", "Tried to get invalid parameter for type string");
+		AC_ASSERT(field.Type == TsType::String, "Tried to get invalid parameter for type string");
 		if (!m_Parameters.contains(parameterName))
 		{
 			//TODO parse default value from typescript

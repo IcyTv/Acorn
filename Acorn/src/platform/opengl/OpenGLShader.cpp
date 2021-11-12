@@ -299,43 +299,16 @@ namespace Acorn
 			int location = glGetUniformLocation(m_RendererId, name.c_str());
 			m_UniformLocations.emplace(name, location);
 		}
-
-		//std::istringstream vS(vertexSrc);
-		//for (std::string line; std::getline(vS, line);)
-		//{
-
-		//	if (line.find("uniform") != std::string::npos)
-		//	{
-		//		std::smatch matches;
-		//		std::regex_search(line, )
-		//		//auto lastSpace = line.find_last_of(" ");
-		//		//auto semicolon = line.find_last_of(";");
-		//		//std::string name = line.substr(lastSpace + 1, semicolon - lastSpace - 1);
-		//		//int location = glGetUniformLocation(m_RendererId, name.c_str());
-		//		//m_UniformLocations.emplace(name, location);
-		//		//AC_CORE_TRACE("Uniform {}", name);
-		//	}
-		//}
-
-		//std::istringstream fS(fragmentSrc);
-		//for (std::string line; std::getline(fS, line);)
-		//{
-
-		//	if (line.find("uniform") != std::string::npos)
-		//	{
-		//		auto lastSpace = line.find_last_of(" ");
-		//		auto semicolon = line.find_last_of(";");
-		//		std::string name = line.substr(lastSpace + 1, semicolon - lastSpace - 1);
-		//		int location = glGetUniformLocation(m_RendererId, name.c_str());
-		//		m_UniformLocations.emplace(name, location);
-		//		AC_CORE_TRACE("Uniform {}", name);
-		//	}
-		//}
 	}
 
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
 		AC_PROFILE_FUNCTION();
+
+		//TODO add struct copy
+		// -> if in vertex shader i.e. struct VertexOutput {...}
+		// -> And in fragment shader i.e. struct VertexOutput;
+		// -> Then copy the struct definition from vertex shader to fragment shader
 
 		std::unordered_map<GLenum, std::string> shaderSources;
 

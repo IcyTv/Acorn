@@ -31,6 +31,11 @@ namespace Acorn
 			s_RendererApi->Clear();
 		}
 
+		inline static void ClearDepth()
+		{
+			s_RendererApi->ClearDepth();
+		}
+
 		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0)
 		{
 			s_RendererApi->DrawIndexed(vertexArray, count);

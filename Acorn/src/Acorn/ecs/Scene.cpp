@@ -10,6 +10,8 @@
 #include "renderer/DebugRenderer.h"
 
 #include <box2d/b2_body.h>
+#include <box2d/b2_circle_shape.h>
+#include <box2d/b2_collision.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
@@ -91,13 +93,80 @@ namespace Acorn
 
 		CopyComponent<Components::Transform>(dstSceneReg, srcSceneReg, entityMap);
 		CopyComponent<Components::SpriteRenderer>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::CircleRenderer>(dstSceneReg, srcSceneReg, entityMap);
 		CopyComponent<Components::CameraComponent>(dstSceneReg, srcSceneReg, entityMap);
 		CopyComponent<Components::NativeScript>(dstSceneReg, srcSceneReg, entityMap);
 		CopyComponent<Components::JSScript>(dstSceneReg, srcSceneReg, entityMap);
 		CopyComponent<Components::RigidBody2d>(dstSceneReg, srcSceneReg, entityMap);
 		CopyComponent<Components::BoxCollider2d>(dstSceneReg, srcSceneReg, entityMap);
+		CopyComponent<Components::CircleCollider2d>(dstSceneReg, srcSceneReg, entityMap);
 
 		return dst;
+	}
+
+	Entity Scene::DuplicateEntity(Entity entity)
+	{
+		std::string name = entity.GetName();
+		name += " - Copy";
+
+		Entity newEntity = CreateEntity(name);
+
+		auto& newTransform = newEntity.GetComponent<Components::Transform>();
+		auto oldTransform = entity.GetComponent<Components::Transform>();
+		newTransform.Translation = oldTransform.Translation;
+		newTransform.Rotation = oldTransform.Rotation;
+		newTransform.Scale = oldTransform.Scale;
+
+		if (entity.HasComponent<Components::SpriteRenderer>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::SpriteRenderer>(entity.GetComponent<Components::SpriteRenderer>());
+		}
+		if (entity.HasComponent<Components::CircleRenderer>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::CircleRenderer>(entity.GetComponent<Components::CircleRenderer>());
+		}
+
+		if (entity.HasComponent<Components::CameraComponent>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::CameraComponent>(entity.GetComponent<Components::CameraComponent>());
+		}
+
+		if (entity.HasComponent<Components::NativeScript>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::NativeScript>(entity.GetComponent<Components::NativeScript>());
+		}
+
+		if (entity.HasComponent<Components::JSScript>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::JSScript>(entity.GetComponent<Components::JSScript>());
+		}
+
+		if (entity.HasComponent<Components::RigidBody2d>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::RigidBody2d>(entity.GetComponent<Components::RigidBody2d>());
+		}
+
+		if (entity.HasComponent<Components::BoxCollider2d>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::BoxCollider2d>(entity.GetComponent<Components::BoxCollider2d>());
+		}
+
+		if (entity.HasComponent<Components::CircleCollider2d>())
+		{
+			//Call the copy constructor
+			newEntity.AddComponent<Components::CircleCollider2d>(entity.GetComponent<Components::CircleCollider2d>());
+		}
+
+		//TODO figure out relations
+
+		return newEntity;
 	}
 
 	Entity Scene::CreateEntity(const std::string& name, const UUID& uuid)
@@ -116,6 +185,22 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		m_Registry.destroy(entity);
+	}
+
+	Entity Scene::GetEntity(const UUID& uuid)
+	{
+		AC_PROFILE_FUNCTION();
+		auto view = m_Registry.view<Components::ID>();
+
+		for (auto entity : view)
+		{
+			if (m_Registry.get<Components::ID>(entity).UUID == uuid)
+			{
+				return Entity{entity, this};
+			}
+		}
+
+		return Entity{};
 	}
 
 	void Scene::InitializeRuntime()
@@ -155,7 +240,24 @@ namespace Acorn
 				fixtureDef.restitution = rigidBody.Restitution;
 				fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
 
-				body->CreateFixture(&fixtureDef);
+				collider.RuntimeFixture = body->CreateFixture(&fixtureDef);
+			}
+			if (entity.HasComponent<Components::CircleCollider2d>())
+			{
+				auto& collider = entity.GetComponent<Components::CircleCollider2d>();
+
+				b2CircleShape shape;
+				shape.m_p.Set(collider.Offset.x, collider.Offset.y);
+				shape.m_radius = collider.Radius * transform.Scale.z; //TODO think about scaling axis
+
+				b2FixtureDef fixtureDef;
+				fixtureDef.shape = &shape;
+				fixtureDef.density = rigidBody.Density;
+				fixtureDef.friction = rigidBody.Friction;
+				fixtureDef.restitution = rigidBody.Restitution;
+				fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
+
+				collider.RuntimeFixture = body->CreateFixture(&fixtureDef);
 			}
 		}
 
@@ -200,18 +302,27 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		ext2d::Renderer::BeginScene(camera);
-		auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
-
-		for (auto&& [entity, transform, sprite] : group.each())
 		{
-			// ext2d::Renderer::FillQuad((glm::mat4)transform, sprite.Color);
-			ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
+
+			for (auto&& [entity, transform, sprite] : group.each())
+			{
+				ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			}
+		}
+
+		{
+			auto view = m_Registry.view<Components::Transform, Components::CircleRenderer>();
+			for (auto&& [entity, transform, circle] : view.each())
+			{
+				ext2d::Renderer::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+			}
 		}
 
 		ext2d::Renderer::EndScene();
 
 		{
-			//Draw Icon Gizmos
+			AC_PROFILE_SCOPE("Scene::OnEditorUpdate (DebugRendering)");
 			debug::Renderer::Begin(camera);
 
 			auto cameraGroup = m_Registry.group<Components::CameraComponent>(entt::get<Components::Transform>);
@@ -230,6 +341,15 @@ namespace Acorn
 				if (m_Options.ShowColliders)
 					debug::Renderer::DrawB2dCollider(collider, transform);
 			}
+
+			auto b2dCircleColliderGroup = m_Registry.group<Components::CircleCollider2d>(entt::get<Components::Transform>);
+			for (auto&& [entity, collider, transform] : b2dCircleColliderGroup.each())
+			{
+				if (m_Options.ShowColliders)
+					debug::Renderer::DrawB2dCollider(collider, transform);
+			}
+
+			//TODO show circle colliders
 
 			debug::Renderer::End();
 		}
@@ -310,10 +430,21 @@ namespace Acorn
 		if (mainCamera)
 		{
 			ext2d::Renderer::BeginScene(*mainCamera, cameraTransform);
-			auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
-			for (auto&& [entity, transform, sprite] : group.each())
+
 			{
-				ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				auto group = m_Registry.group<Components::Transform>(entt::get<Components::SpriteRenderer>);
+				for (auto&& [entity, transform, sprite] : group.each())
+				{
+					ext2d::Renderer::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				}
+			}
+
+			{
+				auto view = m_Registry.view<Components::Transform, Components::CircleRenderer>();
+				for (auto&& [entity, transform, circle] : view.each())
+				{
+					ext2d::Renderer::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+				}
 			}
 
 			ext2d::Renderer::EndScene();
@@ -409,6 +540,11 @@ namespace Acorn
 	}
 
 	template <>
+	void Scene::OnComponentAdded(Entity entity, Components::CircleRenderer& sprite)
+	{
+	}
+
+	template <>
 	void Scene::OnComponentAdded(Entity entity, Components::NativeScript& nsc)
 	{
 	}
@@ -430,6 +566,21 @@ namespace Acorn
 
 	template <>
 	void Scene::OnComponentAdded(Entity entity, Components::BoxCollider2d& component)
+	{
+	}
+
+	template <>
+	void Scene::OnComponentAdded(Entity entity, Components::CircleCollider2d& component)
+	{
+	}
+
+	template <>
+	void Scene::OnComponentAdded(Entity entity, Components::ParentRelationship& component)
+	{
+	}
+
+	template <>
+	void Scene::OnComponentAdded(Entity entity, Components::ChildRelationship& component)
 	{
 	}
 }

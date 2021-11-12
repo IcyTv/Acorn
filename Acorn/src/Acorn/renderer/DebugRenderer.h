@@ -27,6 +27,7 @@ namespace Acorn
 			static void DrawGizmo(GizmoType type, const glm::vec3& position, int entityId = -1, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f}, const glm::vec2& scale = {1.0f, 1.0f});
 			static void DrawCameraFrustum(const Components::CameraComponent& camera, const Components::Transform& transform);
 			static void DrawB2dCollider(const Components::BoxCollider2d& collider, const Components::Transform& transform);
+			static void DrawB2dCollider(const Components::CircleCollider2d& collider, const Components::Transform& transform);
 
 			static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
 
