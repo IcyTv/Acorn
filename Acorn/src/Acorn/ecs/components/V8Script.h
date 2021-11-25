@@ -18,6 +18,11 @@
 
 namespace Acorn
 {
+	namespace Components
+	{
+		struct Camera;
+	}
+
 	enum class V8Types
 	{
 		Unknown,
@@ -120,7 +125,7 @@ namespace Acorn
 		void Compile();
 		void Watch();
 
-		void OnUpdate(Timestep ts);
+		void OnUpdate(Timestep ts, Camera* camera = nullptr); //TODO make a camera main
 
 		template <typename T>
 		void SetValue(std::string parameterName, T value);

@@ -5,6 +5,7 @@
 #include "core/Core.h"
 #include "core/Timestep.h"
 #include "core/UUID.h"
+#include "physics/Collider.h"
 #include "renderer/Texture.h"
 #include "utils/FileUtils.h"
 
@@ -203,30 +204,33 @@ namespace Acorn
 			void AddForce(const glm::vec2& force);
 		};
 
-		struct BoxCollider2d
-		{
-			glm::vec2 Offset = {0.0f, 0.0f};
-			glm::vec2 Size = {0.5f, 0.5f};
+		// struct BoxCollider2d
+		// {
+		// 	glm::vec2 Offset = {0.0f, 0.0f};
+		// 	glm::vec2 Size = {0.5f, 0.5f};
 
-			//Storage for runtime
-			//NOTE this might not have to be stored here, but as a map in scene
-			void* RuntimeFixture = nullptr;
+		// 	//Storage for runtime
+		// 	//NOTE this might not have to be stored here, but as a map in scene
+		// 	void* RuntimeFixture = nullptr;
 
-			BoxCollider2d() = default;
-			BoxCollider2d(const BoxCollider2d&) = default;
-		};
+		// 	BoxCollider2d() = default;
+		// 	BoxCollider2d(const BoxCollider2d&) = default;
+		// };
 
-		struct CircleCollider2d
-		{
-			glm::vec2 Offset = {0.0f, 0.0f};
-			float Radius = 0.5f;
+		// struct CircleCollider2d
+		// {
+		// 	glm::vec2 Offset = {0.0f, 0.0f};
+		// 	float Radius = 0.5f;
 
-			//Storage for runtime
-			void* RuntimeFixture = nullptr;
+		// 	//Storage for runtime
+		// 	void* RuntimeFixture = nullptr;
 
-			CircleCollider2d() = default;
-			CircleCollider2d(const CircleCollider2d&) = default;
-		};
+		// 	CircleCollider2d() = default;
+		// 	CircleCollider2d(const CircleCollider2d&) = default;
+		// };
+
+		typedef Physics2D::BoxCollider BoxCollider2d;
+		typedef Physics2D::CircleCollider CircleCollider2d;
 
 		struct ParentRelationship
 		{
