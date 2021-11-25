@@ -228,36 +228,39 @@ namespace Acorn
 
 			if (entity.HasComponent<Components::BoxCollider2d>())
 			{
-				auto& collider = entity.GetComponent<Components::BoxCollider2d>();
+				auto& boxCollider = entity.GetComponent<Components::BoxCollider2d>();
+				boxCollider.CreateFixture(entity, transform);
+				// auto& collider = entity.GetComponent<Components::BoxCollider2d>();
 
-				b2PolygonShape shape;
-				shape.SetAsBox(collider.Size.x * transform.Scale.x, collider.Size.y * transform.Scale.y, b2Vec2{collider.Offset.x, collider.Offset.y}, 0.0f);
+				// b2PolygonShape shape;
+				// shape.SetAsBox(collider.Size.x * transform.Scale.x, collider.Size.y * transform.Scale.y, b2Vec2{collider.Offset.x, collider.Offset.y}, 0.0f);
 
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &shape;
-				fixtureDef.density = rigidBody.Density;
-				fixtureDef.friction = rigidBody.Friction;
-				fixtureDef.restitution = rigidBody.Restitution;
-				fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
+				// b2FixtureDef fixtureDef;
+				// fixtureDef.shape = &shape;
+				// fixtureDef.density = rigidBody.Density;
+				// fixtureDef.friction = rigidBody.Friction;
+				// fixtureDef.restitution = rigidBody.Restitution;
+				// fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
 
-				collider.RuntimeFixture = body->CreateFixture(&fixtureDef);
+				// collider.RuntimeFixture = body->CreateFixture(&fixtureDef);
 			}
 			if (entity.HasComponent<Components::CircleCollider2d>())
 			{
 				auto& collider = entity.GetComponent<Components::CircleCollider2d>();
+				collider.CreateFixture(entity, transform);
 
-				b2CircleShape shape;
-				shape.m_p.Set(collider.Offset.x, collider.Offset.y);
-				shape.m_radius = collider.Radius * transform.Scale.z; //TODO think about scaling axis
+				// b2CircleShape shape;
+				// shape.m_p.Set(collider.Offset.x, collider.Offset.y);
+				// shape.m_radius = collider.Radius * transform.Scale.z; //TODO think about scaling axis
 
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &shape;
-				fixtureDef.density = rigidBody.Density;
-				fixtureDef.friction = rigidBody.Friction;
-				fixtureDef.restitution = rigidBody.Restitution;
-				fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
+				// b2FixtureDef fixtureDef;
+				// fixtureDef.shape = &shape;
+				// fixtureDef.density = rigidBody.Density;
+				// fixtureDef.friction = rigidBody.Friction;
+				// fixtureDef.restitution = rigidBody.Restitution;
+				// fixtureDef.restitutionThreshold = rigidBody.RestitutionThreshold;
 
-				collider.RuntimeFixture = body->CreateFixture(&fixtureDef);
+				// collider.RuntimeFixture = body->CreateFixture(&fixtureDef);
 			}
 		}
 
@@ -358,6 +361,25 @@ namespace Acorn
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		AC_PROFILE_FUNCTION();
+
+		//Render 2D
+		Camera* mainCamera = nullptr;
+		glm::mat4 cameraTransform;
+		{
+			auto view = m_Registry.view<Components::Transform, Components::CameraComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, camera] = view.get<Components::Transform, Components::CameraComponent>(entity);
+
+				if (camera.Primary)
+				{
+					mainCamera = &camera.Camera;
+					cameraTransform = transform.GetTransform();
+					break;
+				}
+			}
+		}
+
 		//Update Scripts
 		{
 			m_Registry.view<Components::NativeScript>().each(
@@ -406,24 +428,6 @@ namespace Acorn
 				transform.Translation.y = position.y;
 
 				transform.Rotation.z = body->GetAngle();
-			}
-		}
-
-		//Render 2D
-		Camera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		{
-			auto view = m_Registry.view<Components::Transform, Components::CameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<Components::Transform, Components::CameraComponent>(entity);
-
-				if (camera.Primary)
-				{
-					mainCamera = &camera.Camera;
-					cameraTransform = transform.GetTransform();
-					break;
-				}
 			}
 		}
 

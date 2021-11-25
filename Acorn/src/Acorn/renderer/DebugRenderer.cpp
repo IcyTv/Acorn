@@ -278,14 +278,13 @@ namespace Acorn
 
 		void Renderer::DrawB2dCollider(const Components::BoxCollider2d& collider, const Components::Transform& transform)
 		{
-			//TODO Collider layering
-			//This makes sure the collider is offset AND at z=0
-			glm::vec4 offset = glm::vec4(collider.Offset, -transform.Translation.z, 0.0f);
+			// This makes sure the collider is offset AND at z=0
+			glm::vec4 offset = glm::vec4(collider.GetOffset(), -transform.Translation.z, 0.0f);
 
-			glm::vec3 tl = ((glm::mat4)transform) * (glm::vec4{-collider.Size, 0.0f, 1.0f} + offset);
-			glm::vec3 tr = ((glm::mat4)transform) * (glm::vec4{collider.Size.x, -collider.Size.y, 0.0f, 1.0f} + offset);
-			glm::vec3 bl = ((glm::mat4)transform) * (glm::vec4{-collider.Size.x, collider.Size.y, 0.0f, 1.0f} + offset);
-			glm::vec3 br = ((glm::mat4)transform) * (glm::vec4{collider.Size, 0.0f, 1.0f} + offset);
+			glm::vec3 tl = ((glm::mat4)transform) * (glm::vec4{-collider.GetSize(), 0.0f, 1.0f} + offset);
+			glm::vec3 tr = ((glm::mat4)transform) * (glm::vec4{collider.GetSize().x, -collider.GetSize().y, 0.0f, 1.0f} + offset);
+			glm::vec3 bl = ((glm::mat4)transform) * (glm::vec4{-collider.GetSize().x, collider.GetSize().y, 0.0f, 1.0f} + offset);
+			glm::vec3 br = ((glm::mat4)transform) * (glm::vec4{collider.GetSize(), 0.0f, 1.0f} + offset);
 
 			constexpr glm::vec4 color{0.0f, 0.0f, 1.0f, 1.0f};
 
@@ -306,7 +305,7 @@ namespace Acorn
 			std::array<CircleVertex, quadVertexCount> vertices;
 
 			//TODO think about scaling axis...
-			glm::mat4 trans = transform.GetTransform() * glm::scale(glm::mat4{1.0f}, (1.0f / transform.Scale)) * glm::scale(glm::mat4{1.0f}, glm::vec3(transform.Scale.z * collider.Radius * 2)) * glm::translate(glm::mat4{1.0f}, glm::vec3(collider.Offset, 0.0f));
+			glm::mat4 trans = transform.GetTransform() * glm::scale(glm::mat4{1.0f}, (1.0f / transform.Scale)) * glm::scale(glm::mat4{1.0f}, glm::vec3(transform.Scale.z * collider.GetRadius() * 2)) * glm::translate(glm::mat4{1.0f}, glm::vec3(collider.GetOffset(), 0.0f));
 
 			for (size_t i = 0; i < quadVertexCount; i++)
 			{
@@ -323,9 +322,9 @@ namespace Acorn
 
 			constexpr float unit = 0.70710678118; // == sqrt(2) / 2;
 
-			float r = collider.Radius * transform.Scale.z;
-			glm::vec3 tl = transform.Translation + glm::vec3{-unit * r, unit * r, 0.0f} + glm::vec3(collider.Offset, 0.0f);
-			glm::vec3 tr = transform.Translation + glm::vec3{unit * r, -unit * r, 0.0f} + glm::vec3(collider.Offset, 0.0f);
+			float r = collider.GetRadius() * transform.Scale.z;
+			glm::vec3 tl = transform.Translation + glm::vec3{-unit * r, unit * r, 0.0f} + glm::vec3(collider.GetOffset(), 0.0f);
+			glm::vec3 tr = transform.Translation + glm::vec3{unit * r, -unit * r, 0.0f} + glm::vec3(collider.GetOffset(), 0.0f);
 
 			DrawLine(tl, tr, color);
 		}

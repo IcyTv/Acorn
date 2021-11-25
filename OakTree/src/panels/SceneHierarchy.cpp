@@ -716,16 +716,29 @@ namespace Acorn
 			"BoxCollider", entity,
 			[&](Components::BoxCollider2d& collider)
 			{
-				ImGui::DragFloat2("Size", glm::value_ptr(collider.Size), 0.1f, 0.0f, 10.0f, "%.2f");
-				ImGui::DragFloat2("Offset", glm::value_ptr(collider.Offset), 0.1f, -10.0f, 10.0f, "%.2f");
+				//TODO function to return mutable reference
+				glm::vec2 size = collider.GetSize();
+				if (ImGui::DragFloat2("Size", glm::value_ptr(size), 0.1f, 0.0f, 10.0f, "%.2f"))
+				{
+					collider.SetSize(size);
+				}
+				glm::vec2 offset = collider.GetOffset();
+				if (ImGui::DragFloat2("Offset", glm::value_ptr(offset), 0.1f, -10.0f, 10.0f, "%.2f"))
+				{
+					collider.SetOffset(offset);
+				}
 			});
 
 		DrawComponent<Components::CircleCollider2d>(
 			"CircleCollider", entity,
 			[&](Components::CircleCollider2d& collider)
 			{
-				ImGui::DragFloat("Radius", &collider.Radius, 0.1f, 0.0f, 10.0f, "%.2f");
-				ImGui::DragFloat2("Offset", glm::value_ptr(collider.Offset), 0.1f, -10.0f, 10.0f, "%.2f");
+				float radius = collider.GetRadius();
+				if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.0f, 10.0f, "%.2f"))
+					collider.SetRadius(radius);
+				glm::vec2 offset = collider.GetOffset();
+				if (ImGui::DragFloat2("Offset", glm::value_ptr(offset), 0.1f, -10.0f, 10.0f, "%.2f"))
+					collider.SetOffset(offset);
 			});
 	}
 }

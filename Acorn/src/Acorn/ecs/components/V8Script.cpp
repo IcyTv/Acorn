@@ -9,6 +9,7 @@
 #include "ecs/components/TSCompiler.h"
 #include "input/Input.h"
 #include "input/KeyCodes.h"
+#include "physics/Collider.h"
 #include "utils/FileUtils.h"
 #include "utils/v8/V8Import.h"
 #include "v8pp/ptr_traits.hpp"
@@ -204,6 +205,7 @@ namespace Acorn
 		V8Script = 5,
 		RigidBody2d = 6,
 		BoxCollider2d = 7,
+		CircleCollider2d = 8,
 	};
 
 	class ScriptSuperClass : public ScriptableEntity
@@ -406,13 +408,56 @@ namespace Acorn
 				try
 				{
 					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, rigidBody2dComponent);
-					// v8::Local<v8::ObjectTemplate> v8Templ = v8::ObjectTemplate::New(isolate);
-					// v8Templ->SetInternalFieldCount(1);
-
-					// v8::Local<v8::Object> v8Obj = v8Obj->NewInstance();
-					// v8Obj->SetInternalField(0, &obj);
 
 					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert RigidBody2d");
+
+					args.GetReturnValue().Set(v8Obj);
+				}
+				catch (std::runtime_error& e)
+				{
+					AC_CORE_ERROR("{0}", e.what());
+				}
+			}
+			break;
+			case ComponentsEnum::BoxCollider2d:
+			{
+				if (!obj->HasComponent<Components::BoxCollider2d>())
+				{
+					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No BoxCollider2d Component")));
+					return;
+				}
+
+				Components::BoxCollider2d& boxCollider2dComponent = obj->GetComponent<Components::BoxCollider2d>();
+
+				try
+				{
+					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, boxCollider2dComponent);
+
+					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert BoxCollider2d");
+
+					args.GetReturnValue().Set(v8Obj);
+				}
+				catch (std::runtime_error& e)
+				{
+					AC_CORE_ERROR("{0}", e.what());
+				}
+			}
+			break;
+			case ComponentsEnum::CircleCollider2d:
+			{
+				if (!obj->HasComponent<Components::CircleCollider2d>())
+				{
+					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No CircleCollider2d Component")));
+					return;
+				}
+
+				Components::CircleCollider2d& circleCollider2dComponent = obj->GetComponent<Components::CircleCollider2d>();
+
+				try
+				{
+					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, circleCollider2dComponent);
+
+					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert CircleCollider2d");
 
 					args.GetReturnValue().Set(v8Obj);
 				}
@@ -685,7 +730,7 @@ namespace Acorn
 			});
 	}
 
-	void V8Script::OnUpdate(Timestep ts)
+	void V8Script::OnUpdate(Timestep ts, Camera* camera)
 	{
 		AC_PROFILE_FUNCTION();
 		Timer timer;
@@ -811,8 +856,29 @@ namespace Acorn
 			.set("AddForce", &Components::RigidBody2d::AddForce)
 			.auto_wrap_objects(true);
 
+		v8pp::class_<Physics2D::Collider> collider(m_Isolate);
+		collider
+			.set("Offset", v8pp::property_(&Physics2D::Collider::GetOffset, &Physics2D::Collider::SetOffset))
+			.set("IsInside", &Physics2D::Collider::IsInside)
+			.auto_wrap_objects(true);
+
+		v8pp::class_<Components::BoxCollider2d> boxCollider(m_Isolate);
+		boxCollider.ctor<>()
+			.inherit<Physics2D::Collider>()
+			.set("Size", v8pp::property_(&Components::BoxCollider2d::GetSize, &Components::BoxCollider2d::SetSize))
+			.auto_wrap_objects(true);
+
+		v8pp::class_<Components::CircleCollider2d> circleCollider(m_Isolate);
+		circleCollider.ctor<>()
+			.inherit<Physics2D::Collider>()
+			.set("Radius", v8pp::property_(&Components::CircleCollider2d::GetRadius, &Components::CircleCollider2d::SetRadius))
+			.auto_wrap_objects(true);
+
 		componentModule.set("Tag", tag);
 		componentModule.set("RigidBody2d", rigidBody2d);
+		componentModule.set("Collider", collider); //TODO move to physics module?
+		componentModule.set("BoxCollider2d", boxCollider);
+		componentModule.set("CircleCollider2d", circleCollider);
 
 		global->Set(v8pp::to_v8(m_Isolate, "Components"), componentModule.impl());
 	}

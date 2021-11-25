@@ -9,6 +9,7 @@ declare enum ComponentTypes {
     V8Script = 5,
     RigidBody2d = 6,
     BoxCollider2d = 7,
+    CircleCollider2d = 8,
 }
 
 declare class ScriptSuperClass {
@@ -17,6 +18,8 @@ declare class ScriptSuperClass {
     GetComponent(type: ComponentTypes.Transform): Components.Transform;
     GetComponent(type: ComponentTypes.SpriteRenderer): Components.SpriteRenderer;
     GetComponent(type: ComponentTypes.RigidBody2d): Components.RigidBody2d;
+    GetComponent(type: ComponentTypes.BoxCollider2d): Components.BoxCollider2d;
+    GetComponent(type: ComponentTypes.CircleCollider2d): Components.CircleCollider2d;
 }
 
 declare class Input {
@@ -68,6 +71,20 @@ declare namespace Components {
     export class RigidBody2d {
         AddForce(force: math.vec2): void;
     }
+
+    export class Collider {
+        Offset: math.vec2;
+        IsInside(point: math.vec2): boolean;
+    }
+
+    export class BoxCollider2d extends Collider {
+        Size: math.vec2;
+    }
+
+    export class CircleCollider2d extends Collider {
+        Radius: number;
+    }
+
 }
 
 declare class AcornFileSystem {

@@ -257,8 +257,8 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //BoxCollider2d
 
-		out << YAML::Key << "Size" << YAML::Value << boxCollider.Size;
-		out << YAML::Key << "Offset" << YAML::Value << boxCollider.Offset;
+		out << YAML::Key << "Size" << YAML::Value << boxCollider.GetSize();
+		out << YAML::Key << "Offset" << YAML::Value << boxCollider.GetOffset();
 
 		out << YAML::EndMap; //BoxCollider2d
 
@@ -270,8 +270,8 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 		out << YAML::Value << YAML::BeginMap; //BoxCollider2d
 
-		out << YAML::Key << "Radius" << YAML::Value << boxCollider.Radius;
-		out << YAML::Key << "Offset" << YAML::Value << boxCollider.Offset;
+		out << YAML::Key << "Radius" << YAML::Value << boxCollider.GetRadius();
+		out << YAML::Key << "Offset" << YAML::Value << boxCollider.GetOffset();
 
 		out << YAML::EndMap; //BoxCollider2d
 
@@ -513,8 +513,8 @@ namespace Acorn
 				{
 					auto& bc = deserializedEntity.AddComponent<Components::BoxCollider2d>();
 
-					bc.Size = boxColliderComponent["Size"].as<glm::vec2>();
-					bc.Offset = boxColliderComponent["Offset"].as<glm::vec2>();
+					bc.SetSize(boxColliderComponent["Size"].as<glm::vec2>());
+					bc.SetOffset(boxColliderComponent["Offset"].as<glm::vec2>());
 				}
 
 				auto circleColliderComponent = entity["CircleCollider2d"];
@@ -522,8 +522,8 @@ namespace Acorn
 				{
 					auto& cc = deserializedEntity.AddComponent<Components::CircleCollider2d>();
 
-					cc.Radius = circleColliderComponent["Radius"].as<float>();
-					cc.Offset = circleColliderComponent["Offset"].as<glm::vec2>();
+					cc.SetRadius(circleColliderComponent["Radius"].as<float>());
+					cc.SetOffset(circleColliderComponent["Offset"].as<glm::vec2>());
 				}
 
 				auto childRelationship = entity["Children"];
