@@ -1,10 +1,10 @@
 [
 	{
 		"name": "VCPkg",
-		"toolchainFile": "C:\\src\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+		"toolchainFile": "C:\\users\\michael\\bin\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
 		"compilers": {
-			"C": "C:\\Program Files\\LLVM\\bin\\clang.exe",
-			"CXX": "C:\\Program Files\\LLVM\\bin\\clang++.exe"
+			"C": "C:\\Users\\michael\\scoop\\apps\\llvm\\current\\bin\\clang.exe",
+			"CXX": "C:\\Users\\michael\\scoop\\apps\\llvm\\current\\bin\\clang++.exe"
 		}
 	}
 ]

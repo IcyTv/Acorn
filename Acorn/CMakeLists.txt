@@ -24,7 +24,7 @@ if(NOT Vulkan_FOUND)
 endif()
 
 if(WIN32)
-    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_sharedd")
+    set(VULKAN_DEBUG_LIBS_NAMES "shaderc_shared")
 else()
     set(VULKAN_DEBUG_LIBS_NAMES "shaderc_shared")
 endif()
@@ -92,7 +92,7 @@ target_precompile_headers(Acorn PRIVATE src/acpch.h)
 # Include Directories
 target_include_directories(Acorn AFTER
     PRIVATE 
-        "${VULKAN_PATH}/Include"
+        # "${VULKAN_PATH}/Include"
         "${STB_INCLUDE_DIRS}"
         "${MAGIC_ENUM_INCLUDE_DIRS}"
         "${CMAKE_CURRENT_BINARY_DIR}"
@@ -211,6 +211,10 @@ endif()
 
 get_target_property(Includes Acorn INCLUDE_DIRECTORIES)
 message(STATUS "Include dirs: ${Includes}")
+
+
+get_target_property(OUT Acorn LINK_LIBRARIES)
+message(STATUS "Acorn Linked Libs: ${OUT}")
 
 ###############################################
 # Installation
