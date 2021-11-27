@@ -13,7 +13,7 @@ message(STATUS "OakTree src files ${SOURCE_FILES}")
 
 add_executable(OakTree ${SOURCE_FILES} ${HEADER_FILES})
 
-target_link_directories(OakTree PRIVATE "../vendor") #TODO fix
+# target_link_directories(OakTree PRIVATE "../vendor") #TODO fix
 target_link_libraries(OakTree Acorn)
 add_dependencies(OakTree Acorn)
 
@@ -63,6 +63,9 @@ target_compile_options(OakTree PRIVATE
 
 set_property(TARGET OakTree PROPERTY
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+get_target_property(OUT OakTree LINK_LIBRARIES)
+message(STATUS "OakTree Linked Libs: ${OUT}")
 
 # target_link_directories(OakTree PUBLIC "${CMAKE_SOURCE_DIR}/../v8/v8/out.gn/x64.debug/obj")
 # target_link_libraries(OakTree v8_monolith)

@@ -33,6 +33,7 @@
 		"boost-uuid",
 		"box2d",
 		"openssl",
-		"spirv-cross"
+		"spirv-cross",
+		"shaderc"
 	]
 }
