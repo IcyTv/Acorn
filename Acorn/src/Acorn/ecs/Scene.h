@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Timestep.h"
+#include "renderer/Camera.h"
 #include "renderer/EditorCamera.h"
 
 #include <entt/entity/fwd.hpp>

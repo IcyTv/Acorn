@@ -26,7 +26,7 @@ namespace Acorn
 
 		virtual uint32_t GetRendererId() const = 0;
 
-		//Fixme temporary, should be moved to instantiation parameters
+		// Fixme temporary, should be moved to instantiation parameters
 		virtual void SetTextureFiltering(TextureFiltering filtering) = 0;
 
 		virtual std::string GetPath() const = 0;
@@ -43,6 +43,8 @@ namespace Acorn
 		static Ref<Texture2d> Create(uint32_t width, uint32_t height);
 		static Ref<Texture2d> Create(const std::string& path, uint32_t width, uint32_t height);
 		static Ref<Texture2d> Create(const std::string& path);
+
+		static Ref<Texture2d> FromRenderId(uint32_t id);
 	};
 
 	class AsyncTextureLoader

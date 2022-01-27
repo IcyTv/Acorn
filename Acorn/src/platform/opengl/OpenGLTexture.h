@@ -12,6 +12,8 @@ namespace Acorn
 		OpenGLTexture2d(uint32_t width, uint32_t height);
 		OpenGLTexture2d(const std::string& path, uint32_t width, uint32_t height);
 		OpenGLTexture2d(const std::string& path);
+		OpenGLTexture2d(uint32_t rendererId);
+
 		virtual ~OpenGLTexture2d();
 
 		inline virtual uint32_t GetWidth() const override { return m_Width; }
@@ -32,6 +34,8 @@ namespace Acorn
 		{
 			return m_RendererId == ((OpenGLTexture2d&)other).m_RendererId;
 		}
+
+		static OpenGLTexture2d FromRenderId(uint32_t id);
 
 	private:
 		std::string m_Path;

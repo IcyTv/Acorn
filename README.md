@@ -1,4 +1,4 @@
-# Game Engine
+# Acorn
 
 This is a game engine based on TheCherno's (Game Engine) Tutorial series.
 
@@ -22,6 +22,14 @@ Select Modify, then Change and next. Here you need to make sure `Debugging tools
 
 ## TODO
 
-- [ ] Figure Out vcpkg patching in order to remove build dependencies(?)
 - [ ] Implement ViewportChanged Event [[Viewport Change Event]]
-- [ ] Figure out snapshotting (currently is up to 20 seconds slower per script)
+- [ ] Implement basic Ultralight rendering
+- [ ] Integrate with [svelte](#svelte)
+
+## Svelte
+
+If debug Mode:
+ run svelte debug server and serve the website
+
+If release mode:
+ build svelte and serve local files

@@ -41,6 +41,8 @@
 
 #include <FileWatch.hpp>
 
+#include "V8Script_internals.h"
+
 #define COMPONENT_SWITCH_HAS(name) COMPONENT_SWITCH_HAS2(name, name)
 
 #define COMPONENT_SWITCH_HAS2(name, componentName)                                 \
@@ -100,7 +102,7 @@ struct v8pp::convert<Acorn::KeyCode>
 			return false;
 		if (value->IsNumber())
 		{
-			//Attention: We cannot envorce integers, so we just assume
+			// Attention: We cannot envorce integers, so we just assume
 			int enumNumber = v8pp::from_v8<int>(isolate, value);
 			return magic_enum::enum_contains<Acorn::KeyCode>(enumNumber);
 		}
@@ -125,7 +127,7 @@ struct v8pp::convert<Acorn::KeyCode>
 		}
 		else
 		{
-			//Value must be a string as verivied in is_valid
+			// Value must be a string as verivied in is_valid
 			std::string enumName = v8pp::from_v8<std::string>(isolate, value);
 			auto result = magic_enum::enum_cast<Acorn::KeyCode>(enumName);
 			if (!result.has_value())
@@ -175,7 +177,7 @@ namespace Acorn
 		else if (type == TsType::Boolean)
 			return V8Types::Boolean;
 		else if (type == TsType::BigInt)
-			return V8Types::Number; //TODO
+			return V8Types::Number; // TODO
 		// else if (type == "object")
 		// 	return V8Types::Object;
 		// else if (type == "function")
@@ -350,8 +352,8 @@ namespace Acorn
 
 				try
 				{
-					//TODO figure out if we need to do this or if we can just class wrap
-					//At the moment, class wrap throws an exception "Cannot wrap c++ class"
+					// TODO figure out if we need to do this or if we can just class wrap
+					// At the moment, class wrap throws an exception "Cannot wrap c++ class"
 
 					v8::Local<v8::Value> pos_ref = V8Vec3::reference_external(isolate, &transformComponent.Translation);
 					v8::Local<v8::Value> rot_ref = V8Vec3::reference_external(isolate, &transformComponent.Rotation);
@@ -395,7 +397,7 @@ namespace Acorn
 				}
 			}
 			break;
-			//TODO others
+			// TODO others
 			case ComponentsEnum::RigidBody2d:
 			{
 				if (!obj->HasComponent<Components::RigidBody2d>())
@@ -522,9 +524,9 @@ namespace Acorn
 	//											V8Script											 //
 	//===============================================================================================//
 
-	//TODO allow empty methods!
-	//TODO add support for other Scripting Methods (onDestroy, onKeyDown,...)
-	//TODO add support for async methods? -> If return type is async, add it to a queue that gets resolved after/during other scripts?
+	// TODO allow empty methods!
+	// TODO add support for other Scripting Methods (onDestroy, onKeyDown,...)
+	// TODO add support for async methods? -> If return type is async, add it to a queue that gets resolved after/during other scripts?
 	V8Script::V8Script()
 	{
 		// V8Script(std::string("res/scripts/test.ts"));
@@ -549,7 +551,7 @@ namespace Acorn
 		s_Scripts.erase(s_Scripts.find(m_TSFilePath));
 	}
 
-	//TODO ts->js filename interop
+	// TODO ts->js filename interop
 	void V8Script::Load(Entity entity)
 	{
 		AC_PROFILE_FUNCTION();
@@ -572,7 +574,7 @@ namespace Acorn
 		// m_SnapshotCreator = CreateScope<v8::SnapshotCreator>(m_Isolate, nullptr, snapshot);
 
 		v8::Isolate::Scope isolate_scope(m_Isolate);
-		//Block for destroying handle scope before creating startup blob
+		// Block for destroying handle scope before creating startup blob
 		{
 			// Create a stack-allocated handle scope.
 			v8::HandleScope handle_scope(m_Isolate);
@@ -668,7 +670,7 @@ namespace Acorn
 					AC_CORE_BREAK();
 				}
 
-				//OnDestroy
+				// OnDestroy
 				//...
 			}
 		}
@@ -783,7 +785,7 @@ namespace Acorn
 			componentsEnum->Set(v8pp::to_v8(m_Isolate, magic_enum::enum_name(component)), v8pp::to_v8(m_Isolate, magic_enum::enum_integer(component)));
 		}
 
-		//TODO switch out with string names?
+		// TODO switch out with string names?
 		global->Set(v8pp::to_v8(m_Isolate, "ComponentTypes"), componentsEnum);
 
 		v8::Local<v8::ObjectTemplate> module = v8::ObjectTemplate::New(m_Isolate);
@@ -833,16 +835,21 @@ namespace Acorn
 		mathModule.set("vec3", vec3);
 		mathModule.set("vec4", vec4);
 
+		global->Set(v8pp::to_v8(m_Isolate, "math"), mathModule.impl());
+
 		v8pp::class_<Input> inputClass(m_Isolate);
 		inputClass.set("IsKeyPressed", &Input::IsKeyPressed)
 			.set("IsMouseButtonPressed", &Input::IsMouseButtonPressed)
 			.set("GetMouseX", &Input::GetMouseX)
 			.set("GetMouseY", &Input::GetMouseY)
-			.set("GetMousePosition", Input::GetMousePosition);
+			.set("GetMousePosition", &Input::GetMousePosition);
 
 		global->Set(v8pp::to_v8(m_Isolate, "Input"), inputClass.js_function_template());
 
-		global->Set(v8pp::to_v8(m_Isolate, "math"), mathModule.impl());
+		v8pp::class_<internals::Utils> utilsClass(m_Isolate);
+		utilsClass.set("TranslateMousePosition", &internals::Utils::TranslateMousePosition);
+
+		global->Set(v8pp::to_v8(m_Isolate, "Utils"), utilsClass.js_function_template());
 
 		v8pp::module componentModule(m_Isolate);
 
@@ -876,7 +883,7 @@ namespace Acorn
 
 		componentModule.set("Tag", tag);
 		componentModule.set("RigidBody2d", rigidBody2d);
-		componentModule.set("Collider", collider); //TODO move to physics module?
+		componentModule.set("Collider", collider); // TODO move to physics module?
 		componentModule.set("BoxCollider2d", boxCollider);
 		componentModule.set("CircleCollider2d", circleCollider);
 
@@ -936,10 +943,7 @@ namespace Acorn
 
 	void V8Script::SetParameters(std::unordered_map<std::string, std::string> params)
 	{
-		//TODO move ts parsing somewhere, so that we can use it here for type checking!
-		for (auto& parameter : params)
-		{
-		}
+		// TODO move ts parsing somewhere, so that we can use it here for type checking!
 	}
 
 	template <>
@@ -950,7 +954,7 @@ namespace Acorn
 		AC_ASSERT(field.Type == TsType::Boolean, "Tried to get invalid parameter for type boolean");
 		if (!m_Parameters.contains(parameterName))
 		{
-			//TODO parse default value from typescript
+			// TODO parse default value from typescript
 			m_Parameters[parameterName] = false;
 		}
 		return boost::get<bool>(m_Parameters[parameterName]);
@@ -964,7 +968,7 @@ namespace Acorn
 		AC_ASSERT(field.Type == TsType::Number, "Tried to get invalid parameter for type number");
 		if (!m_Parameters.contains(parameterName))
 		{
-			//TODO parse default value from typescript
+			// TODO parse default value from typescript
 			m_Parameters[parameterName] = 0.0f;
 		}
 		return boost::get<float>(m_Parameters[parameterName]);
@@ -978,7 +982,7 @@ namespace Acorn
 		AC_ASSERT(field.Type == TsType::String, "Tried to get invalid parameter for type string");
 		if (!m_Parameters.contains(parameterName))
 		{
-			//TODO parse default value from typescript
+			// TODO parse default value from typescript
 			m_Parameters[parameterName] = std::string("");
 		}
 		return boost::get<std::string>(m_Parameters[parameterName]);

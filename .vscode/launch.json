@@ -8,9 +8,18 @@
 			"program": "${command:cmake.launchTargetPath}",
 			"args": [],
 			"stopAtEntry": false,
-			"cwd": "${workspaceFolder}/build/OakTree",
+			"cwd": "${command:cmake.launchTargetDirectory}",
 			"environment": [],
 			"console": "integratedTerminal"
+		},
+		{
+			"type": "cdb",
+			"request": "launch",
+			"name": "CDB-Debug",
+			"program": "${command:cmake.launchTargetPath}",
+			"workingdirectory": "${command:cmake.launchTargetDirectory}",
+			"debugthedebugger": true,
+			"initialbreak": true
 		}
 	]
 }
