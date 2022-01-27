@@ -1,11 +1,12 @@
 #include "acpch.h"
 
 #include "OpenGLBuffer.h"
+#include "debug/Instrumentor.h"
 
 #include <glad/glad.h>
 
-//NOTE Since our profiling is linked to the tracy macro, we don't actually need a profiling check...
-//Maybe it's worth it to add some custom wrapper macros
+// NOTE Since our profiling is linked to the tracy macro, we don't actually need a profiling check...
+// Maybe it's worth it to add some custom wrapper macros
 #include <TracyOpenGL.hpp>
 namespace Acorn
 {
@@ -55,6 +56,26 @@ namespace Acorn
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
 
+	const void* OpenGLVertexBuffer::GetData() const
+	{
+		AC_PROFILE_FUNCTION();
+
+		TracyGpuZone("OpenGLVertexBuffer::GetData");
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererId);
+		return glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+	}
+
+	void* OpenGLVertexBuffer::GetDataPtr() const
+	{
+		AC_PROFILE_FUNCTION();
+
+		TracyGpuZone("OpenGLVertexBuffer::GetDataPtr");
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererId);
+		return glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+	}
+
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
 		AC_PROFILE_FUNCTION();
@@ -64,7 +85,7 @@ namespace Acorn
 		glDeleteBuffers(1, &m_RendererId);
 	}
 
-	//Index Buffer
+	// Index Buffer
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* vertices, uint32_t count)
 		: m_Count(count)

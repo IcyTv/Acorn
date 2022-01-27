@@ -284,4 +284,21 @@ namespace Acorn
 		glBindTextureUnit(slot, m_RendererId);
 	}
 
+	OpenGLTexture2d::OpenGLTexture2d(uint32_t rendererId)
+	{
+		int w, h;
+		glGetTextureLevelParameteriv(rendererId, 0, GL_TEXTURE_WIDTH, &w);
+		glGetTextureLevelParameteriv(rendererId, 0, GL_TEXTURE_HEIGHT, &h);
+
+		m_Width = w;
+		m_Height = h;
+
+		m_RendererId = rendererId;
+
+		m_Path = "Generated";
+
+		glGetTextureLevelParameteriv(rendererId, 0, GL_TEXTURE_INTERNAL_FORMAT, (GLint*)&m_InternalFormat);
+		glGetTextureLevelParameteriv(rendererId, 0, GL_TEXTURE_RED_TYPE, (GLint*)&m_DataFormat);
+	}
+
 }

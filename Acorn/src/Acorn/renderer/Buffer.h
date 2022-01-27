@@ -108,7 +108,7 @@ namespace Acorn
 	class BufferLayout
 	{
 	public:
-		//TODO struct reflection
+		// TODO struct reflection
 		BufferLayout() {}
 		BufferLayout(const std::initializer_list<BufferElement>& elements)
 			: m_Elements(elements)
@@ -149,6 +149,8 @@ namespace Acorn
 		virtual void Unbind() const = 0;
 
 		virtual void SetData(const void* data, uint32_t size) = 0;
+		virtual const void* GetData() const = 0;
+		virtual void* GetDataPtr() const = 0;
 
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 		virtual const BufferLayout& GetLayout() const = 0;

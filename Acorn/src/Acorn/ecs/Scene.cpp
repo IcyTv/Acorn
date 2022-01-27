@@ -16,6 +16,7 @@
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
 
+#include <glm/matrix.hpp>
 #include <magic_enum.hpp>
 
 #include <entt/entity/fwd.hpp>
@@ -119,52 +120,52 @@ namespace Acorn
 
 		if (entity.HasComponent<Components::SpriteRenderer>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::SpriteRenderer>(entity.GetComponent<Components::SpriteRenderer>());
 		}
 		if (entity.HasComponent<Components::CircleRenderer>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::CircleRenderer>(entity.GetComponent<Components::CircleRenderer>());
 		}
 
 		if (entity.HasComponent<Components::CameraComponent>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::CameraComponent>(entity.GetComponent<Components::CameraComponent>());
 		}
 
 		if (entity.HasComponent<Components::NativeScript>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::NativeScript>(entity.GetComponent<Components::NativeScript>());
 		}
 
 		if (entity.HasComponent<Components::JSScript>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::JSScript>(entity.GetComponent<Components::JSScript>());
 		}
 
 		if (entity.HasComponent<Components::RigidBody2d>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::RigidBody2d>(entity.GetComponent<Components::RigidBody2d>());
 		}
 
 		if (entity.HasComponent<Components::BoxCollider2d>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::BoxCollider2d>(entity.GetComponent<Components::BoxCollider2d>());
 		}
 
 		if (entity.HasComponent<Components::CircleCollider2d>())
 		{
-			//Call the copy constructor
+			// Call the copy constructor
 			newEntity.AddComponent<Components::CircleCollider2d>(entity.GetComponent<Components::CircleCollider2d>());
 		}
 
-		//TODO figure out relations
+		// TODO figure out relations
 
 		return newEntity;
 	}
@@ -212,7 +213,7 @@ namespace Acorn
 		for (auto e : rigidBodies)
 		{
 			Entity entity = {e, this};
-			//TODO check if using the registry is faster
+			// TODO check if using the registry is faster
 			auto& transform = entity.GetComponent<Components::Transform>();
 			auto& rigidBody = entity.GetComponent<Components::RigidBody2d>();
 
@@ -264,7 +265,7 @@ namespace Acorn
 			}
 		}
 
-		//Setup v8
+		// Setup v8
 		V8Engine::instance().KeepRunning();
 		auto view = m_Registry.view<Components::JSScript>();
 		for (auto entity : view)
@@ -294,8 +295,8 @@ namespace Acorn
 				script.Script->Dispose();
 			}
 		}
-		//TODO
-		// V8Engine::instance().Stop();
+		// TODO
+		//  V8Engine::instance().Stop();
 
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
@@ -340,7 +341,7 @@ namespace Acorn
 			auto b2dColliderGroup = m_Registry.group<Components::BoxCollider2d>(entt::get<Components::Transform>);
 			for (auto&& [entity, collider, transform] : b2dColliderGroup.each())
 			{
-				//TODO Think about, if we even need zDepth for colliders?
+				// TODO Think about, if we even need zDepth for colliders?
 				if (m_Options.ShowColliders)
 					debug::Renderer::DrawB2dCollider(collider, transform);
 			}
@@ -352,7 +353,7 @@ namespace Acorn
 					debug::Renderer::DrawB2dCollider(collider, transform);
 			}
 
-			//TODO show circle colliders
+			// TODO show circle colliders
 
 			debug::Renderer::End();
 		}
@@ -362,7 +363,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
-		//Render 2D
+		// Render 2D
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 		{
@@ -380,12 +381,12 @@ namespace Acorn
 			}
 		}
 
-		//Update Scripts
+		// Update Scripts
 		{
 			m_Registry.view<Components::NativeScript>().each(
 				[=](auto entity, Components::NativeScript& nsc)
 				{
-					//TODO: Move to Scene::OnScenePlay
+					// TODO: Move to Scene::OnScenePlay
 					if (nsc.Instance == nullptr)
 					{
 						nsc.Instance = nsc.InstantiateScript();
@@ -397,6 +398,9 @@ namespace Acorn
 				});
 		}
 		{
+			V8Data& data = V8Engine::instance().GetData();
+			data.PrimaryCameraViewProjectionMatrix = mainCamera->GetProjection() * glm::inverse(cameraTransform);
+
 			m_Registry.view<Components::JSScript>().each(
 				[=](auto entity, Components::JSScript& jsc)
 				{
@@ -407,7 +411,7 @@ namespace Acorn
 				});
 		}
 
-		//Physics
+		// Physics
 		{
 			const int32_t velocityIterations = 6;
 			const int32_t positionIterations = 2;
@@ -518,7 +522,7 @@ namespace Acorn
 		return {};
 	}
 
-	//TODO remove template specialization
+	// TODO remove template specialization
 	template <typename T>
 	void Scene::OnComponentAdded(Entity entity, T&)
 	{

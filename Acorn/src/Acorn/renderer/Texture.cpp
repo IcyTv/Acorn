@@ -80,4 +80,19 @@ namespace Acorn
 				return nullptr;
 		}
 	}
+
+	Ref<Texture2d> Texture2d::FromRenderId(uint32_t id)
+	{
+		switch (Renderer::GetApi())
+		{
+			case RendererApi::Api::None:
+				AC_CORE_ASSERT(false, "RenderApi::None currently not supported");
+				return nullptr;
+			case RendererApi::Api::OpenGL:
+				return CreateRef<OpenGLTexture2d>(id);
+			default:
+				AC_CORE_ASSERT(false, "Unknown Renderer Api!");
+				return nullptr;
+		}
+	}
 }
