@@ -19,3 +19,13 @@ Select Modify, then Change and next. Here you need to make sure `Debugging tools
 
 - Native Linux Builds are not supported yet, but WILL come in the future. The build system works, but we do not have
   any backend to render. You can likely hack it, since linux supports glfw.
+
+## Copyright
+
+Copyright 2022 Michael Finger <michael.finger@icytv.de>
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+> <http://www.apache.org/licenses/LICENSE-2.0>
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
