@@ -1,0 +1,6 @@
+[wrap-git]
+url = https://github.com/swarnimarun/glfw-meson
+revision = 3.3-stable-meson
+
+[provide]
+glfw = glfw_dep

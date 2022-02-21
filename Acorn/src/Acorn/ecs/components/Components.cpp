@@ -1,7 +1,7 @@
 #include "acpch.h"
 
-#include "Components.h"
 #include "ecs/Entity.h"
+#include "ecs/components/Components.h"
 
 namespace Acorn::Components
 {

@@ -91,6 +91,5 @@
 	"cmake.preferredGenerators": [
 		"Ninja"
 	],
-	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-	"C_Cpp.intelliSenseEngine": "Disabled"
+	"git.ignoreLimitWarning": true
 }

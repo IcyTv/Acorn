@@ -4,6 +4,12 @@
 [submodule "Acorn/vendor/tracy"]
 	path = Acorn/vendor/tracy
 	url = https://github.com/wolfpld/tracy
-[submodule "Acorn/vendor/filewatch"]
-	path = Acorn/vendor/filewatch
-	url = https://github.com/ThomasMonkman/filewatch
+[submodule "subprojects/entt"]
+	path = subprojects/entt
+	url = https://github.com/skypjack/entt
+[submodule "subprojects/stb_image"]
+	path = subprojects/stb_image
+	url = https://github.com/franko/stb_image
+[submodule "Acorn/vendor/ImGuizmo"]
+	path = Acorn/vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo

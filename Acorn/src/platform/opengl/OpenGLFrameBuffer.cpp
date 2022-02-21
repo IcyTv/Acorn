@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "OpenGLFrameBuffer.h"
+#include "platform/opengl/OpenGLFrameBuffer.h"
 
 #include <glad/glad.h>
 
@@ -40,7 +40,7 @@ namespace Acorn
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				//TODO : Filtering / wrap
+				// TODO : Filtering / wrap
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, TextureTarget(multisampled), id, 0);
@@ -62,7 +62,7 @@ namespace Acorn
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				//TODO : Filtering / wrap
+				// TODO : Filtering / wrap
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, type, TextureTarget(multisampled), id, 0);
@@ -155,7 +155,7 @@ namespace Acorn
 
 		bool multisample = m_Specifications.Samples > 1;
 
-		//Attachments
+		// Attachments
 		if (m_ColorAttachmentSpecs.size() > 0)
 		{
 			m_ColorAttachments.resize(m_ColorAttachmentSpecs.size());

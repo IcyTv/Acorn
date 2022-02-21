@@ -1,9 +1,10 @@
 #include "acpch.h"
 
+#include "platform/windows/window/WindowsWindow.h"
+
 #include "Acorn/events/ApplicationEvent.h"
 #include "Acorn/events/KeyEvent.h"
 #include "Acorn/events/MouseEvent.h"
-#include "WindowsWindow.h"
 
 #include "platform/opengl/OpenGLContext.h"
 
@@ -82,7 +83,7 @@ namespace Acorn
 
 		if (!s_GLFWInitialized)
 		{
-			//TODO glfwTerminate on system shutdown
+			// TODO glfwTerminate on system shutdown
 			int success = glfwInit();
 			AC_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
@@ -105,7 +106,7 @@ namespace Acorn
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
-		//Setup GLFW Callbacks
+		// Setup GLFW Callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 								  {
 									  WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -114,16 +115,14 @@ namespace Acorn
 									  data.Height = height;
 
 									  WindowResizeEvent event(width, height);
-									  data.EventCallback(event);
-								  });
+									  data.EventCallback(event); });
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 								   {
 									   WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
 									   WindowCloseEvent event;
-									   data.EventCallback(event);
-								   });
+									   data.EventCallback(event); });
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 						   {
@@ -149,15 +148,13 @@ namespace Acorn
 									   data.EventCallback(event);
 									   break;
 								   }
-							   }
-						   });
+							   } });
 
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t keycode)
 							{
 								WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 								KeyTypedEvent event((KeyCode)(keycode), 0);
-								data.EventCallback(event);
-							});
+								data.EventCallback(event); });
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 								   {
@@ -177,8 +174,7 @@ namespace Acorn
 											   data.EventCallback(event);
 											   break;
 										   }
-									   }
-								   });
+									   } });
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double offsetX, double offsetY)
 							  {
@@ -186,16 +182,14 @@ namespace Acorn
 
 								  MouseScrolledEvent event((float)offsetX, (float)offsetY);
 
-								  data.EventCallback(event);
-							  });
+								  data.EventCallback(event); });
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y)
 								 {
 									 WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
 									 MouseMovedEvent event(x, y);
-									 data.EventCallback(event);
-								 });
+									 data.EventCallback(event); });
 	}
 
 	void WindowsWindow::Shutdown()

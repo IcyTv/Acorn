@@ -1,13 +1,13 @@
 #include "acpch.h"
 
-#include "Shader.h"
+#include "renderer/Shader.h"
 
 #include "platform/opengl/OpenGLShader.h"
 #include "renderer/Renderer.h"
 
 #include <shaderc/shaderc.hpp>
-#include <spirv_cross/spirv_cross.hpp>
-#include <spirv_cross/spirv_glsl.hpp>
+#include <spirv_cross.hpp>
+#include <spirv_glsl.hpp>
 
 #include <filesystem>
 #include <fstream>

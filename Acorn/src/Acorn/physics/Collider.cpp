@@ -1,8 +1,8 @@
 #include "acpch.h"
 
-#include "Collider.h"
 #include "ecs/Entity.h"
 #include "ecs/components/Components.h"
+#include "physics/Collider.h"
 
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_fixture.h>

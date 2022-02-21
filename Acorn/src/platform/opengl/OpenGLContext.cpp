@@ -1,10 +1,11 @@
-#include "OpenGLContext.h"
 #include "acpch.h"
 
 #include "Acorn/core/Core.h"
+#include "platform/opengl/OpenGLContext.h"
+
+#include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
 
 #if AC_PROFILE
 	#include <Tracy.hpp>
@@ -25,7 +26,7 @@ void gl_error_callback(GLenum source, GLenum type, GLuint id, GLenum severity, G
 			AC_CORE_INFO("[GL]: {0}", message);
 			break;
 		case GL_DEBUG_SEVERITY_NOTIFICATION:
-			//AC_CORE_TRACE("[GL]: {0}", message);
+			// AC_CORE_TRACE("[GL]: {0}", message);
 			break;
 		default:
 			AC_CORE_FATAL("Unknwon message type!");
@@ -83,7 +84,7 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 
 #if AC_PROFILE
-		//Send Current Frame to Tracy
+		// Send Current Frame to Tracy
 		int width, height;
 		glfwGetWindowSize(m_WindowHandle, &width, &height);
 		m_FrameProfiler->SendFrame(width, height);
@@ -92,7 +93,7 @@ namespace Acorn
 		glfwSwapBuffers(m_WindowHandle);
 
 #if AC_PROFILE
-		//Collect GPU Events
+		// Collect GPU Events
 		TracyGpuCollect;
 #endif
 	}

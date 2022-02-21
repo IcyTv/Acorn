@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "FrameProfiler.h"
+#include "debug/FrameProfiler.h"
 #include "platform/opengl/OpenGLFrameProfiler.h"
 
 namespace Acorn

@@ -1,13 +1,16 @@
 #include "acpch.h"
 
-#include "Scene.h"
+#include "ecs/Scene.h"
 #include "ecs/components/ScriptableEntity.h"
 
-#include "Entity.h"
-#include "components/Components.h"
-#include "ecs/components/V8Script.h"
+#include "ecs/Entity.h"
+#include "ecs/components/Components.h"
 #include "renderer/2d/Renderer2D.h"
 #include "renderer/DebugRenderer.h"
+
+#ifndef NO_SCRIPTING
+	#include "ecs/components/V8Script.h"
+#endif
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_circle_shape.h>
@@ -266,6 +269,8 @@ namespace Acorn
 		}
 
 		// Setup v8
+#ifndef NO_SCRIPTING
+
 		V8Engine::instance().KeepRunning();
 		auto view = m_Registry.view<Components::JSScript>();
 		for (auto entity : view)
@@ -281,11 +286,13 @@ namespace Acorn
 				AC_CORE_WARN("Undefined script in {}", tag);
 			}
 		}
+#endif // !NO_SCRIPTING
 	}
 
 	void Scene::DestroyRuntime()
 	{
 		AC_PROFILE_FUNCTION();
+#ifndef NO_SCRIPTING
 		auto view = m_Registry.view<Components::JSScript>();
 		for (auto entity : view)
 		{
@@ -297,6 +304,8 @@ namespace Acorn
 		}
 		// TODO
 		//  V8Engine::instance().Stop();
+
+#endif // !(NO_SCRIPTING)
 
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
@@ -397,6 +406,7 @@ namespace Acorn
 					nsc.Instance->OnUpdate(ts);
 				});
 		}
+#ifndef NO_SCRIPTING
 		{
 			V8Data& data = V8Engine::instance().GetData();
 			data.PrimaryCameraViewProjectionMatrix = mainCamera->GetProjection() * glm::inverse(cameraTransform);
@@ -410,6 +420,7 @@ namespace Acorn
 					}
 				});
 		}
+#endif
 
 		// Physics
 		{

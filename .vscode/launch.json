@@ -5,21 +5,13 @@
 			"name": "VS-Debug",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"program": "${command:cmake.launchTargetPath}",
+			"program": "${workspaceFolder}/builddir/OakTree/src/OakTree.exe",
 			"args": [],
 			"stopAtEntry": false,
-			"cwd": "${command:cmake.launchTargetDirectory}",
+			"cwd": "${workspaceFolder}",
 			"environment": [],
-			"console": "integratedTerminal"
-		},
-		{
-			"type": "cdb",
-			"request": "launch",
-			"name": "CDB-Debug",
-			"program": "${command:cmake.launchTargetPath}",
-			"workingdirectory": "${command:cmake.launchTargetDirectory}",
-			"debugthedebugger": true,
-			"initialbreak": true
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build Whole Project"
 		}
 	]
 }

@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "OpenGLUniformBuffer.h"
+#include "platform/opengl/OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 

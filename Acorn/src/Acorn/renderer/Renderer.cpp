@@ -1,9 +1,9 @@
 #include "acpch.h"
 
-#include "2d/Renderer2D.h"
-#include "DebugRenderer.h"
-#include "RenderCommand.h"
-#include "Renderer.h"
+#include "renderer/2d/Renderer2D.h"
+#include "renderer/DebugRenderer.h"
+#include "renderer/RenderCommand.h"
+#include "renderer/Renderer.h"
 
 #include "platform/opengl/OpenGLShader.h"
 

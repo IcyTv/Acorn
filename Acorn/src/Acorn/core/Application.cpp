@@ -1,14 +1,15 @@
-#include "Tracy.hpp"
 #include "acpch.h"
 
-#include "Application.h"
-#include "Timestep.h"
+#include "core/Application.h"
 #include "core/Platform.h"
+#include "core/Timestep.h"
 #include "input/KeyCodes.h"
 #include "renderer/Renderer.h"
 
 #include "utils/FileUtils.h"
 #include "utils/PlatformCapabilities.h"
+
+#include "Tracy.hpp"
 
 #if AC_PROFILE
 	#include <Tracy.hpp>

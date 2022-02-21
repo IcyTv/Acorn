@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "PlatformCapabilities.h"
+#include "utils/PlatformCapabilities.h"
 
 #include "platform/opengl/OpenGLPlatformCapabilities.h"
 #include "renderer/Renderer.h"
