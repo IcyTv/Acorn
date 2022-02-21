@@ -1,3 +1,3 @@
 # TODO
 
-- [ ] Setup Acorn to handle dynamic compilation on windows
+- [ ] Setup Acorn to handle shared compilation on windows
