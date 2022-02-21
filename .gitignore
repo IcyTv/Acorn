@@ -5,6 +5,7 @@ vcpkg_installed
 .vs/
 out/
 AcornProfile*.json
+res/cache/
 
 ### Meson ###
 # subproject directories

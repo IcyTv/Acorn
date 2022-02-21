@@ -1,0 +1,356 @@
+{
+  "Name": "Untitled",
+  "entities": {
+    "d2b36588-ed2e-41df-ba84-aeed205ea87f": {
+      "Tag": {
+        "Name": "Test Quad 9"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "9c585b7d-08da-48d2-9b72-1154f53b0fd5": {
+      "Tag": {
+        "Name": "Test Quad 1"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          2.2,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          0.0,
+          0.32493567,
+          0.887324,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "b2c38057-2456-4107-8976-b7a7f1035141": {
+      "Tag": {
+        "Name": "Test Quad 2"
+      },
+      "Transform": {
+        "Position": [
+          -0.66060114,
+          -2.1394227,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "a6b83e40-a87e-40bb-a8d1-05c7cc205555": {
+      "Tag": {
+        "Name": "Test Quad 3"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "1b2d3271-5a96-4428-9a7e-00ae2ac5ea0a": {
+      "Tag": {
+        "Name": "Test Quad 4"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "4a472c77-96ae-484c-b0d9-05eb06f1f68d": {
+      "Tag": {
+        "Name": "Test Quad 5"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "cc9f8247-520f-403c-9520-1f270a97036e": {
+      "Tag": {
+        "Name": "Test Quad 6"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "00843ea2-3f1d-43c4-93f1-21dfea6198ae": {
+      "Tag": {
+        "Name": "Test Quad 7"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "eee9e1a7-49a7-4b6b-86e8-ed4ecf2f3d25": {
+      "Tag": {
+        "Name": "Test Quad 8"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      }
+    },
+    "7c835646-bdfc-4093-90e8-cfb89f364033": {
+      "Tag": {
+        "Name": "Camera"
+      },
+      "Transform": {
+        "Position": [
+          0.0,
+          0.0,
+          4.9
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "CameraComponent": {
+        "Camera": {
+          "orthographic_size": 10.0,
+          "orho_near_clip": -1.0,
+          "orho_far_clip": 1.0,
+          "perspective_fov": 1.0471976,
+          "perspective_near_clip": 0.1,
+          "perspective_far_clip": 10.0,
+          "aspect_ratio": 1.5987842,
+          "projection_type": "Perspective"
+        },
+        "FixedAspectRatio": false
+      }
+    },
+    "a9847f22-a16d-4a2a-9512-fa989aea6642": {
+      "Tag": {
+        "Name": "Test Quad 0"
+      },
+      "Transform": {
+        "Position": [
+          1.6,
+          0.0,
+          0.0
+        ],
+        "Rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "SpriteRenderer": {
+        "Color": [
+          0.8920188,
+          0.09632126,
+          0.09632126,
+          1.0
+        ],
+        "TilingFactor": 1.0
+      },
+      "Script": {
+        "Script": {
+          "path": "C:\\Users\\michael\\projects\\acorn-rs\\acorn\\res\\test\\scripts\\test.wren"
+        }
+      }
+    }
+  },
+  "PrimaryCamera": "7c835646-bdfc-4093-90e8-cfb89f364033"
+}

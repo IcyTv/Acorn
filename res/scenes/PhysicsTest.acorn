@@ -1,0 +1,353 @@
+Scene: Untitled Scene
+Entities:
+  - Entity: cf90d9bf-b46c-4a4a-9d00-cf4fe24877b9
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-1.91950417, -0.86377722, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: e4fd8379-2cf8-4749-b4f4-e4ca80a766c1
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-0.836357117, -0.836356163, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: 1eafba1f-b4b3-4184-ab08-8931a5f748f9
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [0.31534189, -0.808941066, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: 3055e60e-4bd4-4267-9d3b-c47eaa1207d8
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-2.46794128, 0.233081818, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: fa7c592e-a64a-4e61-a12a-b7581d755472
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-1.37107277, 0.23308754, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: b092f245-4f15-4722-844d-e3c6499fd9c1
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-1.90579605, 1.22025871, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: e68b0ce3-5297-4104-b66d-1131c3c32582
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-0.712959051, 1.15170097, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: 6d7fa21f-4616-489f-90a7-52c33b316819
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-1.28880501, 2.1662941, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: 1d6a55ca-b93e-4a1a-b68e-67e2454594f9
+    Tag:
+      Tag: Circle - Copy
+    Transform:
+      Translation: [-0.0548419952, 0.205661774, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
+  - Entity: a908b92b-4071-4edc-98d6-d01f9df620ae
+    Tag:
+      Tag: Camera
+    Transform:
+      Translation: [3.7252903e-09, 0.970976353, 8.23327255]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    Camera:
+      SceneCamera:
+        Type: 0
+        OrthographicSize: 10
+        OrthographicNearClip: -1
+        OrthographicFarClip: 1
+        PerspectiveFov: 1.04719758
+        PerspectiveNearClip: 0.00999999978
+        PerspectiveFarClip: 1000
+      FixedAspectRatio: false
+      Primary: true
+  - Entity: 344b6230-779b-4e30-9b8a-218d6dfe8726
+    Tag:
+      Tag: Box 1
+    Transform:
+      Translation: [0.461196721, 4.06674433, 0]
+      Rotation: [0, 0, -2.03348613]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [0.779898703, 0.0658014193, 0.974683523, 1]
+    JSScript:
+      Path: res\scripts\test.ts
+      Parameters:
+        {}
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0.99000001
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: b9fd0238-fb60-4cf0-a326-c50c456e3c2f
+    Tag:
+      Tag: Ground
+    Transform:
+      Translation: [0, -1.99293768, 0]
+      Rotation: [0, -0, 0]
+      Scale: [63.4864693, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: a27e36a1-925f-4eda-9e27-e5692a4f0caa
+    Tag:
+      Tag: Wall 1
+    Transform:
+      Translation: [-8.60913467, 3.10545468, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 9.53770256, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 49ca5aee-4878-446b-8f07-c6b707091ba8
+    Tag:
+      Tag: Wall 2
+    Transform:
+      Translation: [8.41872597, 2.7698431, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 9.28347874, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 6da7675f-7a6d-405a-a7e7-85d8c601fd1d
+    Tag:
+      Tag: Box 2
+    Transform:
+      Translation: [0.0258448422, 2.44818115, 0]
+      Rotation: [0, -0, 0.445553064]
+      Scale: [0.999999762, 0.999999762, 1]
+    SpriteRenderer:
+      Color: [0, 0.943948567, 0.978902936, 1]
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 0.289999992
+      Friction: 1
+      Restitution: 0.200000003
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: b7d40817-9dbc-4bbe-9332-13cd0330e799
+    Tag:
+      Tag: Roof
+    Transform:
+      Translation: [0, 7.76013803, 0]
+      Rotation: [0, -0, 0]
+      Scale: [18.1300545, 1, 1]
+    RigidBody2d:
+      Type: Static
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    BoxCollider2d:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+  - Entity: 6b2ea701-46ef-409f-9dd8-6037a815892b
+    Tag:
+      Tag: Walls
+    Transform:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Children:
+      - a27e36a1-925f-4eda-9e27-e5692a4f0caa
+      - 49ca5aee-4878-446b-8f07-c6b707091ba8
+      - b7d40817-9dbc-4bbe-9332-13cd0330e799
+  - Entity: eed0a8b1-a914-46c6-8211-1639375ca066
+    Tag:
+      Tag: Circle
+    Transform:
+      Translation: [-3.07120895, -0.891197205, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CircleRenderer:
+      Color: [0.481012642, 0.103509054, 0.103509054, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2d:
+      Type: Dynamic
+      FixedRotation: false
+      Density: 1
+      Friction: 1
+      Restitution: 0
+      RestitutionThreshold: 0.5
+    CircleCollider2d:
+      Radius: 0.5
+      Offset: [0, 0]
