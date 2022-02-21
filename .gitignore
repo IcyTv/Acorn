@@ -5,3 +5,32 @@ vcpkg_installed
 .vs/
 out/
 AcornProfile*.json
+
+### Meson ###
+# subproject directories
+/subprojects/*
+!/subprojects/*.wrap
+!/subprojects/*.zip
+# TODO move to vendor or move vendor to submodule...
+!/subprojects/entt
+!/subprojects/stb_image
+
+# Meson Directories
+meson-logs
+meson-private
+
+builddir/
+
+# Meson Files
+meson_benchmark_setup.dat
+meson_test_setup.dat
+sanitycheckcpp.cc     # C++ specific
+sanitycheckcpp.exe    # C++ specific
+
+# Ninja
+build.ninja
+.ninja_deps
+.ninja_logs
+
+# Misc
+compile_commands.json

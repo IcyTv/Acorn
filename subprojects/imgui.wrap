@@ -1,0 +1,8 @@
+[wrap-git]
+directory = imgui-docking
+url = https://github.com/IcyTv/imgui.git
+revision = docking
+
+[provide]
+imgui = imgui_dep
+

@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "OpenGLTexture.h"
+#include "platform/opengl/OpenGLTexture.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>

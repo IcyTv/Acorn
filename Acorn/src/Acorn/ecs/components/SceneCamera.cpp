@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "SceneCamera.h"
+#include "ecs/components/SceneCamera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

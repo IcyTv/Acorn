@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "OpenGLShader.h"
+#include "platform/opengl/OpenGLShader.h"
 
 #include "Acorn/debug/Timer.h"
 #include "Acorn/utils/FileUtils.h"
@@ -9,8 +9,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <shaderc/shaderc.hpp>
-#include <spirv_cross/spirv_cross.hpp>
-#include <spirv_cross/spirv_glsl.hpp>
+#include <spirv_cross.hpp>
+#include <spirv_glsl.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -177,7 +177,7 @@ namespace Acorn
 		{
 			Timer t;
 
-			//TODO move to main shader.h
+			// TODO move to main shader.h
 			CompileVulkan(shaderSources);
 			for (auto&& [stage, data] : m_VulkanSPIRV)
 			{
@@ -210,7 +210,7 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 
 		TracyGpuZone("OpenGLShader::Bind");
-		//TODO race condition?
+		// TODO race condition?
 		if (s_CurrentShader == m_RendererId)
 			return;
 		glUseProgram(m_RendererId);
@@ -305,10 +305,10 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
-		//TODO add struct copy
-		// -> if in vertex shader i.e. struct VertexOutput {...}
-		// -> And in fragment shader i.e. struct VertexOutput;
-		// -> Then copy the struct definition from vertex shader to fragment shader
+		// TODO add struct copy
+		//  -> if in vertex shader i.e. struct VertexOutput {...}
+		//  -> And in fragment shader i.e. struct VertexOutput;
+		//  -> Then copy the struct definition from vertex shader to fragment shader
 
 		std::unordered_map<GLenum, std::string> shaderSources;
 
@@ -551,7 +551,7 @@ namespace Acorn
 			AC_CORE_TRACE("    Binding = {0}", binding);
 			AC_CORE_TRACE("    Members = {0}", memberCount);
 
-			//TODO parse uniforms and add to m_UniformLocations
+			// TODO parse uniforms and add to m_UniformLocations
 		}
 	}
 

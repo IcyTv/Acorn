@@ -1,5 +1,5 @@
+#include "layer/LayerStack.h"
 #include "acpch.h"
-#include "LayerStack.h"
 
 namespace Acorn
 {
@@ -7,7 +7,6 @@ namespace Acorn
 	LayerStack::LayerStack()
 	{
 		AC_PROFILE_FUNCTION();
-
 	}
 
 	LayerStack::~LayerStack()

@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "Log.h"
+#include "core/Log.h"
 #include "spdlog/pattern_formatter.h"
 
 namespace Acorn
@@ -10,7 +10,7 @@ namespace Acorn
 
 	void Log::Init()
 	{
-		//TODO figure out a good way to use these [%10!s:%#] (%=7!!)
+		// TODO figure out a good way to use these [%10!s:%#] (%=7!!)
 		spdlog::set_pattern("%^[%=8n][%T]: %v%$");
 
 		s_CoreLogger = spdlog::stdout_color_mt("Acorn");
@@ -22,17 +22,17 @@ namespace Acorn
 		s_ClientLogger->set_pattern("%^[%=8n][%T][%l]: %v%$");
 	}
 
-	std::shared_ptr<spdlog::logger> &Log::GetCoreLogger()
+	std::shared_ptr<spdlog::logger>& Log::GetCoreLogger()
 	{
 		return s_CoreLogger;
 	}
 
-	std::shared_ptr<spdlog::logger> &Log::GetClientLogger()
+	std::shared_ptr<spdlog::logger>& Log::GetClientLogger()
 	{
 		return s_ClientLogger;
 	}
 
-	void Log::AddSink(const spdlog::sink_ptr &sink)
+	void Log::AddSink(const spdlog::sink_ptr& sink)
 	{
 		s_CoreLogger->sinks().push_back(sink);
 		s_ClientLogger->sinks().push_back(sink);

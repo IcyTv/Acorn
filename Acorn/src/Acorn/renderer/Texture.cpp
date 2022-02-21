@@ -1,9 +1,9 @@
 #include "acpch.h"
 
-#include "Texture.h"
+#include "renderer/Texture.h"
 
-#include "Renderer.h"
 #include "platform/opengl/OpenGLTexture.h"
+#include "renderer/Renderer.h"
 
 namespace Acorn
 {

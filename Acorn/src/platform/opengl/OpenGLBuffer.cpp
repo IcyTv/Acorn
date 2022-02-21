@@ -1,7 +1,7 @@
 #include "acpch.h"
 
-#include "OpenGLBuffer.h"
 #include "debug/Instrumentor.h"
+#include "platform/opengl/OpenGLBuffer.h"
 
 #include <glad/glad.h>
 

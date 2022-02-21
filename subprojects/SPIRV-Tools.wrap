@@ -1,0 +1,9 @@
+[wrap-git]
+directory=SPIRV-Tools
+url=https://github.com/taisei-project/SPIRV-Tools.git
+push-url=git@github.com:taisei-project/SPIRV-Tools.git
+revision=meson-2020.7
+
+[provide]
+spirv-tools=spirv_tools_dep
+spirv-tools-opt=spirv_tools_opt_dep
