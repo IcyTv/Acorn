@@ -17,19 +17,5 @@ Select Modify, then Change and next. Here you need to make sure `Debugging tools
 
 ### 1. Setup
 
-- On Windows, you can use [vcpkg](https://vcpkg.io/) to install libraries and Visual Studio to build
-- Linux Builds are not supported yet, but WILL come in the future
-
-## TODO
-
-- [ ] Implement ViewportChanged Event [[Viewport Change Event]]
-- [ ] Implement basic Ultralight rendering
-- [ ] Integrate with [svelte](#svelte)
-
-## Svelte
-
-If debug Mode:
- run svelte debug server and serve the website
-
-If release mode:
- build svelte and serve local files
+- Native Linux Builds are not supported yet, but WILL come in the future. The build system works, but we do not have
+  any backend to render. You can likely hack it, since linux supports glfw.
