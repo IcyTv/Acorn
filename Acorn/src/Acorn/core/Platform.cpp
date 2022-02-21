@@ -1,9 +1,9 @@
 #include "acpch.h"
 
-#include "Platform.h"
+#include "core/Platform.h"
 
 #ifdef AC_PLATFORM_WINDOWS
-#include "platform/windows/WindowsPlatform.h"
+	#include "platform/windows/WindowsPlatform.h"
 #endif
 
 namespace Acorn

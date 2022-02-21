@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "Timestep.h"
+#include "core/Timestep.h"
 
 namespace Acorn
 {
@@ -9,11 +9,9 @@ namespace Acorn
 		return timestep.m_Time * value;
 	}
 
-
 	float operator*(float value, const Timestep& timestep)
 	{
 		return timestep.m_Time * value;
 	}
 
 }
-

@@ -1,14 +1,14 @@
 #include "acpch.h"
 
-#include "2d/SubTexture2d.h"
-#include "DebugRenderer.h"
-#include "RenderCommand.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "UniformBuffer.h"
-#include "VertexArray.h"
+#include "renderer/2d/SubTexture2d.h"
+#include "renderer/DebugRenderer.h"
+#include "renderer/RenderCommand.h"
+#include "renderer/Shader.h"
+#include "renderer/Texture.h"
+#include "renderer/UniformBuffer.h"
+#include "renderer/VertexArray.h"
 
-#include "BatchRenderer.h"
+#include "renderer/BatchRenderer.h"
 
 #include "core/Core.h"
 #include "renderer/2d/Renderer2D.h"
@@ -181,7 +181,7 @@ namespace Acorn
 			s_Data.BillboardUniform->Bind();
 			s_Data.QuadRenderer->End();
 			s_Data.CameraUniform->Bind();
-			//Clear Depth buffer to render Colliders on top (and apperantly view frustums...)
+			// Clear Depth buffer to render Colliders on top (and apperantly view frustums...)
 			RenderCommand::ClearDepth();
 			s_Data.LineRenderer->End();
 			s_Data.CircleRenderer->End();
@@ -304,7 +304,7 @@ namespace Acorn
 
 			std::array<CircleVertex, quadVertexCount> vertices;
 
-			//TODO think about scaling axis...
+			// TODO think about scaling axis...
 			glm::mat4 trans = transform.GetTransform() * glm::scale(glm::mat4{1.0f}, (1.0f / transform.Scale)) * glm::scale(glm::mat4{1.0f}, glm::vec3(transform.Scale.z * collider.GetRadius() * 2)) * glm::translate(glm::mat4{1.0f}, glm::vec3(collider.GetOffset(), 0.0f));
 
 			for (size_t i = 0; i < quadVertexCount; i++)
@@ -312,7 +312,7 @@ namespace Acorn
 				vertices[i].WorldPosition = trans * s_Data.QuadVertexPositions[i];
 				vertices[i].LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
 				vertices[i].Color = color;
-				//TODO determine consistent thickness
+				// TODO determine consistent thickness
 				vertices[i].Thickness = 0.01f;
 				vertices[i].Fade = 0.0005f;
 				vertices[i].EntityId = -1;

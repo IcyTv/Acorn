@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "OpenGLPlatformCapabilities.h"
+#include "platform/opengl/OpenGLPlatformCapabilities.h"
 
 #include <glad/glad.h>
 

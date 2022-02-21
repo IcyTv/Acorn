@@ -1,7 +1,8 @@
 #include "acpch.h"
 
-#include "FileUtils.h"
+#include "utils/FileUtils.h"
 
+#include "utils/md5.h"
 #include <chrono>
 #include <corecrt.h>
 #include <filesystem>
@@ -9,12 +10,14 @@
 #include <openssl/md5.h>
 #include <yaml-cpp/yaml.h>
 
+#define ACORN_MAX_SHADER_FILE_SIZE (1024 * 1024 * 10)
+
 namespace Acorn::Utils
 {
 	namespace File
 	{
-		//TODO think about a better way to do this
-		//TODO also think about a better config file layout (maybe add to scene?)
+		// TODO think about a better way to do this
+		// TODO also think about a better config file layout (maybe add to scene?)
 
 		bool HasShaderFileChanged(const std::string& filePath)
 		{
@@ -33,15 +36,15 @@ namespace Acorn::Utils
 			std::ifstream configFile(CONFIG_FILENAME);
 			if (!configFile.is_open())
 			{
-				//TODO create config file and add shader modification time
+				// TODO create config file and add shader modification time
 				YAML::Emitter out;
 				out << YAML::BeginMap;
 				out << YAML::Key << "shaders";
 				out << YAML::Value << YAML::BeginMap;
 				out << YAML::Key << filePath;
 				out << YAML::Value << chronoModTime;
-				out << YAML::EndMap; //Shaders
-				out << YAML::EndMap; //Root
+				out << YAML::EndMap; // Shaders
+				out << YAML::EndMap; // Root
 
 				std::ofstream outFile(CONFIG_FILENAME);
 				outFile << out.c_str();
@@ -52,7 +55,7 @@ namespace Acorn::Utils
 			YAML::Node configNode = YAML::Load(configFile);
 			if (!configNode["shaders"])
 			{
-				//TODO Add shader modification time
+				// TODO Add shader modification time
 				configNode["shaders"] = YAML::Node(YAML::NodeType::Map);
 				configNode["shaders"][filePath.c_str()] = chronoModTime;
 
@@ -151,8 +154,9 @@ namespace Acorn::Utils
 			std::basic_ifstream<unsigned char> file(filePath);
 			file.seekg(0, std::ios::end);
 			size_t fileSize = file.tellg();
+			AC_CORE_ASSERT(fileSize < ACORN_MAX_SHADER_FILE_SIZE, "Shader file is too large to hash!");
 			file.seekg(0, std::ios::beg);
-			unsigned char outBuf[16]; //MD5 digest size
+			unsigned char outBuf[16]; // MD5 digest size
 			std::vector<unsigned char> fileBuf(fileSize);
 
 			if (!file.read(fileBuf.data(), fileSize))
@@ -161,6 +165,7 @@ namespace Acorn::Utils
 			}
 
 			MD5(fileBuf.data(), fileSize, outBuf);
+			// std::array<char, 16> result = ConstexprHashes::md5(fileBuf);
 
 			std::stringstream buffer;
 			buffer << std::hex;
@@ -174,7 +179,7 @@ namespace Acorn::Utils
 		std::string MD5HashString(const std::string& data)
 		{
 			AC_PROFILE_FUNCTION();
-			unsigned char outBuf[16]; //MD5 digest size
+			unsigned char outBuf[16]; // MD5 digest size
 			MD5(reinterpret_cast<const unsigned char*>(data.c_str()), data.size(), outBuf);
 
 			std::stringstream buffer;
@@ -184,6 +189,7 @@ namespace Acorn::Utils
 				buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
 			}
 			return buffer.str();
+			return "";
 		}
 
 	}

@@ -1,7 +1,9 @@
 #include "SceneHierarchy.h"
 #include "ecs/components/Components.h"
 #include "ecs/components/TSCompiler.h"
-#include "ecs/components/V8Script.h"
+#ifndef NO_SCRIPTING
+	#include "ecs/components/V8Script.h"
+#endif // !NO_SCRIPTING
 
 #include <filesystem>
 #include <fmt/core.h>
@@ -601,6 +603,7 @@ namespace Acorn
 				ImGui::DragFloat("Fade", &circleRenderer.Fade, 0.00025f, 0.0f, 1.0f, "%.6f");
 			});
 
+#ifndef NO_SCRIPTING
 		DrawComponent<Components::JSScript>(
 			"JS Script", entity,
 			[&](Components::JSScript& jsScript)
@@ -677,7 +680,7 @@ namespace Acorn
 					ImGui::PopID();
 				}
 			});
-
+#endif
 		DrawComponent<Components::RigidBody2d>(
 			"RigidBody", entity,
 			[&](Components::RigidBody2d& rigidBody)

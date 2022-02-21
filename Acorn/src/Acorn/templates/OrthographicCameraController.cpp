@@ -1,19 +1,18 @@
 #include "acpch.h"
 
-#include "OrthographicCameraController.h"
 #include "input/Input.h"
 #include "input/KeyCodes.h"
+#include "templates/OrthographicCameraController.h"
 
-#include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
 
 namespace Acorn
 {
 
 	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
-		: m_DoRotate(rotation), m_Camera(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top), m_AspectRatio(aspectRatio), m_Bounds({ -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel })
+		: m_DoRotate(rotation), m_Camera(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top), m_AspectRatio(aspectRatio), m_Bounds({-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel})
 	{
-
 	}
 
 	void OrthographicCameraController::OnUpdate(Timestep ts)
@@ -95,7 +94,7 @@ namespace Acorn
 	void OrthographicCameraController::ResizeBounds(float width, float height)
 	{
 		m_AspectRatio = width / height;
-		m_Bounds = { -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel };
+		m_Bounds = {-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel};
 		m_Camera.SetProjection(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top);
 	}
 
@@ -105,9 +104,8 @@ namespace Acorn
 
 	void OrthographicCameraController::RecalculateView()
 	{
-		m_Bounds = { -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel };
+		m_Bounds = {-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel};
 		m_Camera.SetProjection(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top);
-
 	}
 
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)

@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "EditorCamera.h"
+#include "renderer/EditorCamera.h"
 
 #include "input/Input.h"
 #include "input/KeyCodes.h"

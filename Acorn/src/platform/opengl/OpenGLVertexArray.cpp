@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "OpenGLVertexArray.h"
+#include "platform/opengl/OpenGLVertexArray.h"
 
 #include "Acorn/renderer/Buffer.h"
 

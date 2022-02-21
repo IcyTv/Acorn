@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "Renderer2D.h"
+#include "renderer/2d/Renderer2D.h"
 #include "renderer/BatchRenderer.h"
 #include "renderer/RenderCommand.h"
 #include "renderer/Shader.h"
@@ -19,7 +19,7 @@ namespace Acorn::ext2d
 		float TexIndex;
 		float TilingFactor;
 
-		//Editor only
+		// Editor only
 		int EntityId = -1;
 	};
 

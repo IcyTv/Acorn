@@ -2,7 +2,7 @@
 #include "core/Core.h"
 #include "debug/FrameProfiler.h"
 
-#include "OpenGLFrameProfiler.h"
+#include "platform/opengl/OpenGLFrameProfiler.h"
 
 #include <glad/glad.h>
 
