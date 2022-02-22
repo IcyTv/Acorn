@@ -23,7 +23,10 @@ int main(int argc, char** argv)
 	// AC_PROFILE_END_SESSION();
 
 	// AC_PROFILE_BEGIN_SESSION("Shutdown", "AcornProfile-Shutdown.json");
-	delete application;
+	{
+		AC_PROFILE_SCOPE("Application Shutdown");
+		delete application;
+	}
 	// AC_PROFILE_END_SESSION();
 }
 
