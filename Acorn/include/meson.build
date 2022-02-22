@@ -74,4 +74,4 @@ headers = files(
 	'Acorn.h'
 )
 
-install_headers(headers)
+install_subdir('.', install_dir: 'include', strip_directory: true)
