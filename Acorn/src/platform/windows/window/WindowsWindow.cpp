@@ -10,7 +10,7 @@
 
 namespace Acorn
 {
-	static bool s_GLFWInitialized = false;
+	static uint8_t s_GLFWWindowCount = 0;
 
 	void GLFWErrorCallback(int errorCode, const char* message)
 	{
@@ -30,6 +30,8 @@ namespace Acorn
 
 	WindowsWindow::~WindowsWindow()
 	{
+		AC_PROFILE_FUNCTION();
+
 		Shutdown();
 	}
 
@@ -60,12 +62,16 @@ namespace Acorn
 
 	void WindowsWindow::Maximize()
 	{
+		AC_PROFILE_FUNCTION();
+
 		glfwMaximizeWindow(m_Window);
 		m_Data.Maximized = true;
 	}
 
 	void WindowsWindow::UnMaximize()
 	{
+
+		AC_PROFILE_FUNCTION();
 		glfwRestoreWindow(m_Window);
 		m_Data.Maximized = false;
 	}
@@ -81,13 +87,11 @@ namespace Acorn
 
 		AC_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-		if (!s_GLFWInitialized)
+		if (s_GLFWWindowCount == 0)
 		{
-			// TODO glfwTerminate on system shutdown
 			int success = glfwInit();
 			AC_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
-			s_GLFWInitialized = true;
 		}
 
 #ifdef AC_DEBUG
@@ -98,7 +102,10 @@ namespace Acorn
 			glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		AC_CORE_ASSERT(m_Window, "Could not create window!");
+		s_GLFWWindowCount++;
 
+		// FIXME this should be a generic context
 		m_Context = CreateScope<OpenGLContext>(m_Window);
 
 		m_Context->Init();
@@ -196,6 +203,18 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		// Delete the "context" before destroying the window, becuase we need the OpenGL context to be valid
+		// In order to release the resources
+		m_Context.reset();
+
 		glfwDestroyWindow(m_Window);
+		s_GLFWWindowCount--;
+
+		if (s_GLFWWindowCount == 0)
+		{
+
+			AC_CORE_INFO("No windows, Shutting down GLFW!");
+			glfwTerminate();
+		}
 	}
 }
