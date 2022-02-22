@@ -17,8 +17,19 @@ Select Modify, then Change and next. Here you need to make sure `Debugging tools
 
 ### 1. Setup
 
-- Native Linux Builds are not supported yet, but WILL come in the future. The build system works, but we do not have
-  any backend to render. You can likely hack it, since linux supports glfw.
+>- Native Linux Builds are not supported yet, but WILL come in the future. The build system works, but we do not have
+>  any backend to render. You can likely hack it, since linux supports glfw.
+
+You will need at least `meson`, `ninja` and a [Compiler of your choice](#Compilers) installed.
+If you want to enable scripting, you will also need `depot_tools` from google.
+
+#### Compilers
+
+If you are using Windows, install either Visual Studio (from 2017 on) or Visual Studio Build Tools.
+
+## Contributing
+
+If you want to contribute, please read the [contributing guide](https://github.com/IcyTv/Acorn/tree/master/CONTRIBUTING.md)
 
 ## Copyright
 
