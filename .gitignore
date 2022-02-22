@@ -35,3 +35,6 @@ build.ninja
 
 # Misc
 compile_commands.json
+
+.idea
+acorn-project.yaml
