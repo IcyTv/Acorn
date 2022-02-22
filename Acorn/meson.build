@@ -7,7 +7,7 @@ if get_option('profiling')
 	compile_args += ',-DAC_PROFILE=1'
 	compile_args += ',-DENABLE_TRACY'
 endif
-if get_option('buildtype') == 'debug'
+if get_option('debug')
 	compile_args += ',-DAC_DEBUG=1'
 	compile_args += ',-DAC_ENABLE_ASSERTS'
 endif
