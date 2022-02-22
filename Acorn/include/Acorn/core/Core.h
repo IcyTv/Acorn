@@ -25,13 +25,14 @@
 #define BIT(x) (1 << x)
 
 #ifdef AC_ENABLE_ASSERTS
-	#include "debug-trap/debug-trap.h"
+	// #include "debug-trap/debug-trap.h"
+	#include "utils/debugbreak.h"
 	#define AC_ASSERT(x, ...)          \
 		{                              \
 			if (!(x))                  \
 			{                          \
 				AC_ERROR(__VA_ARGS__); \
-				psnip_trap();          \
+				debug_break();         \
 			}                          \
 		}
 	#define AC_CORE_ASSERT(x, ...)          \
@@ -39,7 +40,7 @@
 			if (!(x))                       \
 			{                               \
 				AC_CORE_ERROR(__VA_ARGS__); \
-				psnip_trap();               \
+				debug_break();              \
 			}                               \
 		}
 	#define AC_ASSERT_NOT_REACHED() AC_CORE_ASSERT(false, "Code should not reach here!", __FILE__, __LINE__)
@@ -56,8 +57,9 @@
 	__pragma(warning(pop))
 
 #ifdef AC_DEBUG
-	#include <debug-trap/debug-trap.h>
-	#define AC_CORE_BREAK() psnip_trap()
+	// #include <debug-trap/debug-trap.h>
+	#include "utils/debugbreak.h"
+	#define AC_CORE_BREAK() debug_break()
 #else
 	#define AC_CORE_BREAK()
 #endif
