@@ -9,6 +9,8 @@
 
 #include <TracyOpenGL.hpp>
 
+#include "core/Platform.h"
+
 namespace Acorn
 {
 	OpenGLAsyncTextureLoader::OpenGLAsyncTextureLoader(const std::string& path, int width, int height)
@@ -216,6 +218,8 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		TracyGpuZone("OpenGLTexture2d::~OpenGLTexture2d");
+
+		AC_CORE_ASSERT(Platform::GetCurrentContext(), "No context to delete texture from!");
 
 		glDeleteTextures(1, &m_RendererId);
 	}

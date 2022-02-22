@@ -58,6 +58,7 @@ namespace Acorn
 	Application::~Application()
 	{
 		AC_PROFILE_FUNCTION();
+		Renderer::ShutDown();
 	}
 
 	void Application::Run()
