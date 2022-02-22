@@ -14,3 +14,13 @@ imguizmo_inc = include_directories('ImGuizmo')
 
 imguizmo_lib = static_library('imguizmo', imguizmo_files, include_directories: imguizmo_inc, cpp_args: '-w', dependencies: [imgui])
 imguizmo = declare_dependency(include_directories: imguizmo_inc, link_with: imguizmo_lib)
+
+v8pp_files = files(
+	# 'v8pp/v8pp/class.cpp',
+	# 'v8pp/v8pp/context.cpp',
+	# 'v8pp/v8pp/version.cpp',
+)
+v8pp_inc = include_directories('v8pp')
+
+# v8pp_lib = static_library('v8pp', include_directories: v8pp_inc, cpp_args: '-w', dependencies: [v8])
+v8pp = declare_dependency(include_directories: v8pp_inc)

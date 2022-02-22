@@ -1,8 +1,8 @@
 #include "Tracy.hpp"
 #include "acpch.h"
 
-#include "V8Import.h"
 #include "utils/FileUtils.h"
+#include "utils/v8/V8Import.h"
 #include "v8pp/convert.hpp"
 
 #include <magic_enum.hpp>
@@ -154,14 +154,14 @@ namespace Acorn
 
 		v8::Context::Scope context_scope(cx);
 
-		//Check cache
+		// Check cache
 		if (s_Data.CompileCache.find(md5Hash) != s_Data.CompileCache.end() && std::filesystem::exists(s_Data.CompileCache[md5Hash].CachePath))
 		{
 			AC_PROFILE_SCOPE("Cache Hit");
 
 			AC_CORE_ASSERT(s_Data.CompileCache[md5Hash].Type == type, "Cache type mismatch");
 
-			//Load from cache
+			// Load from cache
 			std::filesystem::path cachePath = s_Data.CompileCache[md5Hash].CachePath;
 			// std::basic_ifstream<uint8_t> cacheFile(cachePath.string(), std::ios::binary);
 			uint8_t* cacheData;
@@ -173,7 +173,7 @@ namespace Acorn
 
 				errno_t err;
 
-				//NOTE this is a lot faster at -O0, but maybe ifstream is just as fast at -O3?
+				// NOTE this is a lot faster at -O0, but maybe ifstream is just as fast at -O3?
 				err = fopen_s(&cacheFile, cachePath.string().c_str(), "rb");
 
 				AC_CORE_ASSERT(cacheFile, "Could not open cache file!");
@@ -212,7 +212,7 @@ namespace Acorn
 		{
 			AC_PROFILE_SCOPE("Cache Miss");
 			v8::ScriptCompiler::Source source(vcode, origin);
-			//Compile
+			// Compile
 
 			v8::MaybeLocal<v8::Module> mod;
 			if (type == ModuleType::ES6)
@@ -297,7 +297,7 @@ namespace Acorn
 		}
 		else if (std::filesystem::exists("res/scripts/builtins/" + path.string()))
 		{
-			//TODO get module path and look for siblings/resolve path from it
+			// TODO get module path and look for siblings/resolve path from it
 			std::filesystem::path newPath = "res/scripts/builtins/";
 			newPath /= path;
 
@@ -313,7 +313,7 @@ namespace Acorn
 		}
 		else
 		{
-			//TODO if folder check for index.js
+			// TODO if folder check for index.js
 			AC_CORE_TRACE("Tried {}", path.string());
 			AC_CORE_TRACE("Tried {}", "res/scripts/builtins/" + path.string());
 			AC_CORE_TRACE("Tried {}", requestPath / path);
@@ -348,7 +348,7 @@ namespace Acorn
 
 	v8::Local<v8::Value> V8Import::execModule(v8::Local<v8::Module> mod, v8::Local<v8::Context> cx, bool nsObject)
 	{
-		//TODO speed up
+		// TODO speed up
 		AC_PROFILE_FUNCTION();
 		v8::Local<v8::Value> retVal;
 		{
@@ -393,9 +393,11 @@ namespace Acorn
 			.Check();
 	}
 
-	v8::MaybeLocal<v8::Promise> V8Import::callDynamic(v8::Local<v8::Context> context,
-													  v8::Local<v8::ScriptOrModule> referrer,
-													  v8::Local<v8::String> specifier)
+	v8::MaybeLocal<v8::Promise> V8Import::callDynamic(
+		v8::Local<v8::Context> context,
+		v8::Local<v8::ScriptOrModule> referrer,
+		v8::Local<v8::String> specifier,
+		v8::Local<v8::FixedArray> import_assertions)
 	{
 		AC_PROFILE_FUNCTION();
 		v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
@@ -412,8 +414,8 @@ namespace Acorn
 	void V8Import::BindImport(v8::Isolate* isolate)
 	{
 		AC_PROFILE_FUNCTION();
-		//TODO use synthetic module to bind module.export?
-		// Binding dynamic import() callback
+		// TODO use synthetic module to bind module.export?
+		//  Binding dynamic import() callback
 		isolate->SetHostImportModuleDynamicallyCallback(callDynamic);
 
 		// Binding metadata loader callback

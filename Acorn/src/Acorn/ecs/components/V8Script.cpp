@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "V8Script.h"
+#include "ecs/components/V8Script.h"
 
 #include "core/Application.h"
 #include "debug/Timer.h"
@@ -39,9 +39,9 @@
 #include <v8pp/module.hpp>
 #include <v8pp/object.hpp>
 
-#include <FileWatch.hpp>
+// #include <FileWatch.hpp>
 
-#include "V8Script_internals.h"
+#include "ecs/components/V8Script_internals.h"
 
 #define COMPONENT_SWITCH_HAS(name) COMPONENT_SWITCH_HAS2(name, name)
 
@@ -711,25 +711,26 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		AC_CORE_TRACE("Watching {}", m_TSFilePath);
-		filewatch::FileWatch<std::string> watch(
-			m_TSFilePath,
-			[](const std::string& path, const filewatch::Event changeType)
-			{
-				AC_PROFILE_FUNCTION();
-				if (changeType == filewatch::Event::modified)
-				{
-					AC_CORE_INFO("File {} changed!", path);
-					V8Script* script = s_Scripts[path];
-					if (script)
-					{
-						script->Compile();
-					}
-					else
-					{
-						AC_CORE_WARN("Modified Event for unknown script {}!", path);
-					}
-				}
-			});
+		// filewatch::FileWatch<std::string> watch(
+		// 	m_TSFilePath,
+		// 	[](const std::string& path, const filewatch::Event changeType)
+		// 	{
+		// 		AC_PROFILE_FUNCTION();
+		// 		if (changeType == filewatch::Event::modified)
+		// 		{
+		// 			AC_CORE_INFO("File {} changed!", path);
+		// 			V8Script* script = s_Scripts[path];
+		// 			if (script)
+		// 			{
+		// 				script->Compile();
+		// 			}
+		// 			else
+		// 			{
+		// 				AC_CORE_WARN("Modified Event for unknown script {}!", path);
+		// 			}
+		// 		}
+		// 	});
+		AC_ASSERT_NOT_REACHED();
 	}
 
 	void V8Script::OnUpdate(Timestep ts, Camera* camera)

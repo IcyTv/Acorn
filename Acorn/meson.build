@@ -21,10 +21,10 @@ cmake = import('cmake')
 threads = dependency('threads')
 
 # 'Adding v8 first, because it is the most expensive'
-v8 = dependency('v8', required: false)
+v8 = dependency('v8', required: get_option('v8'), allow_fallback: true)
 
 if not v8.found()
-	add_global_arguments('-DNO_SCRIPTING', language: 'cpp')
+	add_project_arguments('-DNO_SCRIPTING', language: 'cpp')
 endif
 
 glm = dependency('glm')
@@ -102,6 +102,22 @@ dependencies = [
 	bcrypt,
 	openssl,
 ]
+
+if v8.found()
+	dependencies += [
+		v8pp,
+		v8,
+	]
+endif
+
+if host_machine.system() == 'windows'
+	dependencies += [
+		compiler.find_library('winmm'),
+		compiler.find_library('dbghelp'),
+		compiler.find_library('shlwapi'),
+	]
+endif
+
 
 subdir('include')
 subdir('src')

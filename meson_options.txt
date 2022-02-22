@@ -3,3 +3,9 @@ option(
 	type: 'boolean',
 	value: false
 )
+
+option(
+	'v8',
+	type: 'feature',
+	value: 'auto'
+)

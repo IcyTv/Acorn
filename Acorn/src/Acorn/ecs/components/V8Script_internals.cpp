@@ -1,8 +1,8 @@
 #include "acpch.h"
 
-#include "V8Script_internals.h"
+#include "ecs/components/V8Script_internals.h"
 
-#include "V8Script.h"
+#include "ecs/components/V8Script.h"
 
 #include <glm/glm.hpp>
 
