@@ -13,8 +13,24 @@
 		},
 		{
 			"label": "Build Whole Project",
-			"type": "shell",
-			"command": "meson compile -C builddir",
+			"type": "process",
+			"command": "meson",
+			"args": [
+				"compile",
+				"-C",
+				"builddir"
+			],
+			"problemMatcher": {
+				"base": "$msCompile",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}/builddir"
+				],
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
