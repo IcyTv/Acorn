@@ -4,16 +4,22 @@ compiler = meson.get_compiler('cpp')
 compile_args = ''
 compile_args += '-DAcorn_EXPORTS=1'
 if get_option('profiling')
-	compile_args += ',-DAC_PROFILE=1'
-	compile_args += ',-DENABLE_TRACY'
+	# compile_args += ',-DAC_PROFILE=1'
+	add_project_arguments('-DAC_PROFILE=1', language: 'cpp')
+	# compile_args += ',-DENABLE_TRACY'
+	add_project_arguments('-DENABLE_TRACY', language: 'cpp')
 endif
 if get_option('debug')
-	compile_args += ',-DAC_DEBUG=1'
-	compile_args += ',-DAC_ENABLE_ASSERTS'
+	# compile_args += ',-DAC_DEBUG=1'
+	add_project_arguments('-DAC_DEBUG=1', language: 'cpp')
+	# compile_args += ',-DAC_ENABLE_ASSERTS'
+	add_project_arguments('-DAC_ENABLE_ASSERTS', language: 'cpp')
 endif
 if get_option('default_library') == 'static'
 	compile_args += ',-DACORN_STATIC_DEFINE=1'
 endif
+
+message('compile_args: ' + compile_args)
 
 cmake = import('cmake')
 
