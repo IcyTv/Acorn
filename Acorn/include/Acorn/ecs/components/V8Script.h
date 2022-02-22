@@ -127,24 +127,6 @@ namespace Acorn
 			m_Scripts.push_back(script);
 		}
 
-		void Stop()
-		{
-			m_KeepRunning = false;
-			if (!m_KeepRunning)
-			{
-				Shutdown();
-			}
-		}
-
-		void KeepRunning()
-		{
-			m_KeepRunning = true;
-			if (!m_Running)
-			{
-				Initialize();
-			}
-		}
-
 		void SetData(const V8Data& data)
 		{
 			m_Data = data;
@@ -158,10 +140,6 @@ namespace Acorn
 		void RemoveScript(V8Script* script)
 		{
 			m_Scripts.erase(std::remove(m_Scripts.begin(), m_Scripts.end(), script), m_Scripts.end());
-			if (m_Scripts.empty() && m_Running)
-			{
-				Shutdown();
-			}
 		}
 
 		inline bool isRunning() const { return m_Running; }
@@ -175,7 +153,6 @@ namespace Acorn
 		void Shutdown();
 
 	private:
-		bool m_KeepRunning = false;
 		bool m_Running = false;
 
 		V8Data m_Data;
