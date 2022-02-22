@@ -9,12 +9,17 @@ namespace Acorn
 
 	float WindowsPlatform::GetTimeImpl() const
 	{
-		return (float) glfwGetTime();
+		return (float)glfwGetTime();
 	}
 
 	const char* WindowsPlatform::GetNameImpl() const
 	{
 		return "OpenGl/GLFW";
+	}
+
+	void* WindowsPlatform::GetCurrentContextImpl()
+	{
+		return (void*)glfwGetCurrentContext();
 	}
 
 }
