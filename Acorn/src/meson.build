@@ -9,9 +9,6 @@ sources = files(
 	'Acorn/ecs/components/Components.cpp',
 	'Acorn/ecs/components/Rigidbody.cpp',
 	'Acorn/ecs/components/SceneCamera.cpp',
-	# 'Acorn/ecs/components/TSCompiler.cpp',
-	# 'Acorn/ecs/components/V8Script_internals.cpp',
-	# 'Acorn/ecs/components/V8Script.cpp',
 	'Acorn/ecs/Entity.cpp',
 	'Acorn/ecs/Scene.cpp',
 	'Acorn/gui/ImGuiBuild.cpp',
@@ -36,7 +33,6 @@ sources = files(
 	'Acorn/renderer/VertexArray.cpp',
 	'Acorn/serialize/Serializer.cpp',
 	'Acorn/templates/OrthographicCameraController.cpp',
-	# 'Acorn/utils/v8/V8Import.cpp',
 	'Acorn/utils/FileUtils.cpp',
 	'Acorn/utils/MathUtils.cpp',
 	'Acorn/utils/PlatformCapabilities.cpp',
@@ -55,6 +51,15 @@ sources = files(
 	'platform/windows/WindowsPlatform.cpp',
 	'platform/windows/WindowsPlatformUtils.cpp'
 )
+
+if v8.found()
+	sources += [
+		'Acorn/ecs/components/V8Script_internals.cpp',
+		'Acorn/ecs/components/V8Script.cpp',
+		'Acorn/utils/v8/V8Import.cpp',
+		'Acorn/ecs/components/TSCompiler.cpp',
+	]
+endif
 
 libacorn = library('acorn', 
 	sources, 

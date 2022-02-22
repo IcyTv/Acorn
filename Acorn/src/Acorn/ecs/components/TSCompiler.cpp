@@ -1,15 +1,15 @@
 #include "acpch.h"
 
-#include "TSCompiler.h"
+#include "ecs/components/TSCompiler.h"
 
-#include "V8Script.h"
 #include "core/Core.h"
 #include "core/Log.h"
 #include "debug/Instrumentor.h"
+#include "ecs/components/V8Script.h"
 #include "utils/FileUtils.h"
 #include "utils/v8/V8Import.h"
 
-#include "swc.hpp"
+// #include "swc.hpp"
 
 #include "v8pp/convert.hpp"
 #include "v8pp/module.hpp"
@@ -20,7 +20,7 @@
 #include <v8.h>
 #include <v8pp/context.hpp>
 
-//Based on https://gist.github.com/surusek/4c05e4dcac6b82d18a1a28e6742fc23e
+// Based on https://gist.github.com/surusek/4c05e4dcac6b82d18a1a28e6742fc23e
 
 namespace Acorn
 {
@@ -28,6 +28,10 @@ namespace Acorn
 	TSScriptData TSCompiler::Compile(const std::string& filepath)
 	{
 		AC_PROFILE_FUNCTION();
+
+		AC_ASSERT_NOT_REACHED();
+
+#if 0
 
 		AC_CORE_ASSERT(std::filesystem::exists(filepath), "File not found");
 
@@ -41,7 +45,7 @@ namespace Acorn
 		{
 			AC_PROFILE_SCOPE("Swc GetTypes");
 			ClassParamArrayTuple res = Acorn::getTypes(reinterpret_cast<const int8_t*>(filepath.c_str()));
-			AC_CORE_ASSERT(res.ClassParams, "Failed to get types!"); //Nullptr if failed
+			AC_CORE_ASSERT(res.ClassParams, "Failed to get types!"); // Nullptr if failed
 
 			AC_CORE_INFO("ClassParameters: {} {}", (void*)res.ClassParams, res.Length);
 
@@ -89,7 +93,9 @@ namespace Acorn
 				data.Fields.emplace(std::string((const char*)item.Name), field);
 			}
 		}
-
 		return data;
+#else
+		return {};
+#endif
 	}
 }

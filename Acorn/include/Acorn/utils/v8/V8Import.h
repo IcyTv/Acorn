@@ -35,12 +35,12 @@ namespace Acorn
 	class V8Import
 	{
 	public:
-		//TODO cache compiled module results...
-		//TODO cache isolate for reuse with multiple scripts?
+		// TODO cache compiled module results...
+		// TODO cache isolate for reuse with multiple scripts?
 		struct CompilerData
 		{
-			//NOTE maybe just save unsigned char*
-			//Map hash to cache file path
+			// NOTE maybe just save unsigned char*
+			// Map hash to cache file path
 			std::unordered_map<std::string, ModuleData> CompileCache;
 		};
 
@@ -55,7 +55,7 @@ namespace Acorn
 
 		static v8::MaybeLocal<v8::Module> callResolve(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer);
 		static void callMeta(v8::Local<v8::Context> context, v8::Local<v8::Module> module, v8::Local<v8::Object> meta);
-		static v8::MaybeLocal<v8::Promise> callDynamic(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier);
+		static v8::MaybeLocal<v8::Promise> callDynamic(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions);
 
 		static void BindImport(v8::Isolate* isolate);
 	};
