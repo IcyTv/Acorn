@@ -483,6 +483,11 @@ namespace Acorn
 	{
 	}
 
+	V8Engine::~V8Engine()
+	{
+		Shutdown();
+	}
+
 	void V8Engine::Initialize()
 	{
 		AC_PROFILE_FUNCTION();
@@ -504,20 +509,12 @@ namespace Acorn
 	void V8Engine::Shutdown()
 	{
 		AC_PROFILE_FUNCTION();
-		if (!m_KeepRunning)
-		{
-			v8::V8::Dispose();
-			v8::V8::ShutdownPlatform();
-			m_Running = false;
-			m_Platform.reset();
-			V8Import::Save();
-		}
-	}
 
-	V8Engine::~V8Engine()
-	{
-		m_KeepRunning = false;
-		Shutdown();
+		v8::V8::Dispose();
+		v8::V8::ShutdownPlatform();
+		m_Running = false;
+		m_Platform.reset();
+		V8Import::Save();
 	}
 
 	//===============================================================================================//
@@ -546,7 +543,9 @@ namespace Acorn
 
 	V8Script::~V8Script()
 	{
-		Dispose();
+		m_Isolate->Dispose();
+		m_Isolate = nullptr;
+		V8Engine::instance().RemoveScript(this);
 
 		s_Scripts.erase(s_Scripts.find(m_TSFilePath));
 	}
@@ -554,11 +553,17 @@ namespace Acorn
 	// TODO ts->js filename interop
 	void V8Script::Load(Entity entity)
 	{
+		if (m_Isolate)
+		{
+			return;
+		}
+
 		AC_PROFILE_FUNCTION();
 		V8Engine::instance().AddScript(this);
 
 		v8::Isolate::CreateParams create_params;
 		create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+
 		m_Isolate = v8::Isolate::New(create_params);
 
 		std::string sourceCode = Utils::File::ReadFile(m_JSFilePath);
@@ -697,8 +702,11 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		AC_CORE_INFO("V8 Isolate {} != {}", (void*)m_Isolate, (void*)NULL);
-		m_Isolate = nullptr;
-		V8Engine::instance().RemoveScript(this);
+		// FIXME we can do better
+		//  Keep the isolate alive until the end of the program
+		//   m_Isolate->Dispose();
+		//   m_Isolate = nullptr;
+		// V8Engine::instance().RemoveScript(this);
 	}
 
 	void V8Script::Compile()

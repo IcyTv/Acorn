@@ -271,7 +271,6 @@ namespace Acorn
 		// Setup v8
 #ifndef NO_SCRIPTING
 
-		V8Engine::instance().KeepRunning();
 		auto view = m_Registry.view<Components::JSScript>();
 		for (auto entity : view)
 		{
