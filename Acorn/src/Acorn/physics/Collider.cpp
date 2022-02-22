@@ -24,6 +24,9 @@ namespace Acorn
 			AC_PROFILE_FUNCTION();
 			b2Fixture* fixture = static_cast<b2Fixture*>(m_RuntimeFixture);
 			b2Shape* shape = static_cast<b2Shape*>(fixture->GetShape());
+
+			AC_CORE_ASSERT(fixture && shape, "Fixture or shape is null!");
+
 			return shape->TestPoint(fixture->GetBody()->GetTransform(), b2Vec2(point.x, point.y));
 		}
 
