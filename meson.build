@@ -3,7 +3,8 @@ project('Acorn', 'cpp',
 	license: 'MIT', 
 	default_options: [
 		'cpp_std=c++20',
-		'default_library=static'
+		'default_library=static',
+		'b_vscrt=static_from_buildtype'
 	]
 )
 
