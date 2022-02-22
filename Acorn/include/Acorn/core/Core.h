@@ -43,7 +43,7 @@
 				debug_break();              \
 			}                               \
 		}
-	#define AC_ASSERT_NOT_REACHED() AC_CORE_ASSERT(false, "Code should not reach here!", __FILE__, __LINE__)
+	#define AC_ASSERT_NOT_REACHED() AC_CORE_ASSERT(false, "Code should not reach here {}:{}!", __FILE__, __LINE__)
 #else
 	#define AC_ASSERT(x, ...)
 	#define AC_CORE_ASSERT(x, ...)
