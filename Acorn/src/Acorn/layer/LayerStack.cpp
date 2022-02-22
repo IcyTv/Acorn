@@ -1,5 +1,6 @@
-#include "layer/LayerStack.h"
 #include "acpch.h"
+
+#include "layer/LayerStack.h"
 
 namespace Acorn
 {
@@ -12,6 +13,8 @@ namespace Acorn
 	LayerStack::~LayerStack()
 	{
 		AC_PROFILE_FUNCTION();
+
+		AC_CORE_INFO("Destroying Layer Stack");
 
 		for (Layer* layer : m_Layers)
 		{

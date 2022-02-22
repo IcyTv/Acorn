@@ -99,6 +99,15 @@ namespace Acorn::ext2d
 	void Renderer::ShutDown()
 	{
 		AC_PROFILE_FUNCTION();
+
+		s_Data.WhiteTexture.reset();
+		s_Data.TextureShader.reset();
+		s_Data.CircleShader.reset();
+
+		s_Data.QuadRenderer.reset();
+		s_Data.CircleRenderer.reset();
+
+		s_Data.CameraUniformBuffer.reset();
 	}
 
 	void Renderer::BeginScene(const EditorCamera& camera)

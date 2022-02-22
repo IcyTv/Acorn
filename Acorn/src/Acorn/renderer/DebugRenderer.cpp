@@ -156,6 +156,21 @@ namespace Acorn
 
 		void Renderer::ShutDown()
 		{
+			AC_PROFILE_FUNCTION();
+
+			s_Data.BasicShader.reset();
+			s_Data.BillboardShader.reset();
+			s_Data.CircleShader.reset();
+
+			s_Data.CircleRenderer.reset();
+			s_Data.LineRenderer.reset();
+			s_Data.QuadRenderer.reset();
+
+			s_Data.TextureMap.clear();
+			s_Data.IconTexture.reset();
+
+			s_Data.CameraUniform.reset();
+			s_Data.BillboardUniform.reset();
 		}
 
 		void Renderer::Begin(const EditorCamera& camera)

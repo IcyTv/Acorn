@@ -1,9 +1,10 @@
-#include "Tracy.hpp"
-#include "core/Core.h"
 #include "debug/FrameProfiler.h"
 
+#include "core/Core.h"
+#include "core/Platform.h"
 #include "platform/opengl/OpenGLFrameProfiler.h"
 
+#include <Tracy.hpp>
 #include <glad/glad.h>
 
 constexpr uint32_t IMAGE_WIDTH = 320;
@@ -34,6 +35,8 @@ namespace Acorn
 
 	OpenGLFrameProfiler::~OpenGLFrameProfiler()
 	{
+		AC_CORE_ASSERT(Platform::GetCurrentContext(), "No context to delete data from");
+
 		glDeleteTextures(4, m_FiTexture);
 		glDeleteFramebuffers(4, m_FiFrameBuffer);
 		glDeleteBuffers(4, m_FiPbo);

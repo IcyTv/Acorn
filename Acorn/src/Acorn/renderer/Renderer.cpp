@@ -19,6 +19,12 @@ namespace Acorn
 		debug::Renderer::Init();
 	}
 
+	void Renderer::ShutDown()
+	{
+		ext2d::Renderer::ShutDown();
+		debug::Renderer::ShutDown();
+	}
+
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 	{
 		AC_PROFILE_FUNCTION();
