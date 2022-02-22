@@ -5,6 +5,10 @@
 
 #endif
 
+#if AC_PROFILE && !defined(TRACY_ENABLE)
+	#error "Cannot profile without enabling Tracy"
+#endif
+
 // Enable v8 Pointer Compression, even if we're not using v8, since we can save on rebuilds...
 #define V8_COMPRESS_POINTERS 1
 
