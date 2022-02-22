@@ -12,5 +12,7 @@ namespace Acorn
 
 		virtual float GetTimeImpl() const override;
 		virtual const char* GetNameImpl() const override;
+		virtual void* GetCurrentContextImpl() override;
 	};
+
 }
