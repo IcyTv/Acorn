@@ -7,7 +7,7 @@ if get_option('profiling')
 	# compile_args += ',-DAC_PROFILE=1'
 	add_project_arguments('-DAC_PROFILE=1', language: 'cpp')
 	# compile_args += ',-DENABLE_TRACY'
-	add_project_arguments('-DENABLE_TRACY', language: 'cpp')
+	add_project_arguments('-DTRACY_ENABLE', language: 'cpp')
 endif
 if get_option('debug')
 	# compile_args += ',-DAC_DEBUG=1'
