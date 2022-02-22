@@ -335,7 +335,7 @@ namespace Acorn
 
 			s_Data.CircleRenderer->Draw(vertices);
 
-			constexpr float unit = 0.70710678118; // == sqrt(2) / 2;
+			constexpr float unit = 0.70710678118f; // == sqrt(2) / 2;
 
 			float r = collider.GetRadius() * transform.Scale.z;
 			glm::vec3 tl = transform.Translation + glm::vec3{-unit * r, unit * r, 0.0f} + glm::vec3(collider.GetOffset(), 0.0f);
