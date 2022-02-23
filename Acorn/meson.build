@@ -63,7 +63,7 @@ spvtools_opt_dep = dependency('SPIRV-Tools-opt', fallback: ['SPIRV-Tools', 'spir
 # spvtools_opt_dep = spirv_tools_proj.dependency('SPIRV-Tools-opt')
 
 glsllang_dep = dependency('glsllang', fallback: ['glslang', 'glslang_dep'], default_options: ['enable_hlsl=enabled', 'enable_opt=enabled'])
-bcrypt = compiler.find_library('bcrypt')
+
 
 # spirv_tools_proj = cmake.subproject('SPIRV-Tools')
 # spirv_tools_dep = spirv_tools_proj.dependency('SPIRV-Tools-shared')
@@ -105,8 +105,8 @@ dependencies = [
 	magic_enum,
 	stb_image,
 	shaderc,
-	bcrypt,
 	openssl,
+	pfd
 ]
 
 if v8.found()
@@ -121,6 +121,7 @@ if host_machine.system() == 'windows'
 		compiler.find_library('winmm'),
 		compiler.find_library('dbghelp'),
 		compiler.find_library('shlwapi'),
+		compiler.find_library('bcrypt'),
 	]
 endif
 
