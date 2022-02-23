@@ -12,6 +12,13 @@ add_global_arguments('-DACORN_STATIC_DEFINE', language: 'cpp')
 
 subdir('Acorn')
 subdir('OakTree')
+
+gtest = subproject('gtest')
+
+if get_option('enable-tests')
+	subdir('tests')
+endif
+
 python = import('python').find_installation('python3')
 
 # This regex excludes any sources from the third_party, tests, benchmarks, subprojects,
