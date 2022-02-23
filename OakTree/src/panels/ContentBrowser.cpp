@@ -1,11 +1,22 @@
 #include "ContentBrowser.h"
 
 #include "OakLayer.h"
+#include <Acorn.h>
 
 #include <future>
 #include <imgui.h>
 #include <queue>
 #include <unordered_set>
+
+#if defined(AC_PLATFORM_WINDOWS)
+typedef wchar_t path_t;
+	#define pathlen(path) wcslen(path)
+#elif defined(AC_PLATFORM_LINUX)
+typedef char path_t;
+	#define pathlen(path) strlen(path)
+#else
+	#error Unsupported Platform!
+#endif // defined(AC)
 
 namespace Acorn
 {
@@ -119,8 +130,8 @@ namespace Acorn
 
 			if (ImGui::BeginDragDropSource())
 			{
-				const wchar_t* wFileName = file.path().c_str();
-				ImGui::SetDragDropPayload(itemType, wFileName, wcslen(wFileName) * sizeof(wchar_t) + 2, ImGuiCond_Once);
+				const path_t* wFileName = file.path().c_str();
+				ImGui::SetDragDropPayload(itemType, wFileName, pathlen(wFileName) * sizeof(path_t) + 2, ImGuiCond_Once);
 				ImGui::Image((ImTextureID)(intptr_t)id, {thumbnailSize / 4, thumbnailSize / 4}, {0, 1}, {1, 0});
 				ImGui::EndDragDropSource();
 			}
