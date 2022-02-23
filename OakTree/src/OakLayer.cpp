@@ -33,8 +33,8 @@ namespace Acorn
 
 		FrameBufferSpecs ccSpecs;
 		ccSpecs.Attachments = {FBTF::RGBA8, FBTF::Depth};
-		ccSpecs.Width = m_CameraPreviewSize.x;
-		ccSpecs.Height = m_CameraPreviewSize.y;
+		ccSpecs.Width = static_cast<uint32_t>(m_CameraPreviewSize.x);
+		ccSpecs.Height = static_cast<uint32_t>(m_CameraPreviewSize.y);
 		m_CurrentCameraFramebuffer = Framebuffer::Create(ccSpecs);
 
 		// m_EditorScene = CreateRef<Scene>();
@@ -84,7 +84,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
-		//Resize
+		// Resize
 		if (FrameBufferSpecs specs = m_Framebuffer->GetSpecs();
 			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
 			(specs.Width != m_ViewportSize.x || specs.Height != m_ViewportSize.y))
@@ -106,10 +106,10 @@ namespace Acorn
 		RenderCommand::SetClearColor({0.1f, 0.1f, 0.2f, 1});
 		RenderCommand::Clear();
 
-		//Clear EntityId Attachment to -1
+		// Clear EntityId Attachment to -1
 		m_Framebuffer->ClearColorAttachment(1, -1);
 
-		//Update Scene
+		// Update Scene
 
 		if (m_SceneState == SceneState::Edit)
 			m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
@@ -136,7 +136,7 @@ namespace Acorn
 
 		m_Framebuffer->Unbind();
 
-		//Render Main Camera
+		// Render Main Camera
 		if (m_SceneState == SceneState::Edit)
 		{
 			Entity selected = m_PinnedEntity;
@@ -148,12 +148,12 @@ namespace Acorn
 				if (m_CurrentCameraFramebuffer->GetSpecs().Width != m_CameraPreviewSize.x ||
 					m_CurrentCameraFramebuffer->GetSpecs().Height != m_CameraPreviewSize.y)
 				{
-					//TODO aspect Ratio should be viewport aspect ratio?
+					// TODO aspect Ratio should be viewport aspect ratio?
 					m_CurrentCameraFramebuffer->Resize((uint32_t)m_CameraPreviewSize.x, (uint32_t)m_CameraPreviewSize.y);
 					auto& camera = selected.GetComponent<Components::CameraComponent>();
 					camera.Camera.SetViewportSize((uint32_t)m_CameraPreviewSize.x, (uint32_t)m_CameraPreviewSize.y);
 				}
-				//FIXME fix aspect Ratio?
+				// FIXME fix aspect Ratio?
 				m_CurrentCameraFramebuffer->Bind();
 				RenderCommand::SetClearColor({0.1f, 0.1f, 0.2f, 1});
 				RenderCommand::Clear();
@@ -287,7 +287,7 @@ namespace Acorn
 			ImGui::EndMenuBar();
 		}
 
-		//Panels
+		// Panels
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_LogPanel->OnImGuiRender();
 		m_ContentBrowserPanel->OnImGuiRender();
@@ -384,10 +384,10 @@ namespace Acorn
 				glm::mat4 transform = tc;
 				glm::vec3 originalRotation = tc.Rotation;
 
-				//Snapping
+				// Snapping
 				bool snap = Input::IsKeyPressed(KeyCode::LeftControl);
-				float snapValue = 0.5f; //Snap to 0.5 for everything else
-				//Snap to 45 degrees for rotation
+				float snapValue = 0.5f; // Snap to 0.5 for everything else
+				// Snap to 45 degrees for rotation
 				if (m_GizmoType == GizmoType::Rotate)
 				{
 					snapValue = 45.0f;
@@ -478,7 +478,7 @@ namespace Acorn
 	bool OakLayer::OnKeyPressed(KeyPressedEvent& e)
 	{
 		AC_PROFILE_FUNCTION();
-		//Shortcuts
+		// Shortcuts
 		if (e.GetRepeatCount() > 0)
 			return false;
 
@@ -512,7 +512,7 @@ namespace Acorn
 		{
 			switch (e.GetKeyCode())
 			{
-				//Gizmos
+				// Gizmos
 				case KeyCode::Q:
 					m_GizmoType = GizmoType::None;
 					return true;
@@ -526,7 +526,7 @@ namespace Acorn
 					m_GizmoType = GizmoType::Scale;
 					return true;
 
-				//Camera
+				// Camera
 				case KeyCode::F:
 				{
 					auto entity = m_SceneHierarchyPanel.GetSelectedEntity();
@@ -675,8 +675,8 @@ namespace Acorn
 
 		// static float initialLineHeight = ImGui::GetTextLineHeight();
 
-		//TODO figure this out
-		// ImGui::SetWindowFontScale(size / 16.0f - 0.2f);
+		// TODO figure this out
+		//  ImGui::SetWindowFontScale(size / 16.0f - 0.2f);
 		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
 		if (ImGui::Button(sceneStateIcon, ImVec2{size, size}))
 		{
