@@ -15,4 +15,25 @@ namespace Acorn
 	{
 	}
 
+	void Entity::MoveTransform(const glm::mat4& deltaMatrix)
+	{
+		AC_CORE_ASSERT(m_Scene != nullptr, "Scene is null");
+		AC_CORE_ASSERT(m_EntityHandle != entt::null, "Entity is null");
+		AC_CORE_ASSERT(HasComponent<Components::Transform>(), "Entity does not have component");
+
+		auto& selfTransform = GetComponent<Components::Transform>();
+		selfTransform.SetFromMatrix(deltaMatrix * selfTransform.GetTransform());
+
+		if (HasComponent<Components::ChildRelationship>())
+		{
+			auto& childComponent = GetComponent<Components::ChildRelationship>();
+
+			for (auto& child : childComponent.Entities)
+			{
+				// FIXME: If the component is a child of another entity, we should rotate the child based on the the parent's center.
+				child.MoveTransform(deltaMatrix);
+			}
+		}
+	}
+
 }
