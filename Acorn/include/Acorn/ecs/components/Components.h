@@ -14,6 +14,7 @@
 #include "ecs/Scene.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <magic_enum.hpp>
 
@@ -58,6 +59,19 @@ namespace Acorn
 				: Translation(translation), Rotation(rotation) {}
 			Transform(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
 				: Translation(translation), Rotation(rotation), Scale(scale) {}
+
+			void SetFromMatrix(const glm::mat4& matrix)
+			{
+				glm::vec3 scale, translation;
+				glm::quat rotation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+
+				Translation = translation;
+				Rotation = glm::eulerAngles(rotation);
+				Scale = scale;
+			}
 
 			glm::mat4 GetTransform() const
 			{
