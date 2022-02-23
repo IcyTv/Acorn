@@ -9,7 +9,6 @@
 
 namespace Acorn
 {
-
 	class Entity
 	{
 	public:
@@ -66,6 +65,14 @@ namespace Acorn
 
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
+
+		/**
+		 * @brief Move the transform of this entity by the given transform.
+		 *
+		 * @param deltaMatrix
+		 *  DeltaMatrix to move the transform by.
+		 */
+		void MoveTransform(const glm::mat4& deltaMatrix);
 
 		UUID GetUUID() { return GetComponent<Components::ID>().UUID; }
 		std::string GetName() { return GetComponent<Components::Tag>().TagName; }
