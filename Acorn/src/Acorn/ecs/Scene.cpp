@@ -292,16 +292,16 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 #ifndef NO_SCRIPTING
-		auto view = m_Registry.view<Components::JSScript>();
-		for (auto entity : view)
-		{
-			auto& script = view.get<Components::JSScript>(entity);
-			if (script.Script != nullptr)
-			{
-				script.Script->Dispose();
-			}
-		}
-		// TODO
+		// FIXME
+		// auto view = m_Registry.view<Components::JSScript>();
+		// for (auto entity : view)
+		// {
+		// 	auto& script = view.get<Components::JSScript>(entity);
+		// 	if (script.Script != nullptr)
+		// 	{
+		// 		script.Script->Dispose();
+		// 	}
+		// }
 		//  V8Engine::instance().Stop();
 
 #endif // !(NO_SCRIPTING)

@@ -29,7 +29,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
-		AC_ASSERT_NOT_REACHED();
+		// AC_ASSERT_NOT_REACHED();
 
 #if 0
 

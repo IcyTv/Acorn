@@ -510,6 +510,12 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 
+		for (auto it : m_Scripts)
+		{
+			it->Dispose();
+		}
+		m_Scripts.clear();
+
 		v8::V8::Dispose();
 		v8::V8::ShutdownPlatform();
 		m_Running = false;
@@ -704,9 +710,9 @@ namespace Acorn
 		AC_CORE_INFO("V8 Isolate {} != {}", (void*)m_Isolate, (void*)NULL);
 		// FIXME we can do better
 		//  Keep the isolate alive until the end of the program
-		//   m_Isolate->Dispose();
-		//   m_Isolate = nullptr;
-		// V8Engine::instance().RemoveScript(this);
+		m_Isolate->Dispose();
+		m_Isolate = nullptr;
+		V8Engine::instance().RemoveScript(this);
 	}
 
 	void V8Script::Compile()

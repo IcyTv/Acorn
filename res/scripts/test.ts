@@ -20,13 +20,13 @@ class Test extends ScriptSuperClass {
 	OnUpdate() {
 		let [x, y] = Input.GetMousePosition();
 		print(`Mouse position: ${x}, ${y}`);
-		if (this.#boxCollider.IsInside(new math.vec2(x, y))) {
-			print("Is Inside!");
-			this.#spriteRenderer.Color = new math.vec4(1, 0, 0, 1);
-		}
-		else {
-			this.#spriteRenderer.Color = this.#origColor;
-		}
+		// if (this.#boxCollider.IsInside(new math.vec2(x, y))) {
+		// 	print("Is Inside!");
+		// 	this.#spriteRenderer.Color = new math.vec4(1, 0, 0, 1);
+		// }
+		// else {
+		// 	this.#spriteRenderer.Color = this.#origColor;
+		// }
 
 		// if (Input.IsMouseButtonPressed(0) && !this.#isPressing) {
 		//     this.#isPressing = true;
