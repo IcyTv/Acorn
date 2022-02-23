@@ -17,7 +17,7 @@ namespace Acorn
 		~LogPanel() = default;
 
 		void Clear();
-		void AddLog(const char* fmt, ...) IM_FMTARGS(2);
+		void IM_FMTARGS(2) AddLog(const char* fmt, ...);
 		void OnImGuiRender();
 
 	protected:
