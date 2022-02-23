@@ -9,12 +9,12 @@
 
 namespace Acorn
 {
-	//It makes no sense to resize this, since we would have to reload the texture etc...
+	// It makes no sense to resize this, since we would have to reload the texture etc...
 	constexpr int TEXTURE_THUMB_SIZE = 128;
 
 	static std::queue<std::future<std::pair<std::string, Ref<Texture2d>>>> s_TextureLoadQueue;
 	static std::unordered_set<std::string> s_TextureLoading;
-	//To be changed
+	// To be changed
 	const std::filesystem::path s_AssetsDirectory = "res";
 
 	static std::pair<std::string, Ref<Texture2d>> LoadTexture(std::filesystem::path path)
@@ -34,7 +34,7 @@ namespace Acorn
 		m_JSFileIcon = Texture2d::Create("res/textures/icons/JSFile.png");
 	}
 
-	//TODO initialize on construction, add directory watch
+	// TODO initialize on construction, add directory watch
 	void ContentBrowserPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Content Browser");
@@ -101,7 +101,7 @@ namespace Acorn
 
 			ImGui::ImageButton((ImTextureID)(intptr_t)id, {thumbnailSize, thumbnailSize}, {0, 1}, {1, 0});
 
-			//TODO move to enum
+			// TODO move to enum
 			const char* itemType = "CONTENT_BROWSER_ASSET";
 
 			if (IsTexture(file))
@@ -110,7 +110,7 @@ namespace Acorn
 			}
 			else if (file.path().extension() == ".acorn")
 			{
-				//TODO
+				// TODO
 			}
 			else if (file.path().extension() == ".ts")
 			{
@@ -127,15 +127,17 @@ namespace Acorn
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
-				//TODO store file extension
+				// TODO store file extension
 				if (file.is_directory())
 				{
 					m_CurrentPath = file.path();
 				}
 				else if (file.path().extension() == ".ts")
 				{
-#ifdef AC_PLATFORM_WINDOWS
+#if defined(AC_PLATFORM_WINDOWS)
 					std::string command = "explorer";
+#elif defined(AC_PLATFORM_LINUX)
+					std::string command = "xdg-open";
 #else
 	#error Unknown platform
 #endif
@@ -172,7 +174,7 @@ namespace Acorn
 
 	uint32_t ContentBrowserPanel::GetTexturePreview(std::filesystem::path path)
 	{
-		//TODO move to thread
+		// TODO move to thread
 		std::string filename = path.string();
 		auto texture = m_TexturePreviews.find(filename);
 
