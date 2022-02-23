@@ -2,6 +2,8 @@
 
 #include "Acorn/core/Core.h"
 #include "Acorn/core/CoreConfig.h"
+#include "Acorn/core/Log.h"
+#include "Acorn/debug/Instrumentor.h"
 
 #include <algorithm>
 #include <functional>
@@ -22,10 +24,6 @@
 #if AC_PROFILE
 	#include <Tracy.hpp>
 #endif
-
-#include "Acorn/core/Log.h"
-
-#include "Acorn/debug/Instrumentor.h"
 
 #ifdef AC_PLATFORM_WINDOWS
 	#define NOMINMAX
