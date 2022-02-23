@@ -1,6 +1,6 @@
 #include "acpch.h"
 
-#include "platform/windows/window/WindowsWindow.h"
+#include "platform/glfw/window/GLFWWindow.h"
 
 #include "Acorn/events/ApplicationEvent.h"
 #include "Acorn/events/KeyEvent.h"
@@ -19,23 +19,23 @@ namespace Acorn
 
 	Window* Window::Create(const WindowProps& props)
 	{
-		return new WindowsWindow(props);
+		return new GLFWWindow(props);
 	}
 
-	WindowsWindow::WindowsWindow(const WindowProps& props)
+	GLFWWindow::GLFWWindow(const WindowProps& props)
 	{
 		AC_PROFILE_FUNCTION();
 		Init(props);
 	}
 
-	WindowsWindow::~WindowsWindow()
+	GLFWWindow::~GLFWWindow()
 	{
 		AC_PROFILE_FUNCTION();
 
 		Shutdown();
 	}
 
-	void WindowsWindow::OnUpdate()
+	void GLFWWindow::OnUpdate()
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -43,7 +43,7 @@ namespace Acorn
 		m_Context->SwapBuffers();
 	}
 
-	void WindowsWindow::SetVSync(bool enabled)
+	void GLFWWindow::SetVSync(bool enabled)
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -55,12 +55,12 @@ namespace Acorn
 		m_Data.VSync = enabled;
 	}
 
-	bool WindowsWindow::IsVSync() const
+	bool GLFWWindow::IsVSync() const
 	{
 		return m_Data.VSync;
 	}
 
-	void WindowsWindow::Maximize()
+	void GLFWWindow::Maximize()
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -68,7 +68,7 @@ namespace Acorn
 		m_Data.Maximized = true;
 	}
 
-	void WindowsWindow::UnMaximize()
+	void GLFWWindow::UnMaximize()
 	{
 
 		AC_PROFILE_FUNCTION();
@@ -76,7 +76,7 @@ namespace Acorn
 		m_Data.Maximized = false;
 	}
 
-	void WindowsWindow::Init(const WindowProps& props)
+	void GLFWWindow::Init(const WindowProps& props)
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -199,7 +199,7 @@ namespace Acorn
 									 data.EventCallback(event); });
 	}
 
-	void WindowsWindow::Shutdown()
+	void GLFWWindow::Shutdown()
 	{
 		AC_PROFILE_FUNCTION();
 
