@@ -2,13 +2,13 @@
 
 #include "core/Platform.h"
 
-#ifdef AC_PLATFORM_WINDOWS
+#if defined(AC_PLATFORM_WINDOWS) || defined(AC_PLATFORM_LINUX)
 	#include "platform/glfw/GLFWPlatform.h"
 #endif
 
 namespace Acorn
 {
-#ifdef AC_PLATFORM_WINDOWS
+#if defined(AC_PLATFORM_WINDOWS) || defined(AC_PLATFORM_LINUX)
 	Platform* Platform::s_Platform = new GLFWPlatform();
 #endif
 }
