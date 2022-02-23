@@ -5,9 +5,11 @@
 #include <filesystem>
 
 #include <GLFW/glfw3.h>
-#include <commdlg.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+
+#ifdef AC_PLATFORM_WINDOWS
+	#include <commdlg.h>
+	#define GLFW_EXPOSE_NATIVE_WIN32
+	#include <GLFW/glfw3native.h>
 
 namespace Acorn
 {
@@ -53,3 +55,5 @@ namespace Acorn
 		return std::string();
 	}
 }
+
+#endif

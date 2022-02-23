@@ -46,10 +46,10 @@ sources = files(
 	'platform/opengl/OpenGLTexture.cpp',
 	'platform/opengl/OpenGLUniformBuffer.cpp',
 	'platform/opengl/OpenGLVertexArray.cpp',
-	'platform/windows/input/WindowsInput.cpp',
-	'platform/windows/window/WindowsWindow.cpp',
-	'platform/windows/WindowsPlatform.cpp',
-	'platform/windows/WindowsPlatformUtils.cpp'
+	'platform/glfw/input/GLFWInput.cpp',
+	'platform/glfw/window/GLFWWindow.cpp',
+	'platform/glfw/GLFWPlatform.cpp',
+	'platform/glfw/GLFWPlatformUtils.cpp'
 )
 
 if v8.found()

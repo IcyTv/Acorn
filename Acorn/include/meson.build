@@ -68,8 +68,8 @@ headers = files(
 	'platform/opengl/OpenGLTexture.h',
 	'platform/opengl/OpenGLUniformBuffer.h',
 	'platform/opengl/OpenGLVertexArray.h',
-	'platform/windows/window/WindowsWindow.h',
-	'platform/windows/WindowsPlatform.h',
+	'platform/glfw/window/GLFWWindow.h',
+	'platform/glfw/GLFWPlatform.h',
 	'acorn_export.h',
 	'Acorn.h'
 )

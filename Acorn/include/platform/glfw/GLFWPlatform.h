@@ -5,10 +5,10 @@
 namespace Acorn
 {
 
-	class WindowsPlatform : public Platform
+	class GLFWPlatform : public Platform
 	{
 	public:
-		WindowsPlatform() {}
+		GLFWPlatform() {}
 
 		virtual float GetTimeImpl() const override;
 		virtual const char* GetNameImpl() const override;
