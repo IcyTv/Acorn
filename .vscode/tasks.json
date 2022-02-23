@@ -12,6 +12,16 @@
 			}
 		},
 		{
+			"label": "Meson Configure",
+			"type": "process",
+			"command": "meson",
+			"args": [
+				"--reconfigure",
+				"-Dprofiling=true",
+				"./builddir"
+			]
+		},
+		{
 			"label": "Build Whole Project",
 			"type": "process",
 			"command": "meson",
@@ -31,6 +41,17 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "Clang Tidy",
+			"type": "process",
+			"command": "clang-tidy",
+			"args": [
+				"-p",
+				"builddir"
+			],
+			"problemMatcher": "$gcc",
+			"group": "test"
 		}
 	]
 }
