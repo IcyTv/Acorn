@@ -47,7 +47,7 @@ namespace Acorn
 		void OnScenePlay();
 		void OnSceneStop();
 
-		//UI Panels
+		// UI Panels
 		void UI_Toolbar();
 
 	private:
@@ -90,7 +90,7 @@ namespace Acorn
 
 		SceneState m_SceneState = SceneState::Edit;
 
-		//Panels
+		// Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		std::shared_ptr<LogPanel> m_LogPanel;
 		Ref<ContentBrowserPanel> m_ContentBrowserPanel;

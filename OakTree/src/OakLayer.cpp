@@ -394,21 +394,14 @@ namespace Acorn
 				}
 
 				float snapValues[3] = {snapValue, snapValue, snapValue};
+				glm::mat4 deltaMatrix = glm::mat4(1.0f);
 				// Draw gizmos
 				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)(int)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
-									 nullptr, snap ? snapValues : nullptr);
+									 glm::value_ptr(deltaMatrix), snap ? snapValues : nullptr);
 
 				if (ImGuizmo::IsUsing())
 				{
-					glm::vec3 translation, scale, skew;
-					glm::vec4 perspective;
-					glm::quat orientation;
-					glm::decompose(transform, scale, orientation, translation, skew, perspective);
-
-					tc.Translation = translation;
-
-					tc.Rotation = glm::eulerAngles(orientation);
-					tc.Scale = scale;
+					selectedEntity.MoveTransform(deltaMatrix);
 				}
 			}
 
