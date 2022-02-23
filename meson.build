@@ -8,5 +8,7 @@ project('Acorn', 'cpp',
 	]
 )
 
+add_global_arguments('-DACORN_STATIC_DEFINE', language: 'cpp')
+
 subdir('Acorn')
 subdir('OakTree')
