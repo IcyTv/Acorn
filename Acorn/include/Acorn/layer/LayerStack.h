@@ -2,8 +2,8 @@
 
 #include "acpch.h"
 
-#include "core/Core.h"
 #include "Layer.h"
+#include "core/Core.h"
 
 namespace Acorn
 {
@@ -21,9 +21,10 @@ namespace Acorn
 		std::vector<Layer*>::iterator begin() { return m_Layers.begin(); }
 		std::vector<Layer*>::iterator end() { return m_Layers.end(); }
 
+		size_t GetLayerCount() const { return m_Layers.size(); }
+
 	private:
 		std::vector<Layer*> m_Layers;
 		uint32_t m_LayerInsertIndex = 0;
 	};
 }
-
