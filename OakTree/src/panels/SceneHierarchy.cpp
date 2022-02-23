@@ -35,7 +35,7 @@ namespace Acorn
 		ImGui::Begin("Scene Hierarchy");
 		// ImGui::BeginChild("entity_drop_target", ImVec2(0, -1), false);
 
-		//Getting all entities that do not have a parent
+		// Getting all entities that do not have a parent
 		auto view = m_Context->m_Registry.view<Components::ID>(entt::exclude<Components::ParentRelationship>);
 
 		for (auto entityID : view)
@@ -367,7 +367,8 @@ namespace Acorn
 			auto& tag = entity.GetComponent<Components::Tag>().TagName;
 			char buffer[TAG_SIZE];
 			memset(buffer, 0, sizeof(buffer));
-			strcpy_s(buffer, tag.c_str());
+			size_t len = strlen(tag.c_str());
+			memcpy(buffer, tag.c_str(), len);
 			if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))
 			{
 				tag = std::string(buffer);
@@ -546,7 +547,7 @@ namespace Acorn
 			[&](Components::SpriteRenderer& spriteRenderer)
 			{
 				ImGui::ColorEdit4("Color", glm::value_ptr(spriteRenderer.Color));
-				//Texture
+				// Texture
 				if (spriteRenderer.Texture)
 				{
 					ImGui::ImageButton((void*)(intptr_t)spriteRenderer.Texture->GetRendererId(), ImVec2{25.0f, 25.0f});
@@ -661,7 +662,7 @@ namespace Acorn
 							break;
 							case V8Types::String:
 							{
-								//TODO do once
+								// TODO do once
 								std::string value = jsScript.Script->GetValue<std::string>(field.first);
 								char buf[256] = {0};
 								strcpy_s(buf, value.c_str());
@@ -719,7 +720,7 @@ namespace Acorn
 			"BoxCollider", entity,
 			[&](Components::BoxCollider2d& collider)
 			{
-				//TODO function to return mutable reference
+				// TODO function to return mutable reference
 				glm::vec2 size = collider.GetSize();
 				if (ImGui::DragFloat2("Size", glm::value_ptr(size), 0.1f, 0.0f, 10.0f, "%.2f"))
 				{
