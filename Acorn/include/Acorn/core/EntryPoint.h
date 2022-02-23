@@ -4,7 +4,7 @@
 #include "Core.h"
 #include "Log.h"
 
-#ifdef AC_PLATFORM_WINDOWS
+#if defined(AC_PLATFORM_WINDOWS) || defined(AC_PLATFORM_LINUX)
 
 extern Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args);
 
@@ -37,5 +37,5 @@ int main(int argc, char** argv)
 		}
 
 #else
-	#error Only Windows for now!
+	#error Unsupported Platform!
 #endif
