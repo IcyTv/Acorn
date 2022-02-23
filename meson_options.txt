@@ -9,3 +9,10 @@ option(
 	type: 'feature',
 	value: 'auto'
 )
+
+
+option('enable-tests',
+  type : 'boolean',
+  value : false,
+  description : 'Enables tests.'
+)
