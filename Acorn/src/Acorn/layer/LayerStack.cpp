@@ -50,6 +50,10 @@ namespace Acorn
 			m_Layers.erase(it);
 			m_LayerInsertIndex--;
 		}
+		else
+		{
+			AC_CORE_WARN("Tried to pop a layer that was not in the layer stack!");
+		}
 		layer->OnDetach();
 	}
 
@@ -61,6 +65,8 @@ namespace Acorn
 
 		if (it != m_Layers.end())
 			m_Layers.erase(it);
+		else
+			AC_CORE_WARN("Tried to pop an overlay that was not in the layer stack!");
 
 		overlay->OnDetach();
 	}
