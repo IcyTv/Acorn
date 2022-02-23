@@ -2,7 +2,9 @@
 
 #include "Core.h"
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#ifndef SPDLOG_ACTIVE_LEVEL
+	#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#endif
 #include <spdlog/spdlog.h>
 
 #include <spdlog/fmt/ostr.h>
@@ -28,14 +30,14 @@ namespace Acorn
 	};
 }
 
-//Core Log Macros
+// Core Log Macros
 #define AC_CORE_FATAL(...) SPDLOG_LOGGER_CRITICAL(::Acorn::Log::GetCoreLogger(), __VA_ARGS__)
 #define AC_CORE_ERROR(...) SPDLOG_LOGGER_ERROR(::Acorn::Log::GetCoreLogger(), __VA_ARGS__)
 #define AC_CORE_WARN(...) SPDLOG_LOGGER_WARN(::Acorn::Log::GetCoreLogger(), __VA_ARGS__)
 #define AC_CORE_INFO(...) SPDLOG_LOGGER_INFO(::Acorn::Log::GetCoreLogger(), __VA_ARGS__)
 #define AC_CORE_TRACE(...) SPDLOG_LOGGER_TRACE(::Acorn::Log::GetCoreLogger(), __VA_ARGS__)
 
-//Client Log Macros
+// Client Log Macros
 #define AC_FATAL(...) SPDLOG_LOGGER_CRITICAL(::Acorn::Log::GetClientLogger(), __VA_ARGS__)
 #define AC_ERROR(...) SPDLOG_LOGGER_ERROR(::Acorn::Log::GetClientLogger(), __VA_ARGS__)
 #define AC_WARN(...) SPDLOG_LOGGER_WARN(::Acorn::Log::GetClientLogger(), __VA_ARGS__)
