@@ -13,3 +13,6 @@
 [submodule "Acorn/vendor/ImGuizmo"]
 	path = Acorn/vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "Acorn/vendor/pfd"]
+	path = Acorn/vendor/pfd
+	url = https://github.com/samhocevar/portable-file-dialogs

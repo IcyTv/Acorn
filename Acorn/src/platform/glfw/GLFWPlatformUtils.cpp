@@ -5,8 +5,45 @@
 #include <filesystem>
 
 #include <GLFW/glfw3.h>
+#include <portable-file-dialogs.h>
 
-#ifdef AC_PLATFORM_WINDOWS
+namespace Acorn
+{
+	std::string PlatformUtils::OpenFile(const std::vector<std::string>& filters, const std::string& title, const std::string& initialPath, bool multiselect)
+	{
+		auto selection = pfd::open_file(title, initialPath, filters, multiselect ? pfd::opt::force_path : pfd::opt::none).result();
+
+		if (selection.empty())
+		{
+			return "";
+		}
+
+		if (multiselect)
+		{
+			AC_CORE_ERROR("Multiselect not supported by the api yet!");
+			AC_ASSERT_NOT_REACHED();
+			return "";
+		}
+
+		AC_CORE_ASSERT(selection.size() == 1, "Selection size is not 1!");
+		return selection[0];
+	}
+
+	std::string PlatformUtils::SaveFile(const std::vector<std::string>& filters, const std::string& title, const std::string& initialPath)
+	{
+		auto selection = pfd::save_file(title, initialPath, filters, pfd::opt::none).result();
+
+		if (selection.empty())
+		{
+			AC_CORE_WARN("File not saved, because the user canceled!");
+			return "";
+		}
+
+		return selection;
+	}
+}
+
+#if 0
 	#include <commdlg.h>
 	#define GLFW_EXPOSE_NATIVE_WIN32
 	#include <GLFW/glfw3native.h>

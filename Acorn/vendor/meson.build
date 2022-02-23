@@ -24,3 +24,6 @@ v8pp_inc = include_directories('v8pp')
 
 # v8pp_lib = static_library('v8pp', include_directories: v8pp_inc, cpp_args: '-w', dependencies: [v8])
 v8pp = declare_dependency(include_directories: v8pp_inc)
+
+# Portable File Dialogs (Header Only)
+pfd = declare_dependency(include_directories: include_directories('pfd'))

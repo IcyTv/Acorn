@@ -590,7 +590,7 @@ namespace Acorn
 	void OakLayer::SaveSceneAs()
 	{
 		AC_PROFILE_FUNCTION();
-		std::string filename = PlatformUtils::SaveFile("Acorn Scene (*.acorn)\0*.acorn\0");
+		std::string filename = PlatformUtils::SaveFile({"Acorn Scene", "*.acorn"});
 		if (!filename.empty())
 		{
 			AC_CORE_INFO("Saving Scene to {}", filename);
@@ -605,7 +605,7 @@ namespace Acorn
 		if (m_SceneState != SceneState::Edit)
 			OnSceneStop();
 
-		std::string filename = PlatformUtils::OpenFile("Acorn Scene (*.acorn)\0*.acorn\0");
+		std::string filename = PlatformUtils::OpenFile({"Acorn Scene", "*.acorn"});
 		if (!filename.empty())
 		{
 			OpenScene(filename);
