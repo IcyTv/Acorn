@@ -4,11 +4,14 @@
 
 #include "utils/md5.h"
 #include <chrono>
-#include <corecrt.h>
 #include <filesystem>
 #include <fstream>
 #include <openssl/md5.h>
 #include <yaml-cpp/yaml.h>
+
+#ifdef AC_PLATFORM_WINDOWS
+	#include <corecrt.h>
+#endif // AC_PLATFORM_WINDOWS
 
 #define ACORN_MAX_SHADER_FILE_SIZE (1024 * 1024 * 10)
 
@@ -112,11 +115,8 @@ namespace Acorn::Utils
 			// }
 			// return buffer.str();
 
-			FILE* file;
-			errno_t err;
-			err = fopen_s(&file, filePath.c_str(), "rb");
-
-			AC_CORE_ASSERT(err == 0, "Failed to open file!");
+			FILE* file = fopen(filePath.c_str(), "rb");
+			AC_CORE_ASSERT(file, "Failed to open file!");
 
 			fseek(file, 0, SEEK_END);
 			size_t size = ftell(file);
