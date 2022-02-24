@@ -1,8 +1,11 @@
 #pragma once
 
-#include <memory>
-
 #include "CoreConfig.h"
+
+#include <memory>
+#include <string_view>
+
+using namespace std::literals; // To allow ""sv construction
 
 #ifdef AC_PLATFORM_WINDOWS
 	#ifdef AC_DYNAMIC_LINK
@@ -25,7 +28,7 @@
 #define BIT(x) (1 << x)
 
 #ifdef AC_ENABLE_ASSERTS
-	// #include "debug-trap/debug-trap.h"
+							   // #include "debug-trap/debug-trap.h"
 	#include "utils/debugbreak.h"
 	#define AC_ASSERT(x, ...)          \
 		{                              \
@@ -57,7 +60,7 @@
 	__pragma(warning(pop))
 
 #ifdef AC_DEBUG
-	// #include <debug-trap/debug-trap.h>
+							   // #include <debug-trap/debug-trap.h>
 	#include "utils/debugbreak.h"
 	#define AC_CORE_BREAK() debug_break()
 #else
