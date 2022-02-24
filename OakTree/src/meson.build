@@ -19,3 +19,10 @@ oaktree = executable(
 # install_symlink('imgui.ini')
 
 # TODO symlink imgui.ini and res
+
+configure_file(
+	input: 'imgui.ini',
+	output: 'imgui.ini',
+	copy: true,
+)
+run_target('run', command: [oaktree])
