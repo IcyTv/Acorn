@@ -26,6 +26,7 @@ namespace Acorn
 			virtual void CreateFixture(Entity entity, const Components::Transform& transform) = 0;
 
 			const glm::vec2& GetOffset() const { return m_Offset; }
+			glm::vec2& GetOffset() { return m_Offset; }
 			void SetOffset(const glm::vec2& offset) { m_Offset = offset; }
 
 		protected:
@@ -49,6 +50,7 @@ namespace Acorn
 			virtual void CreateFixture(Entity entity, const Components::Transform& transform) override;
 
 			const glm::vec2& GetSize() const { return m_Size; }
+			glm::vec2& GetSize() { return m_Size; }
 			void SetSize(const glm::vec2& size) { m_Size = size; }
 
 		private:
@@ -67,6 +69,7 @@ namespace Acorn
 			virtual void CreateFixture(Entity entity, const Components::Transform& transform) override;
 
 			float GetRadius() const { return m_Radius; }
+			float& GetRadius() { return m_Radius; }
 			void SetRadius(float radius) { m_Radius = radius; }
 
 		private:

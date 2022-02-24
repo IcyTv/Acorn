@@ -878,29 +878,29 @@ namespace Acorn
 			.set("AddForce", &Components::RigidBody2d::AddForce)
 			.auto_wrap_objects(true);
 
-		v8pp::class_<Physics2D::Collider> collider(m_Isolate);
-		collider
-			.set("Offset", v8pp::property_(&Physics2D::Collider::GetOffset, &Physics2D::Collider::SetOffset))
-			.set("IsInside", &Physics2D::Collider::IsInside)
-			.auto_wrap_objects(true);
+		// v8pp::class_<Physics2D::Collider> collider(m_Isolate);
+		// collider
+		// 	.set("Offset", v8pp::property_(&Physics2D::Collider::GetOffset, &Physics2D::Collider::SetOffset))
+		// 	.set("IsInside", &Physics2D::Collider::IsInside)
+		// 	.auto_wrap_objects(true);
 
-		v8pp::class_<Components::BoxCollider2d> boxCollider(m_Isolate);
-		boxCollider.ctor<>()
-			.inherit<Physics2D::Collider>()
-			.set("Size", v8pp::property_(&Components::BoxCollider2d::GetSize, &Components::BoxCollider2d::SetSize))
-			.auto_wrap_objects(true);
+		// v8pp::class_<Components::BoxCollider2d> boxCollider(m_Isolate);
+		// boxCollider.ctor<>()
+		// 	.inherit<Physics2D::Collider>()
+		// 	.set("Size", v8pp::property_(&Components::BoxCollider2d::GetSize, &Components::BoxCollider2d::SetSize))
+		// 	.auto_wrap_objects(true);
 
-		v8pp::class_<Components::CircleCollider2d> circleCollider(m_Isolate);
-		circleCollider.ctor<>()
-			.inherit<Physics2D::Collider>()
-			.set("Radius", v8pp::property_(&Components::CircleCollider2d::GetRadius, &Components::CircleCollider2d::SetRadius))
-			.auto_wrap_objects(true);
+		// v8pp::class_<Components::CircleCollider2d> circleCollider(m_Isolate);
+		// circleCollider.ctor<>()
+		// 	.inherit<Physics2D::Collider>()
+		// 	.set("Radius", v8pp::property_(&Components::CircleCollider2d::GetRadius, &Components::CircleCollider2d::SetRadius))
+		// 	.auto_wrap_objects(true);
 
 		componentModule.set("Tag", tag);
 		componentModule.set("RigidBody2d", rigidBody2d);
-		componentModule.set("Collider", collider); // TODO move to physics module?
-		componentModule.set("BoxCollider2d", boxCollider);
-		componentModule.set("CircleCollider2d", circleCollider);
+		// componentModule.set("Collider", collider); // TODO move to physics module?
+		// componentModule.set("BoxCollider2d", boxCollider);
+		// componentModule.set("CircleCollider2d", circleCollider);
 
 		global->Set(v8pp::to_v8(m_Isolate, "Components"), componentModule.impl());
 	}
@@ -917,7 +917,7 @@ namespace Acorn
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::Boolean, "Tried to set invalid parameter");
-		m_Parameters[parameterName] = value;
+		// m_Parameters[parameterName] = value;
 	}
 	template <>
 
@@ -926,7 +926,7 @@ namespace Acorn
 		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::Number, "Tried to set invalid parameter");
-		m_Parameters[parameterName] = value;
+		// m_Parameters[parameterName] = value;
 	}
 
 	template <>
@@ -970,7 +970,7 @@ namespace Acorn
 		if (!m_Parameters.contains(parameterName))
 		{
 			// TODO parse default value from typescript
-			m_Parameters[parameterName] = false;
+			// m_Parameters[parameterName] = false;
 		}
 		return boost::get<bool>(m_Parameters[parameterName]);
 	}
@@ -984,7 +984,7 @@ namespace Acorn
 		if (!m_Parameters.contains(parameterName))
 		{
 			// TODO parse default value from typescript
-			m_Parameters[parameterName] = 0.0f;
+			// m_Parameters[parameterName] = 0.0f;
 		}
 		return boost::get<float>(m_Parameters[parameterName]);
 	}
