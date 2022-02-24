@@ -108,7 +108,7 @@ namespace Acorn
 			s_Data.QuadVertexPositions[2] = {0.5f, 0.5f, 0.0f, 1.0f};
 			s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
 
-			s_Data.IconTexture = Texture2d::Create("res/textures/icon-texture.png");
+			s_Data.IconTexture = Texture2d::Create(Acorn::Utils::File::ResolveResPath("res/textures/icon-texture.png"));
 			s_Data.IconTexture->SetTextureFiltering(TextureFiltering::Linear);
 
 			s_Data.TextureMap[ICON_FA_CAMERA_HEX] = ext2d::SubTexture::CreateFromCoords(s_Data.IconTexture, {0, 0}, {48, 48});
@@ -123,8 +123,8 @@ namespace Acorn
 				 {ShaderDataType::Float2, "a_TexCoord"},
 				 {ShaderDataType::Float, "a_TexIndex"},
 				 {ShaderDataType::Int, "a_EntityId"}};
-			s_Data.BillboardShader = Shader::Create("res/shaders/Billboard.shader");
-			s_Data.BasicShader = Shader::Create("res/shaders/Basic.shader");
+			s_Data.BillboardShader = Shader::Create(Acorn::Utils::File::ResolveResPath("res/shaders/Billboard.shader"));
+			s_Data.BasicShader = Shader::Create(Acorn::Utils::File::ResolveResPath("res/shaders/Basic.shader"));
 
 			s_Data.QuadRenderer = CreateScope<BatchRenderer<DebugVertex, 6, 4>>(s_Data.BillboardShader, indices, layout);
 			s_Data.QuadRenderer->AddDefaultTexture(s_Data.IconTexture);
@@ -150,7 +150,7 @@ namespace Acorn
 				{ShaderDataType::Int, "a_EntityId"},
 			};
 
-			s_Data.CircleShader = Shader::Create("res/shaders/Circle.shader");
+			s_Data.CircleShader = Shader::Create(Acorn::Utils::File::ResolveResPath("res/shaders/Circle.shader"));
 			s_Data.CircleRenderer = CreateScope<BatchRenderer<CircleVertex, 6, 4>>(s_Data.CircleShader, indices, circleLayout);
 		}
 

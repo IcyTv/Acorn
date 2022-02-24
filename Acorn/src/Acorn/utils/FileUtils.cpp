@@ -116,7 +116,7 @@ namespace Acorn::Utils
 			// return buffer.str();
 
 			FILE* file = fopen(filePath.c_str(), "rb");
-			AC_CORE_ASSERT(file, "Failed to open file!");
+			AC_CORE_ASSERT(file, "Failed to read file {}!", filePath);
 
 			fseek(file, 0, SEEK_END);
 			size_t size = ftell(file);
@@ -144,7 +144,7 @@ namespace Acorn::Utils
 			}
 			else
 			{
-				AC_CORE_ASSERT(false, "Failed to open file!");
+				AC_CORE_ASSERT(false, "Failed to open file {}!", filePath);
 			}
 		}
 
@@ -189,6 +189,38 @@ namespace Acorn::Utils
 				buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
 			}
 			return buffer.str();
+			return "";
+		}
+
+		std::string ResolveResPath(const std::string& filePath)
+		{
+			AC_PROFILE_FUNCTION();
+
+			std::filesystem::path path(filePath);
+			if (path.is_absolute())
+			{
+				return filePath;
+			}
+
+			if (std::filesystem::exists(filePath))
+			{
+				return filePath;
+			}
+
+			// TODO either cache this or enforce one res path.
+
+			std::filesystem::path current = path;
+			const size_t MAX_RECURSION = 3;
+			for (size_t i = 0; i < MAX_RECURSION; i++)
+			{
+				current = std::filesystem::path("..") / current;
+				if (std::filesystem::exists(current))
+				{
+					return current.string();
+				}
+			}
+
+			AC_ASSERT_NOT_REACHED();
 			return "";
 		}
 

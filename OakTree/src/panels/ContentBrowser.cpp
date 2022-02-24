@@ -39,10 +39,10 @@ namespace Acorn
 	ContentBrowserPanel::ContentBrowserPanel(OakLayer* layer)
 		: m_CurrentPath(s_AssetsDirectory), m_Layer(layer)
 	{
-		m_FolderIcon = Texture2d::Create("res/textures/icons/appicns/appicns_FolderGeneric.png");
-		m_FileIcon = Texture2d::Create("res/textures/icons/appicns/appicns_OtherDocument.png");
-		m_AcornFileIcon = Texture2d::Create("res/textures/icons/AcornFile.png");
-		m_JSFileIcon = Texture2d::Create("res/textures/icons/JSFile.png");
+		m_FolderIcon = Texture2d::Create(Acorn::Utils::File::ResolveResPath("res/textures/icons/appicns/appicns_FolderGeneric.png"));
+		m_FileIcon = Texture2d::Create(Acorn::Utils::File::ResolveResPath("res/textures/icons/appicns/appicns_OtherDocument.png"));
+		m_AcornFileIcon = Texture2d::Create(Acorn::Utils::File::ResolveResPath("res/textures/icons/AcornFile.png"));
+		m_JSFileIcon = Texture2d::Create(Acorn::Utils::File::ResolveResPath("res/textures/icons/JSFile.png"));
 	}
 
 	// TODO initialize on construction, add directory watch
