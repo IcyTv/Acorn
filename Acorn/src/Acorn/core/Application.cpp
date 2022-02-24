@@ -114,38 +114,6 @@ namespace Acorn
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
 
-		// if (e.GetEventType() == EventType::KeyPressed)
-		// {
-		// 	KeyPressedEvent& ke = (KeyPressedEvent&)e; //TODO move to OakTree
-		// 	if (ke.GetKeyCode() == AC_KEY_F6)
-		// 	{
-		// 		if (!m_IsProfiling && ke.GetRepeatCount() == 0)
-		// 		{
-		// 			m_IsProfiling = true;
-		// 			auto timestamp = std::chrono::system_clock::now();
-
-		// 			std::time_t now_tt = std::chrono::system_clock::to_time_t(timestamp);
-		// 			std::tm buf;
-		// 			gmtime_s(&buf, &now_tt);
-
-		// 			std::stringstream nameStream;
-		// 			nameStream << "AcornProfiling-Runtime-" << std::put_time(&buf, "%Y-%m-%d_%H-%M-%S");
-		// 			std::string name = nameStream.str();
-		// 			nameStream << ".json";
-		// 			std::string filename = nameStream.str();
-
-		// 			AC_CORE_TRACE("Starting Profiling {}", name);
-		// 			AC_PROFILE_BEGIN_SESSION(name, filename);
-		// 		}
-		// 		else if (m_IsProfiling && ke.GetRepeatCount() == 0)
-		// 		{
-		// 			m_IsProfiling = false;
-		// 			AC_CORE_TRACE("Ended Profiling");
-		// 			AC_PROFILE_END_SESSION();
-		// 		}
-		// 	}
-		// }
-
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
 			(*--it)->OnEvent(e);
