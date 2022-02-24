@@ -134,8 +134,7 @@ namespace Acorn
 			((!entity.HasComponent<Components::ChildRelationship>() || entity.GetComponent<Components::ChildRelationship>().Empty()) ? ImGuiTreeNodeFlags_Leaf : 0) |
 			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 
-		bool opened = ImGui::TreeNodeEx((void*)(intptr_t)(uint32_t)entity,
-										flags, "%s", tag.c_str());
+		bool opened = ImGui::TreeNodeEx((void*)(intptr_t)(uint32_t)entity, flags, "%s", tag.c_str());
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
@@ -209,9 +208,7 @@ namespace Acorn
 		}
 	}
 
-	static bool DrawVec3Control(const std::string& label, glm::vec3& vec,
-								float resetValue = 0.0f,
-								float columnWidth = 100.0f)
+	static bool DrawVec3Control(std::string_view label, glm::vec3& vec, float resetValue = 0.0f, float columnWidth = 100.0f)
 	{
 		AC_PROFILE_FUNCTION();
 		ImGuiIO& io = ImGui::GetIO();
@@ -219,86 +216,85 @@ namespace Acorn
 
 		bool changed = false;
 
-		ImGui::PushID(label.c_str());
-		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, columnWidth);
-		ImGui::Text("%s", label.c_str());
-		ImGui::NextColumn();
+		// ImGui::PushID(label.c_str());
+		// ImGui::Columns(2);
+		// ImGui::SetColumnWidth(0, columnWidth);
+		// ImGui::Text("%s", label.c_str());
+		// ImGui::NextColumn();
+		// Acorn::GUI::BeginTable(label);
+		Acorn::GUI::Item(
+			label,
+			[&]()
+			{
+				ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
 
-		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
+				float lineHeight =
+					GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+				ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
 
-		float lineHeight =
-			GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-		ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.9f, 0.2f, 0.2f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
+				ImGui::PushFont(boldFont);
+				if (ImGui::Button("X", buttonSize))
+				{
+					changed = true;
+					vec.x = resetValue;
+				}
+				ImGui::PopFont();
+				ImGui::PopStyleColor(3);
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-							  ImVec4{0.9f, 0.2f, 0.2f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-							  ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
-		ImGui::PushFont(boldFont);
-		if (ImGui::Button("X", buttonSize))
-		{
-			changed = true;
-			vec.x = resetValue;
-		}
-		ImGui::PopFont();
-		ImGui::PopStyleColor(3);
+				ImGui::SameLine();
+				changed |= ImGui::DragFloat("##X", &vec.x, 0.1f, 0.0f, 0.0f, "%.2f");
+				ImGui::PopItemWidth();
+				ImGui::SameLine();
 
-		ImGui::SameLine();
-		changed |= ImGui::DragFloat("##X", &vec.x, 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::PopItemWidth();
-		ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3f, 0.8f, 0.3f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
+				ImGui::PushFont(boldFont);
+				if (ImGui::Button("Y", buttonSize))
+				{
+					changed = true;
+					vec.y = resetValue;
+				}
+				ImGui::PopFont();
+				ImGui::PopStyleColor(3);
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-							  ImVec4{0.3f, 0.8f, 0.3f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-							  ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
-		ImGui::PushFont(boldFont);
-		if (ImGui::Button("Y", buttonSize))
-		{
-			changed = true;
-			vec.y = resetValue;
-		}
-		ImGui::PopFont();
-		ImGui::PopStyleColor(3);
+				ImGui::SameLine();
+				changed |= ImGui::DragFloat("##Y", &vec.y, 0.1f, 0.0f, 0.0f, "%.2f");
+				ImGui::PopItemWidth();
+				ImGui::SameLine();
 
-		ImGui::SameLine();
-		changed |= ImGui::DragFloat("##Y", &vec.y, 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::PopItemWidth();
-		ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.2f, 0.35f, 0.9f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
+				ImGui::PushFont(boldFont);
+				if (ImGui::Button("Z", buttonSize))
+				{
+					vec.z = resetValue;
+					changed = true;
+				}
+				ImGui::PopFont();
+				ImGui::PopStyleColor(3);
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-							  ImVec4{0.2f, 0.35f, 0.9f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-							  ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
-		ImGui::PushFont(boldFont);
-		if (ImGui::Button("Z", buttonSize))
-		{
-			vec.z = resetValue;
-			changed = true;
-		}
-		ImGui::PopFont();
-		ImGui::PopStyleColor(3);
+				ImGui::SameLine();
+				changed |= ImGui::DragFloat("##Z", &vec.z, 0.1f, 0.0f, 0.0f, "%.2f");
+				ImGui::PopItemWidth();
 
-		ImGui::SameLine();
-		changed |= ImGui::DragFloat("##Z", &vec.z, 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::PopItemWidth();
+				ImGui::PopStyleVar();
+			});
 
-		ImGui::PopStyleVar();
-
-		ImGui::Columns(1);
-		ImGui::PopID();
+		// ImGui::Columns(1);
+		// ImGui::PopID();
+		// Acorn::GUI::EndTable();
 
 		return changed;
 	}
 
 	template <typename T, typename UIFunc>
-	static void DrawComponent(const std::string& label, Entity entity,
-							  UIFunc func)
+	static void DrawComponent(std::string_view label, Entity entity, UIFunc func)
 	{
 		AC_PROFILE_FUNCTION();
 		constexpr ImGuiTreeNodeFlags flags =
@@ -319,7 +315,7 @@ namespace Acorn
 
 			ImGui::Separator();
 
-			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, "%s", label.c_str());
+			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, "%s", label.data());
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
 			{
@@ -347,7 +343,9 @@ namespace Acorn
 			}
 			if (open)
 			{
+				Acorn::GUI::BeginTable(label);
 				func(component);
+				Acorn::GUI::EndTable();
 
 				ImGui::TreePop();
 			}
@@ -454,113 +452,70 @@ namespace Acorn
 		ImGui::PopItemWidth();
 
 		DrawComponent<Components::Transform>(
-			"Transform", entity,
-			[](auto& transformComponent)
+			"Transform", entity, [](auto& transformComponent)
 			{
-				DrawVec3Control("Position", transformComponent.Translation);
+				DrawVec3Control("Position"sv, transformComponent.Translation);
 				glm::vec3 rotation = glm::degrees(transformComponent.Rotation);
-				if (DrawVec3Control("Rotation", rotation))
+				if (DrawVec3Control("Rotation"sv, rotation))
 				{
 					transformComponent.Rotation = glm::radians(rotation);
 				}
-				DrawVec3Control("Scale", transformComponent.Scale, 1.0f);
-			});
+				DrawVec3Control("Scale"sv, transformComponent.Scale, 1.0f); });
 
 		DrawComponent<Components::CameraComponent>(
-			"Camera", entity,
-			[](auto& cameraComponent)
+			"Camera", entity, [](auto& cameraComponent)
 			{
 				auto& camera = cameraComponent.Camera;
 
-				ImGui::Checkbox("Primary Camera", &cameraComponent.Primary);
+				Acorn::GUI::Checkbox("##Primary Camera"sv, cameraComponent.Primary);
 
-				const char* projectionTypeNames[] = {"Perspective",
-													 "Orthographic"};
-				const char* currentProjection =
-					projectionTypeNames[(size_t)camera.GetProjectionType()];
-
-				if (ImGui::BeginCombo("Projection", currentProjection))
+				auto projection = camera.GetProjectionType();
+				if(Acorn::GUI::Combo("##Projection Type"sv, projection, {
+					{SceneCamera::ProjectionType::Orthographic, "Orthographic"sv},
+					{SceneCamera::ProjectionType::Perspective, "Perspective"sv} }))
 				{
-					for (int i = 0; i < 2; i++)
-					{
-						bool isSelected =
-							(currentProjection == projectionTypeNames[i]);
-						if (ImGui::Selectable(projectionTypeNames[i],
-											  isSelected))
-						{
-							camera.SetProjectionType(i);
-						}
-
-						if (isSelected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
+					camera.SetProjectionType(projection);
 				}
+
 				if (camera.GetProjectionType() ==
 					SceneCamera::ProjectionType::Orthographic)
 				{
-					float orthoSize = camera.GetOrthographicSize();
-					if (ImGui::DragFloat("Size", &orthoSize, 0.1f))
-					{
-						camera.SetOrthographicSize(orthoSize);
-					}
+					Acorn::GUI::Drag("##Size"sv, camera.OrthographicSize(), 0.1f);
+					Acorn::GUI::Drag("##Near Plane"sv, camera.OrthographicNearClip(), 0.1f);
+					Acorn::GUI::Drag("##Far Plane"sv, camera.OrthographicFarClip(), 0.1f);
 
-					float nearPlane = camera.GetOrthographicNearClip();
-					if (ImGui::DragFloat("Near Plane", &nearPlane, 0.1f))
-					{
-						camera.SetOrthographicNearClip(nearPlane);
-					}
-
-					float farPlane = camera.GetOrthographicFarClip();
-					if (ImGui::DragFloat("Far Plane", &farPlane, 0.1f))
-					{
-						camera.SetOrthographicFarClip(farPlane);
-					}
-
-					ImGui::Checkbox("Fixed Aspect Ratio",
-									&cameraComponent.FixedAspectRatio);
+					Acorn::GUI::Checkbox("##Fixed Aspect Ratio", cameraComponent.FixedAspectRatio);
 				}
 				else
 				{
 					float fov = glm::degrees(camera.GetPerspectiveFov());
-					if (ImGui::DragFloat("Field Of View", &fov, 1.0f))
+					if (Acorn::GUI::Drag("##Field Of View"sv, fov, 1.0f))
 					{
 						camera.SetPerspectiveFov(glm::radians(fov));
 					}
 
-					float nearPlane = camera.GetPerspectiveNearClip();
-					if (ImGui::DragFloat("Near Plane", &nearPlane, 0.1f))
-					{
-						camera.SetPerspectiveNearClip(nearPlane);
-					}
-
-					float farPlane = camera.GetPerspectiveFarClip();
-					if (ImGui::DragFloat("Far Plane", &farPlane, 0.1f))
-					{
-						camera.SetPerspectiveFarClip(farPlane);
-					}
-				}
-			});
+					Acorn::GUI::Drag("##Near Plane"sv, camera.PerspectiveNearClip(), 0.1f);
+					Acorn::GUI::Drag("##Far Plane"sv, camera.PerspectiveFarClip(), 0.1f);
+				} });
 
 		DrawComponent<Components::SpriteRenderer>(
-			"Sprite Renderer", entity,
-			[&](Components::SpriteRenderer& spriteRenderer)
+			"Sprite Renderer", entity, [&](Components::SpriteRenderer& spriteRenderer)
 			{
-				ImGui::ColorEdit4("Color", glm::value_ptr(spriteRenderer.Color));
+				Acorn::GUI::ColorEdit("##Color"sv, spriteRenderer.Color);
 				// Texture
 				if (spriteRenderer.Texture)
 				{
-					ImGui::ImageButton((void*)(intptr_t)spriteRenderer.Texture->GetRendererId(), ImVec2{25.0f, 25.0f});
+					Acorn::GUI::ImageButton("##Texture", spriteRenderer.Texture);
 				}
 				else
 				{
-					ImGui::Button("", ImVec2{25.0f, 25.0f});
+					Acorn::GUI::TableButton("##Texture");
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-					ImGui::OpenPopup("Texture");
+					ImGui::OpenPopup("TexturePopup");
 
-				if (ImGui::BeginPopup("Texture"))
+				if (ImGui::BeginPopup("TexturePopup"))
 				{
 					if (spriteRenderer.Texture)
 					{
@@ -587,27 +542,23 @@ namespace Acorn
 					ImGui::EndDragDropTarget();
 				}
 
-				ImGui::SameLine();
-				ImGui::Text("Texture");
-
+					// ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic); 
 				if (spriteRenderer.Texture)
-					ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-			});
+					Acorn::GUI::Drag("##Tiling Factor", spriteRenderer.TilingFactor, 0.1f); });
 
 		DrawComponent<Components::CircleRenderer>(
-			"Circle Renderer", entity,
-			[&](Components::CircleRenderer& circleRenderer)
+			"Circle Renderer", entity, [&](Components::CircleRenderer& circleRenderer)
 			{
-				ImGui::ColorEdit4("Color", glm::value_ptr(circleRenderer.Color));
+				Acorn::GUI::ColorEdit("##Color", circleRenderer.Color);
 				// ImGui::DragFloat("Radius", &circleRenderer.Radius, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-				ImGui::DragFloat("Thickness", &circleRenderer.Thickness, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Fade", &circleRenderer.Fade, 0.00025f, 0.0f, 1.0f, "%.6f");
-			});
+				// ImGui::DragFloat("Thickness", &circleRenderer.Thickness, 0.01f, 0.0f, 1.0f, "%.3f");
+				// ImGui::DragFloat("Fade", &circleRenderer.Fade, 0.00025f, 0.0f, 1.0f, "%.6f");
+				Acorn::GUI::Drag("##Fade", circleRenderer.Fade, 0.01f);
+				Acorn::GUI::Drag("##Thickness", circleRenderer.Thickness, 0.1f); });
 
 #ifndef NO_SCRIPTING
 		DrawComponent<Components::JSScript>(
-			"JS Script", entity,
-			[&](Components::JSScript& jsScript)
+			"JS Script", entity, [&](Components::JSScript& jsScript)
 			{
 				char scriptName[256] = {0};
 				if (jsScript.Script && jsScript.Script->GetFilePath().size() > 0)
@@ -636,6 +587,7 @@ namespace Acorn
 					jsScript.LoadScript(scriptName);
 				}
 
+	#if 0
 				if (jsScript.Script)
 				{
 					TSScriptData scriptData = jsScript.Script->GetScriptData();
@@ -680,69 +632,36 @@ namespace Acorn
 					}
 					ImGui::PopID();
 				}
+	#endif
 			});
 #endif
 		DrawComponent<Components::RigidBody2d>(
-			"RigidBody", entity,
-			[&](Components::RigidBody2d& rigidBody)
-			{
-				auto bodyTypes = magic_enum::enum_names<Components::RigidBody2d::BodyType>();
-				auto currentBodyType = magic_enum::enum_name(rigidBody.Type);
-
-				if (ImGui::BeginCombo("Body Type", currentBodyType.data()))
-				{
-					for (auto& bodyType : bodyTypes)
-					{
-						bool isSelected = (bodyType == currentBodyType);
-						if (ImGui::Selectable(bodyType.data(), isSelected))
-						{
-							currentBodyType = bodyType;
-							rigidBody.Type = magic_enum::enum_cast<Components::RigidBody2d::BodyType>(bodyType).value();
-						}
-
-						if (isSelected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-				}
-
-				ImGui::Checkbox("Fixed Rotation", &rigidBody.FixedRotation);
+			"RigidBody", entity, [&](Components::RigidBody2d& rigidBody)
+			{ 
+				using namespace Components;
+				Acorn::GUI::Combo("##Body Type", rigidBody.Type, {{RigidBody2d::BodyType::Static, "Static"}, {RigidBody2d::BodyType::Dynamic, "Dynamic"}, {RigidBody2d::BodyType::Kinematic, "Kinematic"}});
 
 				ImGui::Separator();
 
-				ImGui::DragFloat("Density", &rigidBody.Density, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Friction", &rigidBody.Friction, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Restitution", &rigidBody.Restitution, 0.01f, 0.0f, 1.0f, "%.3f");
-				ImGui::DragFloat("Restitution Threshold", &rigidBody.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f");
-			});
+				Acorn::GUI::Checkbox("##Fixed Rotation"sv, rigidBody.FixedRotation);
+
+				ImGui::Separator();
+
+				Acorn::GUI::Drag("##Density"sv, rigidBody.Density, 0.01f, 0.0f, 1.0f, "%.3f"sv);
+				Acorn::GUI::Drag("##Friction"sv, rigidBody.Friction, 0.01f, 0.0f, 1.0f, "%.3f"sv);
+				Acorn::GUI::Drag("##Restitution"sv, rigidBody.Restitution, 0.01f, 0.0f, 1.0f, "%.3f"sv);
+				Acorn::GUI::Drag("##Restitution Threshold"sv, rigidBody.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f"sv); });
 
 		DrawComponent<Components::BoxCollider2d>(
-			"BoxCollider", entity,
-			[&](Components::BoxCollider2d& collider)
+			"BoxCollider", entity, [&](Components::BoxCollider2d& collider)
 			{
-				// TODO function to return mutable reference
-				glm::vec2 size = collider.GetSize();
-				if (ImGui::DragFloat2("Size", glm::value_ptr(size), 0.1f, 0.0f, 10.0f, "%.2f"))
-				{
-					collider.SetSize(size);
-				}
-				glm::vec2 offset = collider.GetOffset();
-				if (ImGui::DragFloat2("Offset", glm::value_ptr(offset), 0.1f, -10.0f, 10.0f, "%.2f"))
-				{
-					collider.SetOffset(offset);
-				}
-			});
+				Acorn::GUI::Drag("##Size"sv, collider.GetSize());
+				Acorn::GUI::Drag("##Offset"sv, collider.GetOffset()); });
 
 		DrawComponent<Components::CircleCollider2d>(
-			"CircleCollider", entity,
-			[&](Components::CircleCollider2d& collider)
+			"CircleCollider", entity, [&](Components::CircleCollider2d& collider)
 			{
-				float radius = collider.GetRadius();
-				if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.0f, 10.0f, "%.2f"))
-					collider.SetRadius(radius);
-				glm::vec2 offset = collider.GetOffset();
-				if (ImGui::DragFloat2("Offset", glm::value_ptr(offset), 0.1f, -10.0f, 10.0f, "%.2f"))
-					collider.SetOffset(offset);
-			});
+				Acorn::GUI::Drag("##Radius"sv, collider.GetRadius(), 0.01f, 0.0f, 10.0f, "%.2f"sv);
+				Acorn::GUI::Drag("##Offset"sv, collider.GetOffset(), 0.01f, -10.0f, 10.0f, "%.2f"sv); });
 	}
 }
