@@ -11,7 +11,8 @@
 	{                                                   \
 		m_##name = val;                                 \
 		RecalculateProjectionMatrix();                  \
-	}
+	}                                                   \
+	inline float&##name() { return m_##name; }
 
 namespace Acorn
 {
