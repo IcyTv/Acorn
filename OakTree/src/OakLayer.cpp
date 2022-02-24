@@ -63,7 +63,7 @@ namespace Acorn
 		}
 		else
 		{
-			OpenScene("res/scenes/PhysicsTest.acorn");
+			OpenScene(Acorn::Utils::File::ResolveResPath("res/scenes/PhysicsTest.acorn"));
 		}
 
 		m_EditorCamera = EditorCamera(30.0f, 1.78f, 0.1f, 1000.0f);
@@ -396,8 +396,7 @@ namespace Acorn
 				float snapValues[3] = {snapValue, snapValue, snapValue};
 				glm::mat4 deltaMatrix = glm::mat4(1.0f);
 				// Draw gizmos
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)(int)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
-									 glm::value_ptr(deltaMatrix), snap ? snapValues : nullptr);
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)(int)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform), glm::value_ptr(deltaMatrix), snap ? snapValues : nullptr);
 
 				if (ImGuizmo::IsUsing())
 				{
