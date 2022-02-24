@@ -1,6 +1,6 @@
 #pragma once
 
-//For use by client applications
+// For use by client applications
 
 #include "Acorn/core/Application.h"
 #include "Acorn/core/Log.h"
@@ -32,5 +32,7 @@
 #include "Acorn/input/Input.h"
 #include "Acorn/input/KeyCodes.h"
 #include "Acorn/input/MouseButtonCodes.h"
+
+#include "Acorn/gui/GUITools.h"
 
 #include "Acorn/math/Math.h"
