@@ -53,6 +53,7 @@ because Acorn is so incomplete, I don't want to clutter the issue tracker.
 
 - [ ] Setup Acorn to handle shared compilation on windows
 - [ ] Move to mesons suggested folder structure (subprojects). For now we don't do this, since I hate how it organizes the project.
+- [ ] Move the projects in Acorn/vendor to the meson wrap file system. Currently they don't have a meson.build file, therfore that doesn't work.
 
 ## Contributing
 
