@@ -27,6 +27,30 @@ If you want to enable scripting, you will also need `depot_tools` from google.
 
 If you are using Windows, install either Visual Studio (from 2017 on) or Visual Studio Build Tools.
 
+### Dependencies
+
+On Linux to install dependencies, just use the appropriate package manager.
+
+Since Windows doesn't have a (good) package manager, you'll need to install some dependencies manually.
+
+1. `Boost`. Look at the boost website for instructions of how to use their b2 utility to build or download the installer
+    from <https://sourceforge.net/projects/boost/files/boost-binaries/1.78.0/>
+2. `Depot Tools`. To enable v8 scripting in Acorn, use
+   [this guide](https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) to setup depot_tools.
+
+For the rest, meson will try to find the dependencies by using [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) or [cmake](https://cmake.org/).
+If it doesn't find any pre-installed version of the dependency, it will download them and add them to the buildchain automatically. To see what it downloaded, you
+can look at the `subprojects` folder.
+
+## TODO's
+
+This project is far from complete, and this is the place where I will keep track of some ideas I have for what to do. This is by no means a complete list, if you
+have any ideas, feel free to open a new issue, or add to this list via a pull request. In the future we will likely move to an issue based system completely, but
+because Acorn is so incomplete, I don't want to clutter the issue tracker.
+
+- [ ] Setup Acorn to handle shared compilation on windows
+- [ ] Move to mesons suggested folder structure (subprojects). For now we don't do this, since I hate how it organizes the project.
+
 ## Contributing
 
 If you want to contribute, please read the [contributing guide](https://github.com/IcyTv/Acorn/tree/master/CONTRIBUTING.md)
