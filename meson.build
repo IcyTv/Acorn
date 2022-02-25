@@ -12,6 +12,7 @@ add_global_arguments('-DACORN_STATIC_DEFINE', language: 'cpp')
 
 subdir('Acorn')
 subdir('OakTree')
+subdir('Acorn/tools/IDLParser')
 
 gtest = subproject('gtest')
 
