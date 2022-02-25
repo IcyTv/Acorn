@@ -35,6 +35,9 @@ Since Windows doesn't have a (good) package manager, you'll need to install some
 
 1. `Boost`. Look at the boost website for instructions of how to use their b2 utility to build or download the installer
     from <https://sourceforge.net/projects/boost/files/boost-binaries/1.78.0/>
+    If you use the installer, because of a [meson bug](https://github.com/mesonbuild/meson/issues/8325), you will need to open
+    the containing folder (meson produces an error could not read C:\\boost\\...\\*.pdb) and move the pdb files into a `pdb` folder.
+    This makes sure that meson doesn't try parsing the pdb files.
 2. `Depot Tools`. To enable v8 scripting in Acorn, use
    [this guide](https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) to setup depot_tools.
 
