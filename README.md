@@ -47,6 +47,12 @@ For the rest, meson will try to find the dependencies by using [pkg-config](http
 If it doesn't find any pre-installed version of the dependency, it will download them and add them to the buildchain automatically. To see what it downloaded, you
 can look at the `subprojects` folder.
 
+### Common Issues
+
+If you are getting the error
+> You must installWindows 10 SDK version 10.0.19041.0 including the "Debugging Tools for Windows" feature
+while building v8, look [here](https://stackoverflow.com/questions/66710286/you-must-installwindows-10-sdk-version-10-0-19041-0-including-the-debugging-too)
+
 ## TODO's
 
 This project is far from complete, and this is the place where I will keep track of some ideas I have for what to do. This is by no means a complete list, if you
