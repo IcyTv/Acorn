@@ -40,6 +40,8 @@ Since Windows doesn't have a (good) package manager, you'll need to install some
     This makes sure that meson doesn't try parsing the pdb files.
 2. `Depot Tools`. To enable v8 scripting in Acorn, use
    [this guide](https://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) to setup depot_tools.
+   Also make sure the environment variable `DEPOT_TOOLS_WIN_TOOLCHAIN` is set to `0`, in order to disallow gsync and gn from searching for googles distributed
+   toolchains.
 
 For the rest, meson will try to find the dependencies by using [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) or [cmake](https://cmake.org/).
 If it doesn't find any pre-installed version of the dependency, it will download them and add them to the buildchain automatically. To see what it downloaded, you
