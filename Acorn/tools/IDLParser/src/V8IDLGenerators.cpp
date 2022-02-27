@@ -3,14 +3,24 @@
  * Copyright (c) 2021, Linus Groh <linusg@serenityos.org>
  * Copyright (c) 2021, Luke Wilde <lukew@serenityos.org>
  * Copyright (c) 2022, Ali Mohammad Pur <mpfard@serenityos.org>
+ * Copyright (c) 2022, Michael Finger <michael.finger@icytv.de>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+// FIXME move to inja::Environment to precompile templates
+// FIXME move this project to a subproject or similar to reduce reconfigure complexity.
+// FIXME change parser to emit more favourable types for adding to SourceGenerator
+
 #include "IDLTypes.h"
 #include "SourceGenerator.h"
 
+#include "EnumHeader.h"
+#include "WrapperHeader.h"
+#include "WrapperImplementation.h"
+
 #include <boost/algorithm/string/replace.hpp>
+#include <inja/inja.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -25,6 +35,23 @@ namespace Acorn::IDL
 	static bool IsWrappableType(std::shared_ptr<Type> type)
 	{
 		return false;
+	}
+
+	static std::string ToV8Type(const std::shared_ptr<Type>& type)
+	{
+		if (type->IsNumeric())
+		{
+			return "Number";
+		}
+		else if (type->IsString())
+		{
+			return "String";
+		}
+		else if (type->Name == "void")
+		{
+			return "Undefined";
+		}
+		throw std::runtime_error("Unsupported type " + type->Name);
 	}
 
 	constexpr std::string_view SequenceStorageTypeToCppStorageName(SequenceStorageType type)
@@ -166,48 +193,24 @@ namespace Acorn::IDL
 
 	static void GenerateIncludeForWrapper(SourceGenerator& generator, const std::string& wrapperName)
 	{
-		auto wrapperGenerator = generator.Fork();
-		wrapperGenerator.Set("wrapper_class", wrapperName);
+		generator.Add("wrapperClass", wrapperName);
 		// FIXME: These may or may not exist, because REASONS.
 		// ^^^^
 		// This Fixme is copied straight from Serenity... What the fuck
 		// does he mean? What Reasons? What??
-		wrapperGenerator.Append(R"~~~(
-#if __has_include("@acorn_root@/Bindings/@wrapper_class@.h")
-	#include "@acorn_root@/Bindings/@wrapper_class@.h"
+		generator.Append(R"~~~(
+#if __has_include("{{ acorn_root }}/Bindings/{{ wrapperClass }}.h")
+	#include "{{acorn_root}}/Bindings/{{ wrapperClass }}.h"
 #endif
-#if __has_include("@acorn_root@/Bindings/@wrapper_class@Factory.h")
-	#include "@acorn_root@/Bindings/@wrapper_class@Factory.h"
+#if __has_include("{{ acorn_root }}/Bindings/{{ wrapperClass }}Factory.h")
+	#include "{{ acorn_root }}/Bindings/{{ wrapperClass }}Factory.h"
 #endif
-		)~~~");
-	}
-
-	static void GenerateIncludeForIterator(SourceGenerator& generator, const std::string& iteratorPath, const std::string& iteratorName)
-	{
-		auto iteratorGenerator = generator.Fork();
-		iteratorGenerator.Set("iterator_class.path", iteratorPath);
-		iteratorGenerator.Set("iterator_class.name", iteratorName);
-
-		// FIXME see above
-
-		iteratorGenerator.Append(R"~~~(
-#include "@acorn_root@/@iterator_class.path@.h"
-#if __has_include("@acorn_root@/@iterator_class.path@Factory.h")
-	#include "@acorn_root@/@iterator_class.path@Factory.h"
-#endif
-#if __has_include("@acorn_root@/Bindings/@iterator_class.name@Wrapper.h")
-	#include "@acorn_root@/Bindings/@iterator_class.name@Wrapper.h"
-#endif
-#if __has_include("@acorn_root@/Bindings/@iterator_class.name@WrapperFactory.h")
-	#include "@acorn_root@/Bindings/@iterator_class.name@WrapperFactory.h"
-#endif
-)~~~");
+		)~~~"sv);
 	}
 
 	static void GenerateIncludeFor(SourceGenerator& generator, const std::string& path)
 	{
-		auto includeGenerator = generator.Fork();
-		auto pathStr		  = path;
+		auto pathStr = path;
 		for (auto& searchPath : s_HeaderSearchPaths)
 		{
 			if (!path.starts_with(searchPath))
@@ -220,9 +223,9 @@ namespace Acorn::IDL
 		}
 
 		std::filesystem::path fspath(pathStr);
-		includeGenerator.Set("include.path", fspath.parent_path().string() + "/" + fspath.filename().string() + ".h");
-		includeGenerator.Append(R"~~~(
-#include <@include.path@>
+		generator.Add("include.path", fspath.parent_path().string() + "/" + fspath.filename().string() + ".h");
+		generator.Append(R"~~~(
+#include <{{ include.path }}>
 		)~~~");
 	}
 
@@ -255,10 +258,11 @@ namespace Acorn::IDL
 
 			if (isIterator)
 			{
-				auto iterName		 = interface->Name + "Iterator";
-				std::string iterPath = interface->FullyQualifiedName + "Iterator";
-				boost::replace_all(iterPath, "::", "/");
-				GenerateIncludeForIterator(generator, iterPath, iterName);
+				// auto iterName		 = interface->Name + "Iterator";
+				// std::string iterPath = interface->FullyQualifiedName + "Iterator";
+				// boost::replace_all(iterPath, "::", "/");
+				// GenerateIncludeForIterator(generator, iterPath, iterName);
+				assert(false || !"Not implemented");
 			}
 
 			if (interface->WrapperClass != "Wrapper")
@@ -279,109 +283,28 @@ namespace Acorn::IDL
 		bool usedAsArgument = false
 	)
 	{
-		auto scopedGenerator = generator.Fork();
-		auto acceptableName	 = MakeInputAcceptableCpp(cppName);
-		scopedGenerator.Set("cpp_name", acceptableName);
-		scopedGenerator.Set("js_name", jsName);
-		scopedGenerator.Set("js_suffix", jsSuffix);
-		scopedGenerator.Set("legacy_null_to_empty_string", legacyNullToEmptyString ? "true" : "false");
-		scopedGenerator.Set("parameter.type.name", parameter.Type->Name);
-		scopedGenerator.Set("wrapper_name", parameter.Type->Name + "Wrapper");
+		auto acceptableName = MakeInputAcceptableCpp(cppName);
+		generator.Add("cpp_name", acceptableName);
+		generator.Add("js_name", jsName);
+		generator.Add("js_suffix", jsSuffix);
+		generator.Add("legacy_null_to_empty_string", legacyNullToEmptyString ? "true" : "false");
+		generator.Add("parameter.type.name", parameter.Type->Name);
+		generator.Add("wrapper_name", parameter.Type->Name + "Wrapper");
 
 		if (optionalDefault.has_value())
-			scopedGenerator.Set("parameter.optional_default_value", optionalDefault.value());
-
-		// FIXME: Add support for optional, variadic, nullable and
-		// default values to all types
-		if (parameter.Type->IsString())
-		{
-			if (variadic)
-			{
-				scopedGenerator.Append(R"~~~(
-			std::vector<std::string> @cpp_name@;
-			@cpp_name@.reserve(vm.ArgumentCount() - @js_suffix@);
-
-			for (size_t i = @js_suffix@; i < args.Length(); i++)
-			{
-				auto toStringResult = args[0].ToString();
-				if (toStringResult.IsException())
-				{
-					return v8::ThrowException(v8::String::New("Could not convert argument to string"));
-				}
-				@cpp_name@.emplace_back(move(toStringResult.Value()));
-			}
-				)~~~");
-			}
-			else if (!optional)
-			{
-				if (!parameter.Type->Nullable)
-				{
-					scopedGenerator.Append(R"~~~(
-			std::string @cpp_name@;
-			if (@js_name@@js_suffix@.IsNull()) {
-				@cpp_name@ = "";
-			} else {
-				@cpp_name@ = @js_name@@js_suffix@.ToString().ToLocalChecked();
-			}
-					)~~~");
-				}
-				else
-				{
-					scopedGenerator.Append(R"~~~(
-			std::string @cpp_name@;
-			if (!@js_name@@js_suffix@.IsNull()) {
-				@cpp_name@ = @js_name@@js_suffix@.ToString().ToLocalChecked();
-					)~~~");
-				}
-			}
-			else
-			{
-				scopedGenerator.Append(R"~~~(
-			std::string @cpp_name@;
-			if (!@js_name@@js_suffix@.IsUndefined()) {
-				if(@js_name@@js_suffix@.IsNull() && @legacy_null_to_empty_string@) {
-					@cpp_name@ = "";
-				} else {
-					@cpp_name@ = @js_name@@js_suffix@.ToString().ToLocalChecked();
-				}
-			})~~~");
-
-				if (optionalDefault.has_value() && (!parameter.Type->Nullable || optionalDefault.value() != "null"))
-				{
-					scopedGenerator.Append(R"~~~(
-			else {
-				@cpp_name@ = @optional_default_value@;
-			}
-					)~~~");
-				}
-				else
-				{
-					scopedGenerator.Append(R"~~~(
-					)~~~");
-				}
-			}
-		}
-		else if (parameter.Type->Name == "EventListener")
-		{
-			// FIXME Relace this with support for CallbackInterfaces. https://heycam.github.io/webidl/#idl-callback-interface
-			if (parameter.Type->Nullable)
-			{
-			}
-		}
+			generator.Add("parameter.optional_default_value", optionalDefault.value());
 	}
 
 	void GenerateHeader(const Interface& interface)
 	{
-		std::stringstream builder;
-		SourceGenerator generator{ builder };
+		SourceGenerator generator;
 
-		generator.Set("acorn_root", "Acorn/scripting/v8");
-		generator.Set("idl_filename", interface.ModuleOwnPath);
+		generator.Add("acorn_root", "Acorn/scripting/v8");
+		generator.Add("idl_filename", std::filesystem::path(interface.ModuleOwnPath).filename().string());
 
 		generator.Append(R"~~~(
 /**
- * This file is generated by @acorn_root@/Generator.cpp from 
- * @idl_filename@.
+ * This file is generated from {{ idl_filename }}. Do not edit directly, as any changes will be lost.
  *
  * Copyright (c) 2022 Michael Finger
  * 
@@ -392,7 +315,7 @@ namespace Acorn::IDL
 
 #pragma once
 
-#include "@acorn_root@/Wrapper.h"
+#include "{{ acorn_root }}/Wrapper.h"
 #include "Acorn/Core.h"
 )~~~");
 
@@ -402,10 +325,10 @@ namespace Acorn::IDL
 		// }
 
 		EmitIncludesForAllImports(interface, generator, true);
-		generator.Set("name", interface.Name);
-		generator.Set("fully_qualified_name", interface.FullyQualifiedName);
-		generator.Set("wrapper_class", interface.WrapperClass);
-		generator.Set("wrapper_base_class", interface.WrapperBaseClass);
+		generator.Add("name", interface.Name);
+		generator.Add("fully_qualified_name", interface.FullyQualifiedName);
+		generator.Add("wrapper_class", interface.WrapperClass);
+		generator.Add("wrapper_base_class", interface.WrapperBaseClass);
 
 		if (interface.WrapperBaseClass == "Wrapper")
 			GenerateIncludeForWrapper(generator, interface.WrapperClass);
@@ -413,7 +336,7 @@ namespace Acorn::IDL
 		generator.Append(R"~~~(
 namespace Acorn::Scripting::V8
 {
-	class @wrapper_class@: public @wrapper_base_class@
+	class {{ wrapper_class }}: public {{ wrapper_base_class }}
 	{
 	public:
 
@@ -421,90 +344,28 @@ namespace Acorn::Scripting::V8
 
 		)~~~");
 
-		if (interface.ExtendedAttributes.contains("CustomGet"))
-		{
-			generator.Append(R"~~~(
-		virtual v8::Local<v8::Value> InternalGet(v8::Local<v8::String> property) override;
-		)~~~");
-		}
-		if (interface.ExtendedAttributes.contains("CustomSet"))
-		{
-			generator.Append(R"~~~(
-		virtual void InternalSet(v8::Local<v8::String> property, v8::Local<v8::Value> value) override;
-		)~~~");
-		}
-		if (interface.ExtendedAttributes.contains("CustomHasProperty"))
-		{
-			generator.Append(R"~~~(
-		virtual bool InternalHasProperty(v8::Local<v8::String> property) override;
-		)~~~");
-		}
-
-		if (interface.WrapperBaseClass == "Wrapper")
-		{
-			generator.Append(R"~~~(
-		@fully_qualified_name@& Impl() { return *m_Impl; }
-		const @fully_qualified_name@& Impl() const { return *m_Impl; }
-			)~~~");
-		}
-		else
-		{
-			generator.Append(R"~~~(
-		@fully_qualified_name@& Impl() { return static_cast<@fully_qualified_name@&>(@wrapper_base_class@::impl()); };
-		const @fully_qualified_name@& Impl() const { return static_cast<const @fully_qualified_name@&>(@wrapper_base_class@::impl()); };
-		)~~~");
-		}
-
-		if (interface.WrapperBaseClass == "Wrapper")
-		{
-			generator.Append(R"~~~(
-		@fully_qualified_name@* m_Impl;
-			)~~~");
-		}
 		generator.Append(R"~~~(
 	};
 		)~~~");
+
+		// ==================
+		// == Enumerations ==
+		// ==================
 
 		for (auto& it : interface.Enums)
 		{
 			if (!it.second.IsOriginalDefinition)
 				continue;
 
-			auto enumGenerator = generator.Fork();
-			enumGenerator.Set("enum.type.name", it.first);
-			enumGenerator.Append(R"~~~(
-	enum class @enum.type.name@ {
-		)~~~");
-
+			inja::json enumData;
+			enumData["name"]	= it.first;
+			enumData["entries"] = {};
 			for (auto& entry : it.second.TranslatedCppNames)
 			{
-				enumGenerator.Set("enum.entry", entry.second);
-				enumGenerator.Append(R"~~~(
-		@enum.entry@,
-				)~~~");
+				enumData["entries"].push_back({ { "name", entry.second }, { "string", entry.first } });
 			}
-
-			enumGenerator.Append(R"~~~(
-	};
-
-	inline std::string IDLEnumToString(@enum.type.name@ value) {
-		switch(value) {
-			)~~~");
-
-			for (auto& entry : it.second.TranslatedCppNames)
-			{
-				enumGenerator.Set("enum.entry", entry.second);
-				enumGenerator.Set("enum.string", entry.first);
-				enumGenerator.Append(R"~~~(
-			case @enum.type.name@::@enum.entry@: return "@enum.string@";
-			)~~~");
-			}
-
-			enumGenerator.Append(R"~~~(
-			default: return "<unknown>";
-		};
-	}
-			)~~~");
+			generator.Add(enumData);
+			generator.Append(EnumHeader);
 		}
 
 		if (ShouldEmitWrapperFactory(interface))
@@ -519,62 +380,71 @@ namespace Acorn::Scripting::V8
 )~~~");
 
 		std::cout << "===========\nHeader:\n========" << std::endl;
-		std::cout << generator.AsString() << std::endl;
+		std::cout << generator.Generate() << std::endl;
 	}
 
 	void GenerateImplementation(const Interface& interface)
 	{
-		std::stringstream builder;
-		SourceGenerator generator{ builder };
+		SourceGenerator generator;
 
-		generator.Set("acorn_root", "Acorn/scripting/v8");
-		generator.Set("idl_filename", interface.ModuleOwnPath);
+		generator.Add("acorn_root", "Acorn/scripting/v8");
+		generator.Add("idl_filename", std::filesystem::path(interface.ModuleOwnPath).filename().string());
 
-		generator.Set("name", interface.Name);
-		generator.Set("wrapper_class", interface.WrapperClass);
-		generator.Set("wrapper_base_class", interface.WrapperBaseClass);
-		generator.Set("prototype_class", interface.PrototypeClass);
-		generator.Set("fully_qualified_name", interface.FullyQualifiedName);
+		generator.Add("name", interface.Name);
 
-		generator.Append(R"~~~(
-/**
- * 
- * This file is generated by @acorn_root@/Generator.cpp from 
- * @idl_filename@.
- *
- * Copyright (c) 2022 Michael Finger
- * 
- * SPDX-License-Identifier: Apache-2.0 with Commons Clause
- * 
- * For more Information on the license, see the LICENSE.md file
- *
- * Copyright (c) 2022 Michael Finger
- */
+		// EmitIncludesForAllImports(interface, generator, false);
 
-#pragma once
+		auto& constructor = interface.Constructors[0];
 
-#include "Acorn/Core.h"
+		inja::json data;
+		data["constructor_args"] = {};
+		data["attributes"]		 = {};
+		data["methods"]			 = {};
 
-#include "@acorn_root@/@prototype_class@.h"
-#include "@acorn_root@/@wrapper_class@.h"
+		for (auto& arg : constructor.Parameters)
+		{
+			std::cout << arg.Name << ": " << arg.Type->Name << std::endl;
+			data["constructor_args"].push_back({
+				{ "type", arg.Type->Name },
+				{ "v8_type", ToV8Type(arg.Type) },
+				{ "name", arg.Name },
+			});
+		}
 
-#include <string_view>
-#include <string>
-		)~~~");
+		for (auto& attribute : interface.Attributes)
+		{
+			data["attributes"].push_back({
+				{ "name", attribute.Name },
+				{ "type", attribute.Type->Name },
+			});
+		}
 
-		EmitIncludesForAllImports(interface, generator, false);
+		for (auto& func : interface.Functions)
+		{
+			// TODO support variadic functions
+			data["methods"].push_back({
+				{ "name", func.Name },
+				{ "return_type", func.ReturnType->Name },
+				{ "v8_return_type", ToV8Type(func.ReturnType) },
+				{ "arguments", {} },
+			});
 
-		generator.Append(R"~~~(
-namespace Acorn::Scripting::V8
-{
-	@wrapper_class@* @wrapper_class@::create(v8::Local<v8::Object> global, @fully_qualified_name@& impl)
-	{
+			for (auto& arg : func.Parameters)
+			{
+				data["methods"].back()["arguments"].push_back({
+					{ "type", arg.Type->Name },
+					{ "v8_type", ToV8Type(arg.Type) },
+					{ "name", arg.Name },
+				});
+			}
+		}
 
-	}
-		)~~~");
+		generator.Add(data);
+
+		generator.Append(WrapperImplementation);
 
 		std::cout << "===========\nImplementation:\n========" << std::endl;
-		std::cout << generator.AsString() << std::endl;
+		std::cout << generator.Generate() << std::endl;
 	}
 
 	void GeneratePrototypeHeader(Interface const&) {}

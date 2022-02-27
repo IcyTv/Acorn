@@ -156,35 +156,43 @@ int main(int argc, const char* argv[])
 		}
 	}
 
-	if (headerMode.Get())
-		Acorn::IDL::GenerateHeader(*interface);
+	try
+	{
+		if (headerMode.Get())
+			Acorn::IDL::GenerateHeader(*interface);
 
-	if (implementationMode.Get())
-		Acorn::IDL::GenerateImplementation(*interface);
+		if (implementationMode.Get())
+			Acorn::IDL::GenerateImplementation(*interface);
 
-	// if (constructorHeaderMode.Get())
-	// 	Acorn::IDL::GenerateConstructorHeader(*interface);
+		// if (constructorHeaderMode.Get())
+		// 	Acorn::IDL::GenerateConstructorHeader(*interface);
 
-	// if (constructorImplementationMode)
-	// 	Acorn::IDL::GenerateConstructorImplementation(*interface);
+		// if (constructorImplementationMode)
+		// 	Acorn::IDL::GenerateConstructorImplementation(*interface);
 
-	if (prototypeHeaderMode.Get())
-		Acorn::IDL::GeneratePrototypeHeader(*interface);
+		if (prototypeHeaderMode.Get())
+			Acorn::IDL::GeneratePrototypeHeader(*interface);
 
-	if (prototypeImplementationMode.Get())
-		Acorn::IDL::GeneratePrototypeImplementation(*interface);
+		if (prototypeImplementationMode.Get())
+			Acorn::IDL::GeneratePrototypeImplementation(*interface);
 
-	if (iteratorHeaderMode.Get())
-		Acorn::IDL::GenerateIteratorHeader(*interface);
+		if (iteratorHeaderMode.Get())
+			Acorn::IDL::GenerateIteratorHeader(*interface);
 
-	if (iteratorImplementationMode.Get())
-		Acorn::IDL::GenerateIteratorImplementation(*interface);
+		if (iteratorImplementationMode.Get())
+			Acorn::IDL::GenerateIteratorImplementation(*interface);
 
-	if (iteratorPrototypeHeaderMode.Get())
-		Acorn::IDL::GenerateIteratorPrototypeHeader(*interface);
+		if (iteratorPrototypeHeaderMode.Get())
+			Acorn::IDL::GenerateIteratorPrototypeHeader(*interface);
 
-	if (iteratorPrototypeImplementationMode.Get())
-		Acorn::IDL::GenerateIteratorPrototypeImplementation(*interface);
+		if (iteratorPrototypeImplementationMode.Get())
+			Acorn::IDL::GenerateIteratorPrototypeImplementation(*interface);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
+	}
 
 	return 0;
 }

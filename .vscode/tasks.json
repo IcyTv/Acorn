@@ -49,14 +49,14 @@
 			"args": [
 				"compile",
 				"-C",
-				"builddir"
+				"builddir",
+				"IDLParser"
 			],
 			"problemMatcher": {
 				"base": "$msCompile",
 				"fileLocation": [
 					"relative",
-					"${workspaceFolder}/builddir",
-					"IDLParser"
+					"${workspaceFolder}",
 				],
 			},
 			"group": "build",
