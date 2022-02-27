@@ -4,6 +4,7 @@
 
 #include <inja/inja.hpp>
 
+#include <filesystem>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -13,21 +14,22 @@ namespace Acorn::IDL
 {
 	class SourceGenerator
 	{
-public:
-		SourceGenerator();
+		public:
+			SourceGenerator();
 
-		void Add(std::string_view name, std::string_view value);
-		void Add(const inja::json& data);
+			void Add(std::string_view name, std::string_view value);
+			void Add(const inja::json& data);
 
-		void Append(std::string_view tpl);
-		void Append(const inja::Template& tpl);
+			void Append(std::string_view tpl);
+			void Append(const inja::Template& tpl);
+			void AppendFile(const std::filesystem::path& path);
 
-		std::string Generate() const;
+			std::string Generate() const;
 
-private:
-		std::stringstream m_Buffer;
-		inja::Environment m_Environment;
-		inja::json m_Data;
+		private:
+			std::stringstream m_Buffer;
+			inja::Environment m_Environment;
+			inja::json m_Data;
 	};
 
 } // namespace Acorn::IDL

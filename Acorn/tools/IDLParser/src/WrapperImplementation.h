@@ -64,9 +64,9 @@ namespace Acorn::Scripting::V8
 		v8::Isolate* isolate = args.GetIsolate();
 		v8::HandleScope scope(isolate);
 
-		if(args.Length() != {{ length(method.arguments) }})
+		if(args.Length() != {{ length(method.args) }})
 		{
-			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("{{ method.name }} expects {{ length(method.arguments) }} arguments.")));
+			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("{{ method.name }} expects {{ length(method.args) }} arguments.")));
 		}
 
 		{{ name }}* obj = {{ name }}Wrapper::Unwrap(args.This());
@@ -76,17 +76,17 @@ namespace Acorn::Scripting::V8
 			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("{{ name }} is not a valid object.")));
 		}
 
-## for args in method.arguments
+{% for arg in method.args %}
 		if(!args[{{ loop.index1 - 1 }}]->Is{{ args.v8_type }}())
 		{
-			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("Argument {{ loop.index1 }} is not a {{ args.v8_type }}.")));
+			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("Argument {{ loop.index1 }} is not a {{ arg.v8_type }}.")));
 		}
-		auto arg{{ loop.index1 }} = args[{{ loop.index1 - 1 }}]->To{{ args.v8_type }}(isolate->GetCurrentContext());
-## endfor
+		auto arg{{ loop.index1 }} = args[{{ loop.index1 - 1 }}]->To{{ arg.v8_type }}(isolate->GetCurrentContext());
+{% endfor %}
 
 		//Call method
 		auto result = obj->{{ method.name }}(
-## for args in method.arguments
+## for args in method.args
 			arg{{ loop.index1 }},
 ## endfor
 		);
