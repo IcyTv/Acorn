@@ -42,11 +42,7 @@ namespace Acorn::Scripting::V8
 ## endfor
 
 		//Create object
-		{{ name }}* obj = new {{ name }}(
-## for arg in constructor_args
-			arg{{ loop.index1 }},
-## endfor
-		);
+		{{ name }}* obj = new {{ name }}({{ join_with_range(", ", "arg{}", length(constructor_args)) }});
 
 		args.This()->SetInternalField(0, v8::External::New(args.GetIsolate(), obj));
 
@@ -54,14 +50,14 @@ namespace Acorn::Scripting::V8
 	}
 
 ## for method in methods
-	static v8::Local<v8::Value> {{ name }}{{ method.name }}(const v8::FunctionCallbackInfo<v8::Value>& args)
+	static v8::Local<v8::Value> {{ name }}{{ to_pascal_case(method.name) }}(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		v8::Isolate* isolate = args.GetIsolate();
 		v8::HandleScope scope(isolate);
 
-		if(args.Length() != {{ length(method.arguments) }})
+		if(args.Length() != {{ length(method.args) }})
 		{
-			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("{{ method.name }} expects {{ length(method.arguments) }} arguments.")));
+			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("{{ method.name }} expects {{ length(method.args) }} arguments.")));
 		}
 
 		{{ name }}* obj = {{ name }}Wrapper::Unwrap(args.This());
@@ -71,20 +67,16 @@ namespace Acorn::Scripting::V8
 			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("{{ name }} is not a valid object.")));
 		}
 
-## for args in method.arguments
-		if(!args[{{ loop.index1 - 1 }}]->Is{{ args.v8_type }}())
+## for arg in method.args
+		if(!args[{{ loop.index1 - 1 }}]->Is{{ arg.v8_type }}())
 		{
-			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("Argument {{ loop.index1 }} is not a {{ args.v8_type }}.")));
+			return v8::ThrowException(v8::Exception::TypeError(v8::String::New("Argument {{ loop.index1 }} is not a {{ arg.v8_type }}.")));
 		}
-		auto arg{{ loop.index1 }} = args[{{ loop.index1 - 1 }}]->To{{ args.v8_type }}(isolate->GetCurrentContext());
+		auto arg{{ loop.index1 }} = args[{{ loop.index1 - 1 }}]->To{{ arg.v8_type }}(isolate->GetCurrentContext());
 ## endfor
 
 		//Call method
-		auto result = obj->{{ method.name }}(
-## for args in method.arguments
-			arg{{ loop.index1 }},
-## endfor
-		);
+		auto result = obj->{{ method.name }}({{ join_with_range(", ", "arg{}", length(method.args)) }});
 
 		if(result.IsEmpty())
 		{

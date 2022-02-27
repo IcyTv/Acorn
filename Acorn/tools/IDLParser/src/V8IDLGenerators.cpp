@@ -421,27 +421,31 @@ namespace Acorn::Scripting::V8
 
 		for (auto& func : interface.Functions)
 		{
-			// TODO support variadic functions
-			data["methods"].push_back({
-				{ "name", func.Name },
-				{ "return_type", func.ReturnType->Name },
-				{ "v8_return_type", ToV8Type(func.ReturnType) },
-				{ "arguments", {} },
-			});
+			inja::json methodData;
+			methodData["name"]			 = func.Name;
+			methodData["args"]			 = inja::json::array();
+			methodData["return_type"]	 = func.ReturnType->Name;
+			methodData["return_v8_type"] = ToV8Type(func.ReturnType);
 
 			for (auto& arg : func.Parameters)
 			{
-				data["methods"].back()["arguments"].push_back({
-					{ "type", arg.Type->Name },
-					{ "v8_type", ToV8Type(arg.Type) },
-					{ "name", arg.Name },
-				});
+				inja::json argData;
+				argData["type"]	   = arg.Type->Name;
+				argData["v8_type"] = ToV8Type(arg.Type);
+				argData["name"]	   = arg.Name;
+
+				methodData["args"].push_back(argData);
 			}
+
+			std::cout << "Method: " << methodData << std::endl;
+
+			data["methods"].push_back(methodData);
 		}
 
 		generator.Add(data);
 
-		generator.Append(WrapperImplementation);
+		// generator.Append(WrapperImplementation);
+		generator.AppendFile("WrapperImplementation.tpl");
 
 		std::cout << "===========\nImplementation:\n========" << std::endl;
 		std::cout << generator.Generate() << std::endl;
