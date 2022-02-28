@@ -10,9 +10,22 @@ project('Acorn', 'cpp',
 
 add_global_arguments('-DACORN_STATIC_DEFINE', language: 'cpp')
 
+if get_option('profiling')
+	# compile_args += ',-DAC_PROFILE=1'
+	add_project_arguments('-DAC_PROFILE=1', language: 'cpp')
+	# compile_args += ',-DENABLE_TRACY'
+	add_project_arguments('-DTRACY_ENABLE', language: 'cpp')
+endif
+if get_option('debug')
+	# compile_args += ',-DAC_DEBUG=1'
+	add_project_arguments('-DAC_DEBUG=1', language: 'cpp')
+	# compile_args += ',-DAC_ENABLE_ASSERTS'
+	add_project_arguments('-DAC_ENABLE_ASSERTS', language: 'cpp')
+endif
+
+subdir('Acorn/tools/IDLParser')
 subdir('Acorn')
 subdir('OakTree')
-subdir('Acorn/tools/IDLParser')
 
 gtest = subproject('gtest')
 

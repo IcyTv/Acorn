@@ -1,0 +1,11 @@
+interface Vec3
+{
+    constructor(double x, double y, double z);
+
+    attribute double x;
+    attribute double y;
+    attribute double z;
+
+    double length();
+    double lengthSquared();
+};

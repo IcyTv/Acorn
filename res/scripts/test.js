@@ -11,6 +11,12 @@ let Test = class Test extends ScriptSuperClass {
 		this.#spriteRenderer = this.GetComponent(ComponentTypes.SpriteRenderer);
 		this.#boxCollider = this.GetComponent(ComponentTypes.BoxCollider2d);
 		this.#origColor = this.#spriteRenderer.Color;
+
+		let test = new Vec2(1, 0);
+		print(test.lengthSquared());
+		let test3 = new Vec3(1, 1, 1);
+		print(test3.length());
+		print(test3.lengthSquared());
 	}
 	OnUpdate() {
 		let [x, y] = Input.GetMousePosition();

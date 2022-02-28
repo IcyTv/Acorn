@@ -1,14 +1,71 @@
 #include "SourceGenerator.h"
 
-#include <filesystem>
+#include <magic_enum.hpp>
 #include <fmt/format.h>
+
+#include <filesystem>
+#include <optional>
 
 namespace Acorn::IDL
 {
-	static std::filesystem::path ResolvePath(std::filesystem::path resolver)
+	enum class KnownV8Types
 	{
-		const auto path = std::filesystem::path("Acorn/tools/IDLParser/src/");
-		return path / resolver;
+		Boolean,
+		Number,
+		String,
+		Object,
+		Array,
+		Function
+	};
+
+	static std::string CppToV8Callback(inja::Arguments& args)
+	{
+		const auto& arg = args.at(0)->get<std::string>();
+		const auto& name = args.at(1)->get<std::string>();
+		std::optional<KnownV8Types> type = magic_enum::enum_cast<KnownV8Types>(arg);
+		if(type)
+		{
+			switch(*type)
+			{
+				case KnownV8Types::Boolean:
+					return "v8::Boolean::New(isolate, name)";
+				case KnownV8Types::Number:
+					return "v8::Number::New(isolate, name)";
+				case KnownV8Types::String:
+					return "v8::String::NewFromUtf8(isolate, name)";
+				case KnownV8Types::Object:
+					return "v8::Object::New(isolate)";
+				case KnownV8Types::Array:
+					return "v8::Array::New(isolate)";
+				case KnownV8Types::Function:
+					return "v8::Function::New(isolate, name)";
+			}
+		} else {
+			throw std::runtime_error(fmt::format("Unknown V8 type: {}", arg));
+		}
+
+	}
+
+	static std::string V8ToCppCallback(inja::Arguments& args)
+	{
+		static const char* PATTERN = "v8::Local<v8::{0}>::Cast({1}).Value()";
+
+		const auto& arg = args.at(0)->get<std::string>();
+		const auto& name = args.at(1)->get<std::string>();
+		std::optional<KnownV8Types> type = magic_enum::enum_cast<KnownV8Types>(arg);
+		if(type)
+		{
+			switch(*type)
+			{
+				case KnownV8Types::Boolean:
+					return fmt::format(PATTERN, "Boolean", name);
+				case KnownV8Types::Number:
+					return fmt::format(PATTERN, "Number", name);
+				default:
+					//TODO
+					return "";
+			}
+		}
 	}
 
 	static std::string toPascalCase(std::string_view str)
@@ -22,6 +79,13 @@ namespace Acorn::IDL
 			if (c == '_')
 			{
 				first = true;
+				continue;
+			}
+
+			// Ignore already uppercased characters
+			if(isupper(c))
+			{
+				result += c;
 				continue;
 			}
 
@@ -39,8 +103,11 @@ namespace Acorn::IDL
 		return result;
 	}
 
-	SourceGenerator::SourceGenerator()
+	SourceGenerator::SourceGenerator(std::string templatePath)
+		: m_Environment(templatePath)
 	{
+		std::cerr << "Template path: " << templatePath << std::endl;
+
 		m_Environment.add_callback(
 			"to_pascal_case",
 			[](inja::Arguments& args)
@@ -65,16 +132,19 @@ namespace Acorn::IDL
 				auto size	   = args.at(2)->get<int>();
 
 				std::stringstream ss;
-				for (int i = 0; i < size; ++i)
+				for (int i = 1; i < size + 1; ++i)
 				{
 					ss << fmt::format(pattern, i);
-					if (i != size - 1)
+					if (i != size)
 						ss << seperator;
 				}
 
 				return ss.str();
 			}
 		);
+
+		m_Environment.add_callback("cpp_to_v8", CppToV8Callback);
+		m_Environment.add_callback("v8_to_cpp", V8ToCppCallback);
 	}
 
 	void SourceGenerator::Add(std::string_view name, std::string_view value)
@@ -101,11 +171,7 @@ namespace Acorn::IDL
 
 	void SourceGenerator::AppendFile(const std::filesystem::path& path)
 	{
-		auto p = ResolvePath(path);
-		if (!std::filesystem::exists(p))
-			throw new std::runtime_error("File does not exist");
-
-		m_Buffer << m_Environment.render_file(p.string(), m_Data);
+		m_Buffer << m_Environment.render_file(path.string(), m_Data);
 	}
 
 	std::string SourceGenerator::Generate() const
