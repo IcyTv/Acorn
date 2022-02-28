@@ -1,0 +1,10 @@
+interface Vec2
+{
+    constructor(double x, double y);
+
+    attribute double x;
+    attribute double y;
+
+    double length();
+    double lengthSquared();
+};

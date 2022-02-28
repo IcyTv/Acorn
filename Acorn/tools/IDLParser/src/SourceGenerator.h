@@ -1,13 +1,10 @@
-/*
- * Copyright (c) 2020, the SerenityOS developers.
- *
- * SPDX-License-Identifier: BSD-2-Clause
- */
-
 #pragma once
 
 #include "GenericLexer.h"
 
+#include <inja/inja.hpp>
+
+#include <filesystem>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -17,66 +14,24 @@ namespace Acorn::IDL
 {
 	class SourceGenerator
 	{
-	public:
-		using MappingType = std::unordered_map<std::string_view, std::string>;
+		public:
+			SourceGenerator() = delete;
+			explicit SourceGenerator(std::string templatePath);
 
-		explicit SourceGenerator(std::stringstream& builder, char opening = '@', char closing = '@')
-			: m_Builder(builder), m_Opening(opening), m_Closing(closing)
-		{
-		}
+			void Add(std::string_view name, std::string_view value);
+			void Add(const inja::json& data);
 
-		explicit SourceGenerator(std::stringstream& builder, const MappingType& mapping, char opening = '@', char closing = '@')
-			: m_Builder(builder), m_Mapping(mapping), m_Opening(opening), m_Closing(closing)
-		{
-		}
+			void Append(std::string_view tpl);
+			void Append(const inja::Template& tpl);
+			void AppendFile(const std::filesystem::path& path);
 
-		SourceGenerator Fork() { return SourceGenerator{m_Builder, m_Mapping, m_Opening, m_Closing}; }
+			std::string Generate() const;
 
-		inline void Set(std::string_view Key, std::string Value) { m_Mapping[Key] = Value; }
-		inline std::string Get(std::string_view Key) const { return m_Mapping.at(Key); }
+		private:
+			std::stringstream m_Buffer;
+			inja::Environment m_Environment;
+			inja::json m_Data;
 
-		std::string_view AsStringView() const { return m_Builder.str(); }
-		std::string AsString() const { return m_Builder.str(); }
-
-		void Append(std::string_view pattern)
-		{
-			GenericLexer lexer{pattern};
-
-			while (!lexer.is_eof())
-			{
-				const auto consumeWithoutConsumingStopChar = [&](char stop)
-				{
-					return lexer.consume_while([&](char c)
-											   { return c != stop; });
-				};
-
-				m_Builder << consumeWithoutConsumingStopChar(m_Opening);
-
-				if (lexer.consume_specific(m_Opening))
-				{
-					const auto placeholder = consumeWithoutConsumingStopChar(m_Closing);
-
-					if (!lexer.consume_specific(m_Closing))
-						throw std::runtime_error("Expected closing character");
-
-					m_Builder << Get(placeholder);
-				}
-				else
-				{
-					assert(lexer.is_eof());
-				}
-			}
-		}
-
-	private:
-		SourceGenerator(const SourceGenerator&) = delete;
-		SourceGenerator& operator=(const SourceGenerator&) = delete;
-
-	private:
-		std::stringstream& m_Builder;
-		char m_Opening;
-		char m_Closing;
-		MappingType m_Mapping;
 	};
 
-}
+} // namespace Acorn::IDL

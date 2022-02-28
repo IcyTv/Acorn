@@ -85,7 +85,16 @@
 		"xtr1common": "cpp",
 		"xtree": "cpp",
 		"xutility": "cpp",
-		"__split_buffer": "cpp"
+		"__split_buffer": "cpp",
+		"execution": "cpp",
+		"*.ipp": "cpp",
+		"__bit_reference": "cpp",
+		"__hash_table": "cpp",
+		"__string": "cpp",
+		"__tree": "cpp",
+		"hash_map": "cpp",
+		"hash_set": "cpp",
+		"string_view": "cpp"
 	},
 	"cmake.configureOnOpen": false,
 	"python.pythonPath": "C:\\Users\\mifi2\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
