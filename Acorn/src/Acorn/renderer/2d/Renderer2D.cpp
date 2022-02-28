@@ -72,7 +72,7 @@ namespace Acorn::ext2d
 		uint32_t white = 0xffffffff;
 		s_Data.WhiteTexture->SetData(&white, sizeof(white));
 
-		s_Data.TextureShader = Shader::Create("res/shaders/Textured.shader");
+		s_Data.TextureShader = Shader::Create(Acorn::Utils::File::ResolveResPath("res/shaders/Textured.shader"));
 
 		s_Data.QuadVertexPositions[0] = {-0.5f, -0.5f, 0.0f, 1.0f};
 		s_Data.QuadVertexPositions[1] = {0.5f, -0.5f, 0.0f, 1.0f};
@@ -92,7 +92,7 @@ namespace Acorn::ext2d
 			{ShaderDataType::Int, "a_EntityId"},
 		};
 
-		s_Data.CircleShader = Shader::Create("res/shaders/Circle.shader");
+		s_Data.CircleShader = Shader::Create(Acorn::Utils::File::ResolveResPath("res/shaders/Circle.shader"));
 		s_Data.CircleRenderer = CreateScope<BatchRenderer<CircleVertex, 6, 4>>(s_Data.CircleShader, indices, circleLayout);
 	}
 

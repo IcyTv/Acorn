@@ -25,6 +25,7 @@ headers = files(
 	'Acorn/events/KeyEvent.h',
 	'Acorn/events/MouseEvent.h',
 	'Acorn/gui/ImGuiLayer.h',
+	'Acorn/gui/GUITools.h',
 	'Acorn/input/Input.h',
 	'Acorn/input/KeyCodes.h',
 	'Acorn/input/MouseButtonCodes.h',

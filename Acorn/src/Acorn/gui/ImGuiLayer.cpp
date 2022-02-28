@@ -7,6 +7,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "Acorn/utils/FileUtils.h"
 #include "renderer/RenderCommand.h"
 
 #include "utils/fonts/IconsFontAwesome4.h"
@@ -19,8 +20,51 @@
 
 #include <GLFW/glfw3.h>
 
+#include <filesystem>
+#ifdef AC_PLATFORM_WINDOWS
+	#include <windows.h>
+#else
+	#include <unistd.h>
+	#include <cstring>
+	#include <cerrno>
+#endif
 namespace Acorn
 {
+	// Stores the ImGUI ini filepath, so it never goes out of scope
+	static std::string s_ImGuiINIFilePath;
+
+	/**
+	 * @brief Get the ImGui Ini file path
+	 *
+	 * Thanks, https://stackoverflow.com/a/70052837
+	 *
+	 * @return std::filesystem::path The path to the ImGui Ini file
+	 */
+	static std::filesystem::path GetIniPath()
+	{
+#ifdef AC_PLATFORM_WINDOWS
+		wchar_t path[MAX_PATH];
+		if (!GetModuleFileNameW(nullptr, path, MAX_PATH))
+		{
+			DWORD error = GetLastError();
+			AC_CORE_ASSERT(false, "Failed to get the executable path: {0}", error);
+			return {};
+		}
+#else
+		char path[PATH_MAX];
+		ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
+		if (len < 0 || len >= MAX_PATH)
+		{
+			AC_CORE_ASSERT(false, "Could not get executable path: {}!", strerror(errno));
+			return {};
+		}
+		path[len] = '\0';
+#endif
+		std::filesystem::path p(path);
+		p.replace_filename("imgui.ini");
+		return p;
+	}
+
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
 	{
@@ -39,7 +83,11 @@ namespace Acorn
 		// ImPlot::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
-		(void)io;
+
+		s_ImGuiINIFilePath = GetIniPath().string();
+		AC_CORE_INFO("Loading ImGui INI file: {0}", s_ImGuiINIFilePath);
+		io.IniFilename = s_ImGuiINIFilePath.c_str();
+
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		// io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -49,14 +97,14 @@ namespace Acorn
 
 		ImFontConfig font_config;
 		font_config.MergeMode = false;
-		io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Bold.ttf", 16.0f, &font_config);
+		io.Fonts->AddFontFromFileTTF(Acorn::Utils::File::ResolveResPath("res/fonts/Inconsolata-Bold.ttf").c_str(), 16.0f, &font_config);
 
 		ImFontConfig config;
 		config.MergeMode = true;
 		config.GlyphMinAdvanceX = 16.0f; // Use if you want to make the icon monospaced
 		static const ImWchar icon_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
-		io.Fonts->AddFontFromFileTTF("res/fonts/Inconsolata-Regular.ttf", 16.0f, &font_config);
-		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FA, 16.0f, &config, icon_ranges);
+		io.Fonts->AddFontFromFileTTF(Acorn::Utils::File::ResolveResPath("res/fonts/Inconsolata-Regular.ttf").c_str(), 16.0f, &font_config);
+		io.Fonts->AddFontFromFileTTF(Acorn::Utils::File::ResolveResPath(FONT_ICON_FILE_NAME_FA).c_str(), 16.0f, &config, icon_ranges);
 		io.Fonts->Build();
 
 		io.FontDefault = io.Fonts->Fonts[1];
@@ -67,7 +115,7 @@ namespace Acorn
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			style.WindowRounding = 0.0f;
+			style.WindowRounding = 5.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
@@ -162,6 +210,11 @@ namespace Acorn
 		colors[ImGuiCol_TitleBg] = ImVec4(0.15f, 0.1505f, 0.151f, 1.0f);
 		colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.1505f, 0.151f, 1.0f);
 		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.1505f, 0.151f, 1.0f);
+
+		auto& styles = ImGui::GetStyle();
+
+		styles.WindowBorderSize = 0.0f;
+		styles.WindowRounding = 5.0f;
 	}
 
 	void ImGuiLayer::OnImGuiRender(Timestep)

@@ -175,7 +175,7 @@ namespace Acorn
 			data = stbi_load(m_Path.c_str(), &width, &height, &channels, 0);
 		}
 
-		AC_CORE_ASSERT(data, "Failed to load image");
+		AC_CORE_ASSERT(data, "Failed to load image {}", m_Path);
 
 		m_Width = width;
 		m_Height = height;

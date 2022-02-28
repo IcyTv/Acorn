@@ -17,6 +17,8 @@ namespace Acorn::Utils
 		std::string MD5HashFilePath(const std::string& filePath);
 		std::string MD5HashString(const std::string& data);
 
+		std::string ResolveResPath(const std::string& filePath);
+
 		enum class FileStatus
 		{
 			Created,

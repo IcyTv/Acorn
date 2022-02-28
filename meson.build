@@ -10,6 +10,10 @@ project('Acorn', 'cpp',
 
 add_global_arguments('-DACORN_STATIC_DEFINE', language: 'cpp')
 
+if get_option('enable-tests')
+	add_global_arguments('-DAC_TEST=1', language: 'cpp')
+endif
+
 if get_option('profiling')
 	# compile_args += ',-DAC_PROFILE=1'
 	add_project_arguments('-DAC_PROFILE=1', language: 'cpp')

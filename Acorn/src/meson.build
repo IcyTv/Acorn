@@ -11,6 +11,7 @@ sources = files(
 	'Acorn/ecs/components/SceneCamera.cpp',
 	'Acorn/ecs/Entity.cpp',
 	'Acorn/ecs/Scene.cpp',
+	'Acorn/gui/GUITools.cpp',
 	'Acorn/gui/ImGuiBuild.cpp',
 	'Acorn/gui/ImGuiLayer.cpp',
 	'Acorn/layer/Layer.cpp',

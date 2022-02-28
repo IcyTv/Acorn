@@ -147,9 +147,12 @@ namespace Acorn
 		v8::ScriptOrigin origin(
 			v8::String::NewFromUtf8(cx->GetIsolate(), name).ToLocalChecked(),
 			v8::Integer::New(cx->GetIsolate(), 0),
-			v8::Integer::New(cx->GetIsolate(), 0), v8::False(cx->GetIsolate()),
-			v8::Local<v8::Integer>(), v8::Local<v8::Value>(),
-			v8::False(cx->GetIsolate()), v8::False(cx->GetIsolate()),
+			v8::Integer::New(cx->GetIsolate(), 0),
+			v8::False(cx->GetIsolate()),
+			v8::Local<v8::Integer>(),
+			v8::Local<v8::Value>(),
+			v8::False(cx->GetIsolate()),
+			v8::False(cx->GetIsolate()),
 			v8::True(cx->GetIsolate()));
 
 		v8::Context::Scope context_scope(cx);
@@ -295,10 +298,10 @@ namespace Acorn
 		{
 			return loadModule(Utils::File::ReadFile(*str), *str, context);
 		}
-		else if (std::filesystem::exists("res/scripts/builtins/" + path.string()))
+		else if (std::filesystem::exists(Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + path.string()))
 		{
 			// TODO get module path and look for siblings/resolve path from it
-			std::filesystem::path newPath = "res/scripts/builtins/";
+			std::filesystem::path newPath = Acorn::Utils::File::ResolveResPath("res/scripts/builtins/");
 			newPath /= path;
 
 			return loadModule(Utils::File::ReadFile(newPath.string()), *str, context);
@@ -307,17 +310,17 @@ namespace Acorn
 		{
 			return loadModule(Utils::File::ReadFile((requestPath / path).string()), *str, context);
 		}
-		else if (std::filesystem::exists("res/scripts/builtins/" + (requestPath / path).string()))
+		else if (std::filesystem::exists(Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + (requestPath / path).string()))
 		{
-			return loadModule(Utils::File::ReadFile("res/scripts/builtins/" + (requestPath / path).string()), *str, context);
+			return loadModule(Utils::File::ReadFile(Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + (requestPath / path).string()), *str, context);
 		}
 		else
 		{
 			// TODO if folder check for index.js
 			AC_CORE_TRACE("Tried {}", path.string());
-			AC_CORE_TRACE("Tried {}", "res/scripts/builtins/" + path.string());
+			AC_CORE_TRACE("Tried {}", Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + path.string());
 			AC_CORE_TRACE("Tried {}", requestPath / path);
-			AC_CORE_TRACE("Tried {}", "res/scripts/builtins/" + (requestPath / path).string());
+			AC_CORE_TRACE("Tried {}", Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + (requestPath / path).string());
 			AC_CORE_ASSERT(false, "Failed to load module");
 			return v8::MaybeLocal<v8::Module>();
 		}
@@ -377,9 +380,7 @@ namespace Acorn
 			return retVal;
 	}
 
-	void V8Import::callMeta(v8::Local<v8::Context> context,
-							v8::Local<v8::Module> module,
-							v8::Local<v8::Object> meta)
+	void V8Import::callMeta(v8::Local<v8::Context> context, v8::Local<v8::Module> module, v8::Local<v8::Object> meta)
 	{
 		AC_PROFILE_FUNCTION();
 

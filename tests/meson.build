@@ -1,6 +1,6 @@
 assert(not get_option('profiling'), 'Cannot build tests with profiling enabled!')
 
-all_test_deps = []
+all_test_deps = [libacorn_dep]
 all_test_dep_libs = []
 project_test_sources = []
 
@@ -13,6 +13,7 @@ test_deps = [
 ]
 
 subdir('unittests')
+subdir('integrationtests')
 
 
 project_test_sources += test_main

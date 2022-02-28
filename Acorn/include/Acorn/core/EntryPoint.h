@@ -4,7 +4,7 @@
 #include "Core.h"
 #include "Log.h"
 
-#if defined(AC_PLATFORM_WINDOWS) || defined(AC_PLATFORM_LINUX)
+#if (defined(AC_PLATFORM_WINDOWS) || defined(AC_PLATFORM_LINUX)) && !defined(AC_TEST)
 
 extern Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args);
 
@@ -24,12 +24,15 @@ int main(int argc, char** argv)
 	}
 }
 
-	#define AC_ENTRY(class)                                                           \
-		Acorn::Application* Acorn::CreateApplication(ApplicationCommandLineArgs args) \
-		{                                                                             \
-			return new class(args);                                                   \
-		}
-
 #else
 	#error Unsupported Platform!
 #endif
+
+#define AC_ENTRY(className)                                             \
+	namespace Acorn                                                     \
+	{                                                                   \
+		Application* CreateApplication(ApplicationCommandLineArgs args) \
+		{                                                               \
+			return new className(args);                                 \
+		}                                                               \
+	}
