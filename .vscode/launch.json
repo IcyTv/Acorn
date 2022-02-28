@@ -14,16 +14,20 @@
 			"preLaunchTask": "Build Whole Project"
 		},
 		{
-			"name": "Debug All Tests",
+			"name": "IDL Parser",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/builddir/tests/all_tests.exe",
-			"args": [],
+			"program": "${workspaceFolder}/builddir/Acorn/tools/IDLParser/IDLParser.exe",
+			"args": [
+				"Acorn/tools/test/test.webidl",
+				"-H",
+				"-I"
+			],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
 			"environment": [],
 			"console": "integratedTerminal",
-			"preLaunchTask": "Build Whole Project"
+			"preLaunchTask": "Build IDLParser"
 		}
 	]
 }

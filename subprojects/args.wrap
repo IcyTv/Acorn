@@ -1,0 +1,6 @@
+[wrap-git]
+url = https://github.com/Taywee/args.git
+revision = 6.3.0
+
+[provide]
+args = args_dep
