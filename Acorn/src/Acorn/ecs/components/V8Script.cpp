@@ -14,6 +14,9 @@
 #include "utils/v8/V8Import.h"
 #include "v8pp/ptr_traits.hpp"
 
+#include "Vec2Wrapper.h"
+#include "Vec3Wrapper.h"
+
 #include <boost/variant/detail/apply_visitor_delayed.hpp>
 #include <boost/variant/get.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -817,7 +820,11 @@ namespace Acorn
 
 		DeclareTypes(global);
 
+		Acorn::Scripting::V8::Vec2Wrapper::Bind(m_Isolate, global);
+		Acorn::Scripting::V8::Vec3Wrapper::Bind(m_Isolate, global);
+
 		v8::Local<v8::Context> context = v8::Context::New(m_Isolate, nullptr, global);
+
 
 		return context;
 	}
