@@ -1,22 +1,6 @@
 inc = include_directories('src')
 
-# TODO I don't know if I actually want to handle templates this way...
-# Maybe in the future we read tpl files from the disk, or we write them directly in the header file...
-
-# tpl_files = files(
-# 	'src/EnumHeader.tpl',
-# 	'src/WrapperHeader.tpl',
-# 	'src/WrapperImplementation.tpl'
-# )
-
-# python = import('python').find_installation('python3')
-
-# foreach file : tpl_files
-# 	run_command(python, ['tpl_generator.py', file])
-# endforeach
-
 sources = files(
-	# 'src/InjaRenderer.cpp',
 	'src/GenericLexer.cpp',
 	'src/V8IDLGenerators.cpp',
 	'src/SourceGenerator.cpp',
@@ -25,8 +9,39 @@ sources = files(
 	'src/main.cpp',
 )
 
+tpl_files = files(
+    'src/WrapperHeader.tpl',
+    'src/WrapperImplementation.tpl',
+    'src/Enum.tpl',
+)
+
+boost = dependency('boost')
 args = dependency('args')
 inja = dependency('inja')
 fmt = dependency('fmt')
+magic_enum = dependency('magic_enum')
 
-idl_parser = executable('IDLParser', sources, include_directories: inc, dependencies: [args, boost, inja, fmt])
+fs = import('fs')
+
+configured_templates = []
+
+foreach tpl_file: tpl_files
+    configured_templates += configure_file(
+        input: tpl_file,
+        output: fs.name(tpl_file),
+        copy: true
+    )
+endforeach
+
+idl_parser = executable('IDLParser',
+    sources,
+    include_directories: inc,
+    dependencies: [args, inja, fmt, boost, magic_enum],
+    link_depends: configured_templates,
+)
+
+idl_generator = generator(idl_parser,
+    output: ['@BASENAME@Wrapper.h', '@BASENAME@Wrapper.cpp'],
+    arguments: ['-I', '-H', '@INPUT@', '-vvv', '-o', '@OUTPUT0@', '-o', '@OUTPUT1@'],
+    depends: idl_parser,
+)

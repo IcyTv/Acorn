@@ -15,7 +15,8 @@ namespace Acorn::IDL
 	class SourceGenerator
 	{
 		public:
-			SourceGenerator();
+			SourceGenerator() = delete;
+			explicit SourceGenerator(std::string templatePath);
 
 			void Add(std::string_view name, std::string_view value);
 			void Add(const inja::json& data);
@@ -30,6 +31,7 @@ namespace Acorn::IDL
 			std::stringstream m_Buffer;
 			inja::Environment m_Environment;
 			inja::json m_Data;
+
 	};
 
 } // namespace Acorn::IDL
