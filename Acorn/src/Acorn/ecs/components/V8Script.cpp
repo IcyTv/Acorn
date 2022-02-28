@@ -48,16 +48,14 @@
 
 #define COMPONENT_SWITCH_HAS(name) COMPONENT_SWITCH_HAS2(name, name)
 
-#define COMPONENT_SWITCH_HAS2(name, componentName)                                 \
-	case ComponentsEnum::name:                                                     \
-		args.GetReturnValue().Set(obj->HasComponent<Components::componentName>()); \
-		break;
+#define COMPONENT_SWITCH_HAS2(name, componentName)                                                                                                                                 \
+	case ComponentsEnum::name: args.GetReturnValue().Set(obj->HasComponent<Components::componentName>()); break;
 
 template <>
 struct v8pp::convert<std::pair<float, float>>
 {
 	using from_type = std::pair<float, float>;
-	using to_type = v8::Local<v8::Array>;
+	using to_type	= v8::Local<v8::Array>;
 
 	static bool is_valid(v8::Isolate*, v8::Local<v8::Value> value)
 	{
@@ -74,8 +72,8 @@ struct v8pp::convert<std::pair<float, float>>
 
 		from_type result;
 		v8::Local<v8::Context> context = isolate->GetCurrentContext();
-		result.first = v8pp::from_v8<float>(isolate, arr->Get(context, 0).ToLocalChecked());
-		result.second = v8pp::from_v8<float>(isolate, arr->Get(context, 1).ToLocalChecked());
+		result.first				   = v8pp::from_v8<float>(isolate, arr->Get(context, 0).ToLocalChecked());
+		result.second				   = v8pp::from_v8<float>(isolate, arr->Get(context, 1).ToLocalChecked());
 
 		return result;
 	}
@@ -84,7 +82,7 @@ struct v8pp::convert<std::pair<float, float>>
 	{
 		v8::EscapableHandleScope scope(isolate);
 
-		v8::Local<v8::Array> arr = v8::Array::New(isolate, 2);
+		v8::Local<v8::Array> arr	   = v8::Array::New(isolate, 2);
 		v8::Local<v8::Context> context = isolate->GetCurrentContext();
 		arr->Set(context, 0, v8pp::to_v8(isolate, value.first)).Check();
 		arr->Set(context, 1, v8pp::to_v8(isolate, value.second)).Check();
@@ -97,7 +95,7 @@ template <>
 struct v8pp::convert<Acorn::KeyCode>
 {
 	using from_type = Acorn::KeyCode;
-	using to_type = v8::Local<v8::Value>;
+	using to_type	= v8::Local<v8::Value>;
 
 	static bool is_valid(v8::Isolate* isolate, v8::Local<v8::Value> value)
 	{
@@ -132,7 +130,7 @@ struct v8pp::convert<Acorn::KeyCode>
 		{
 			// Value must be a string as verivied in is_valid
 			std::string enumName = v8pp::from_v8<std::string>(isolate, value);
-			auto result = magic_enum::enum_cast<Acorn::KeyCode>(enumName);
+			auto result			 = magic_enum::enum_cast<Acorn::KeyCode>(enumName);
 			if (!result.has_value())
 				throw std::invalid_argument("Expected valid KeyCode (as an int or string)");
 			return result.value();
@@ -154,7 +152,7 @@ namespace Acorn
 
 	class StringVisitor : public boost::static_visitor<std::string>
 	{
-	public:
+public:
 		std::string operator()(std::string s) const
 		{
 			return s;
@@ -196,29 +194,27 @@ namespace Acorn
 	}
 
 	using V8Transform = v8pp::class_<Components::Transform>;
-	using V8Vec3 = v8pp::class_<glm::vec3>;
+	using V8Vec3	  = v8pp::class_<glm::vec3>;
 
 	// static v8::Handle<v8::Object> transform_ref;
 
 	enum class ComponentsEnum : uint16_t
 	{
-		Tag = 0,
-		Transform = 1,
-		SpriteRenderer = 2,
-		Camera = 3,
-		NativeScript = 4,
-		V8Script = 5,
-		RigidBody2d = 6,
-		BoxCollider2d = 7,
+		Tag				 = 0,
+		Transform		 = 1,
+		SpriteRenderer	 = 2,
+		Camera			 = 3,
+		NativeScript	 = 4,
+		V8Script		 = 5,
+		RigidBody2d		 = 6,
+		BoxCollider2d	 = 7,
 		CircleCollider2d = 8,
 	};
 
 	class ScriptSuperClass : public ScriptableEntity
 	{
-	public:
-		~ScriptSuperClass()
-		{
-		}
+public:
+		~ScriptSuperClass() {}
 	};
 
 	static void Print(const v8::FunctionCallbackInfo<v8::Value>& args)
@@ -286,9 +282,7 @@ namespace Acorn
 			COMPONENT_SWITCH_HAS(NativeScript)
 			COMPONENT_SWITCH_HAS(RigidBody2d)
 			COMPONENT_SWITCH_HAS(BoxCollider2d)
-			default:
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component")));
-				break;
+		default: isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component"))); break;
 		}
 	}
 
@@ -323,158 +317,156 @@ namespace Acorn
 		ScriptSuperClass* obj = static_cast<ScriptSuperClass*>(v8::Local<v8::External>::Cast(args.This()->GetInternalField(0))->Value());
 		switch (componentEnum.value())
 		{
-			case ComponentsEnum::Tag:
+		case ComponentsEnum::Tag:
+		{
+			if (!obj->HasComponent<Components::Tag>())
 			{
-				if (!obj->HasComponent<Components::Tag>())
-				{
-					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No Tag Component")));
-					return;
-				}
-				Components::Tag& tagComponent = obj->GetComponent<Components::Tag>();
-
-				try
-				{
-					v8::Local<v8::Object> tag = v8pp::class_<Components::Tag>::reference_external(isolate, &tagComponent);
-					args.GetReturnValue().Set(tag);
-				}
-				catch (const std::runtime_error& e)
-				{
-					AC_CORE_ERROR("{0}", e.what());
-				}
+				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No Tag Component")));
+				return;
 			}
-			break;
-			case ComponentsEnum::Transform:
+			Components::Tag& tagComponent = obj->GetComponent<Components::Tag>();
+
+			try
 			{
-				AC_CORE_TRACE("Getting Transform");
-				if (!obj->HasComponent<Components::Transform>())
-				{
-					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No Transform Component")));
-					return;
-				}
-				Components::Transform& transformComponent = obj->GetComponent<Components::Transform>();
-
-				try
-				{
-					// TODO figure out if we need to do this or if we can just class wrap
-					// At the moment, class wrap throws an exception "Cannot wrap c++ class"
-
-					v8::Local<v8::Value> pos_ref = V8Vec3::reference_external(isolate, &transformComponent.Translation);
-					v8::Local<v8::Value> rot_ref = V8Vec3::reference_external(isolate, &transformComponent.Rotation);
-					v8::Local<v8::Value> scale_ref = V8Vec3::reference_external(isolate, &transformComponent.Scale);
-
-					v8::Local<v8::Object> obj = v8::Object::New(isolate);
-					v8pp::set_option(isolate, obj, "Position", pos_ref);
-					v8pp::set_option(isolate, obj, "Rotation", rot_ref);
-					v8pp::set_option(isolate, obj, "Scale", scale_ref);
-
-					args.GetReturnValue().Set(obj);
-				}
-				catch (std::runtime_error& e)
-				{
-					AC_CORE_ERROR("{0}", e.what());
-				}
+				v8::Local<v8::Object> tag = v8pp::class_<Components::Tag>::reference_external(isolate, &tagComponent);
+				args.GetReturnValue().Set(tag);
 			}
-			break;
-			case ComponentsEnum::SpriteRenderer:
+			catch (const std::runtime_error& e)
 			{
-				if (!obj->HasComponent<Components::SpriteRenderer>())
-				{
-					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No SpriteRenderer Component")));
-					return;
-				}
-				Components::SpriteRenderer& spriteRendererComponent = obj->GetComponent<Components::SpriteRenderer>();
-
-				try
-				{
-					v8::Local<v8::Object> obj = v8::Object::New(isolate);
-
-					v8::Local<v8::Value> color_ref = v8pp::class_<glm::vec4>::reference_external(isolate, &spriteRendererComponent.Color);
-
-					v8pp::set_option(isolate, obj, "Color", color_ref);
-
-					args.GetReturnValue().Set(obj);
-				}
-				catch (std::runtime_error& e)
-				{
-					AC_CORE_ERROR("{0}", e.what());
-				}
+				AC_CORE_ERROR("{0}", e.what());
 			}
-			break;
-			// TODO others
-			case ComponentsEnum::RigidBody2d:
+		}
+		break;
+		case ComponentsEnum::Transform:
+		{
+			AC_CORE_TRACE("Getting Transform");
+			if (!obj->HasComponent<Components::Transform>())
 			{
-				if (!obj->HasComponent<Components::RigidBody2d>())
-				{
-					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No RigidBody2d Component")));
-					return;
-				}
-
-				Components::RigidBody2d& rigidBody2dComponent = obj->GetComponent<Components::RigidBody2d>();
-				try
-				{
-					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, rigidBody2dComponent);
-
-					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert RigidBody2d");
-
-					args.GetReturnValue().Set(v8Obj);
-				}
-				catch (std::runtime_error& e)
-				{
-					AC_CORE_ERROR("{0}", e.what());
-				}
+				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No Transform Component")));
+				return;
 			}
-			break;
-			case ComponentsEnum::BoxCollider2d:
+			Components::Transform& transformComponent = obj->GetComponent<Components::Transform>();
+
+			try
 			{
-				if (!obj->HasComponent<Components::BoxCollider2d>())
-				{
-					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No BoxCollider2d Component")));
-					return;
-				}
+				// TODO figure out if we need to do this or if we can just class wrap
+				// At the moment, class wrap throws an exception "Cannot wrap c++ class"
 
-				Components::BoxCollider2d& boxCollider2dComponent = obj->GetComponent<Components::BoxCollider2d>();
+				v8::Local<v8::Value> pos_ref   = V8Vec3::reference_external(isolate, &transformComponent.Translation);
+				v8::Local<v8::Value> rot_ref   = V8Vec3::reference_external(isolate, &transformComponent.Rotation);
+				v8::Local<v8::Value> scale_ref = V8Vec3::reference_external(isolate, &transformComponent.Scale);
 
-				try
-				{
-					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, boxCollider2dComponent);
+				v8::Local<v8::Object> obj = v8::Object::New(isolate);
+				v8pp::set_option(isolate, obj, "Position", pos_ref);
+				v8pp::set_option(isolate, obj, "Rotation", rot_ref);
+				v8pp::set_option(isolate, obj, "Scale", scale_ref);
 
-					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert BoxCollider2d");
-
-					args.GetReturnValue().Set(v8Obj);
-				}
-				catch (std::runtime_error& e)
-				{
-					AC_CORE_ERROR("{0}", e.what());
-				}
+				args.GetReturnValue().Set(obj);
 			}
-			break;
-			case ComponentsEnum::CircleCollider2d:
+			catch (std::runtime_error& e)
 			{
-				if (!obj->HasComponent<Components::CircleCollider2d>())
-				{
-					isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No CircleCollider2d Component")));
-					return;
-				}
-
-				Components::CircleCollider2d& circleCollider2dComponent = obj->GetComponent<Components::CircleCollider2d>();
-
-				try
-				{
-					v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, circleCollider2dComponent);
-
-					AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert CircleCollider2d");
-
-					args.GetReturnValue().Set(v8Obj);
-				}
-				catch (std::runtime_error& e)
-				{
-					AC_CORE_ERROR("{0}", e.what());
-				}
+				AC_CORE_ERROR("{0}", e.what());
 			}
-			break;
-			default:
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component")));
-				break;
+		}
+		break;
+		case ComponentsEnum::SpriteRenderer:
+		{
+			if (!obj->HasComponent<Components::SpriteRenderer>())
+			{
+				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No SpriteRenderer Component")));
+				return;
+			}
+			Components::SpriteRenderer& spriteRendererComponent = obj->GetComponent<Components::SpriteRenderer>();
+
+			try
+			{
+				v8::Local<v8::Object> obj = v8::Object::New(isolate);
+
+				v8::Local<v8::Value> color_ref = v8pp::class_<glm::vec4>::reference_external(isolate, &spriteRendererComponent.Color);
+
+				v8pp::set_option(isolate, obj, "Color", color_ref);
+
+				args.GetReturnValue().Set(obj);
+			}
+			catch (std::runtime_error& e)
+			{
+				AC_CORE_ERROR("{0}", e.what());
+			}
+		}
+		break;
+		// TODO others
+		case ComponentsEnum::RigidBody2d:
+		{
+			if (!obj->HasComponent<Components::RigidBody2d>())
+			{
+				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No RigidBody2d Component")));
+				return;
+			}
+
+			Components::RigidBody2d& rigidBody2dComponent = obj->GetComponent<Components::RigidBody2d>();
+			try
+			{
+				v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, rigidBody2dComponent);
+
+				AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert RigidBody2d");
+
+				args.GetReturnValue().Set(v8Obj);
+			}
+			catch (std::runtime_error& e)
+			{
+				AC_CORE_ERROR("{0}", e.what());
+			}
+		}
+		break;
+		case ComponentsEnum::BoxCollider2d:
+		{
+			if (!obj->HasComponent<Components::BoxCollider2d>())
+			{
+				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No BoxCollider2d Component")));
+				return;
+			}
+
+			Components::BoxCollider2d& boxCollider2dComponent = obj->GetComponent<Components::BoxCollider2d>();
+
+			try
+			{
+				v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, boxCollider2dComponent);
+
+				AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert BoxCollider2d");
+
+				args.GetReturnValue().Set(v8Obj);
+			}
+			catch (std::runtime_error& e)
+			{
+				AC_CORE_ERROR("{0}", e.what());
+			}
+		}
+		break;
+		case ComponentsEnum::CircleCollider2d:
+		{
+			if (!obj->HasComponent<Components::CircleCollider2d>())
+			{
+				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No CircleCollider2d Component")));
+				return;
+			}
+
+			Components::CircleCollider2d& circleCollider2dComponent = obj->GetComponent<Components::CircleCollider2d>();
+
+			try
+			{
+				v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, circleCollider2dComponent);
+
+				AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert CircleCollider2d");
+
+				args.GetReturnValue().Set(v8Obj);
+			}
+			catch (std::runtime_error& e)
+			{
+				AC_CORE_ERROR("{0}", e.what());
+			}
+		}
+		break;
+		default: isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component"))); break;
 		}
 	}
 
@@ -482,9 +474,7 @@ namespace Acorn
 	//											V8Engine											 //
 	//===============================================================================================//
 
-	V8Engine::V8Engine()
-	{
-	}
+	V8Engine::V8Engine() {}
 
 	V8Engine::~V8Engine()
 	{
@@ -495,8 +485,8 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		V8Import::Init();
-		// std::string const v8_flags = "--turbo_instruction_scheduling --native-code-counters --expose_gc --print_builtin_code --print_code_verbose --profile_deserialization --serialization_statistics --random-seed 314159265";
-		// v8::V8::SetFlagsFromString(v8_flags.data(), (int)v8_flags.length());
+		// std::string const v8_flags = "--turbo_instruction_scheduling --native-code-counters --expose_gc --print_builtin_code --print_code_verbose --profile_deserialization
+		// --serialization_statistics --random-seed 314159265"; v8::V8::SetFlagsFromString(v8_flags.data(), (int)v8_flags.length());
 		v8::V8::SetFlagsFromString("--random-seed 314159265");
 
 		ApplicationCommandLineArgs args = Application::Get().GetCommandLineArgs();
@@ -538,8 +528,7 @@ namespace Acorn
 		// V8Script(std::string("res/scripts/test.ts"));
 	}
 
-	V8Script::V8Script(const std::string& filePath)
-		: m_Isolate(NULL)
+	V8Script::V8Script(const std::string& filePath) : m_Isolate(NULL)
 	{
 		AC_CORE_ASSERT(filePath.ends_with(".ts"), "Script must be a typescript file!");
 		m_TSFilePath = filePath;
@@ -609,8 +598,7 @@ namespace Acorn
 			v8::Context::Scope context_scope(context);
 			{
 				// Create a string containing the JavaScript source code.
-				v8::Local<v8::String> source =
-					v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
+				v8::Local<v8::String> source = v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
 				// Compile the source code.
 				v8::Local<v8::Script> script = v8::Script::Compile(context, source).ToLocalChecked();
 
@@ -622,8 +610,8 @@ namespace Acorn
 					AC_CORE_ERROR("[V8]: Failed to run script: {0}", msg);
 				}
 
-				v8::Local<v8::Value> moduleObject = context->Global()->Get(context, v8::String::NewFromUtf8(m_Isolate, "module").ToLocalChecked()).ToLocalChecked();
-				v8::Local<v8::Object> module = v8::Local<v8::Object>::Cast(moduleObject);
+				v8::Local<v8::Value> moduleObject	   = context->Global()->Get(context, v8::String::NewFromUtf8(m_Isolate, "module").ToLocalChecked()).ToLocalChecked();
+				v8::Local<v8::Object> module		   = v8::Local<v8::Object>::Cast(moduleObject);
 				v8::MaybeLocal<v8::Value> maybeExports = module->Get(context, v8::String::NewFromUtf8(m_Isolate, "exports").ToLocalChecked());
 
 				AC_CORE_ASSERT(!maybeExports.IsEmpty(), "Failed to get module exports!");
@@ -634,10 +622,10 @@ namespace Acorn
 
 				v8::Local<v8::Function> classObj = v8::Local<v8::Function>::Cast(exports);
 
-				m_Name = v8pp::from_v8<std::string>(m_Isolate, classObj->GetDebugName());
+				m_Name						   = v8pp::from_v8<std::string>(m_Isolate, classObj->GetDebugName());
 				v8::Local<v8::Object> instance = classObj->NewInstance(context).ToLocalChecked();
-				ScriptSuperClass* obj = (ScriptSuperClass*)instance->GetInternalField(0).As<v8::External>()->Value();
-				obj->m_Entity = entity;
+				ScriptSuperClass* obj		   = (ScriptSuperClass*) instance->GetInternalField(0).As<v8::External>()->Value();
+				obj->m_Entity				   = entity;
 
 				for (auto& params : m_Parameters)
 				{
@@ -673,7 +661,7 @@ namespace Acorn
 				m_OnUpdate.Reset(m_Isolate, OnUpdatefunc);
 
 				v8::Local<v8::Function> OnCreateFunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnCreate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
-				auto ret = OnCreateFunc->Call(context, instance, 0, nullptr);
+				auto ret							 = OnCreateFunc->Call(context, instance, 0, nullptr);
 				if (ret.IsEmpty() && trycatch.HasCaught())
 				{
 					AC_CORE_ERROR("[V8]: Exception {}", v8pp::from_v8<std::string>(m_Isolate, trycatch.Message()->Get()));
@@ -710,7 +698,7 @@ namespace Acorn
 	void V8Script::Dispose()
 	{
 		AC_PROFILE_FUNCTION();
-		AC_CORE_INFO("V8 Isolate {} != {}", (void*)m_Isolate, (void*)NULL);
+		AC_CORE_INFO("V8 Isolate {} != {}", (void*) m_Isolate, (void*) NULL);
 		// FIXME we can do better
 		//  Keep the isolate alive until the end of the program
 		m_Isolate->Dispose();
@@ -769,9 +757,9 @@ namespace Acorn
 
 			v8::Local<v8::Value> time = v8::Number::New(m_Isolate, ts.GetSeconds());
 
-			v8::Local<v8::Value> args[1] = {time};
+			v8::Local<v8::Value> args[1]	 = { time };
 			v8::Local<v8::Function> onUpdate = v8::Local<v8::Function>::New(m_Isolate, m_OnUpdate);
-			v8::Local<v8::Object> instance = v8::Local<v8::Object>::New(m_Isolate, m_Class);
+			v8::Local<v8::Object> instance	 = v8::Local<v8::Object>::New(m_Isolate, m_Class);
 			v8::TryCatch tryCatch(m_Isolate);
 			v8::MaybeLocal<v8::Value> res = onUpdate->Call(context, instance, 1, args);
 
@@ -797,7 +785,7 @@ namespace Acorn
 		global->Set(v8::String::NewFromUtf8(m_Isolate, "print", v8::NewStringType::kNormal).ToLocalChecked(), v8::FunctionTemplate::New(m_Isolate, Print));
 
 		v8::Local<v8::ObjectTemplate> componentsEnum = v8::ObjectTemplate::New(m_Isolate);
-		constexpr auto& components = magic_enum::enum_values<ComponentsEnum>();
+		constexpr auto& components					 = magic_enum::enum_values<ComponentsEnum>();
 		for (const auto& component : components)
 		{
 			componentsEnum->Set(v8pp::to_v8(m_Isolate, magic_enum::enum_name(component)), v8pp::to_v8(m_Isolate, magic_enum::enum_integer(component)));
@@ -812,7 +800,7 @@ namespace Acorn
 		global->Set(v8pp::to_v8(m_Isolate, "module"), module);
 
 		v8::Local<v8::FunctionTemplate> constructor = v8::FunctionTemplate::New(m_Isolate, ScriptSuperClassConstructor);
-		v8::Local<v8::ObjectTemplate> instance = constructor->InstanceTemplate();
+		v8::Local<v8::ObjectTemplate> instance		= constructor->InstanceTemplate();
 		instance->SetInternalFieldCount(1);
 		constructor->PrototypeTemplate()->Set(v8pp::to_v8(m_Isolate, "HasComponent"), v8::FunctionTemplate::New(m_Isolate, ScriptSuperClassHasComponent));
 		constructor->PrototypeTemplate()->Set(v8pp::to_v8(m_Isolate, "GetComponent"), v8::FunctionTemplate::New(m_Isolate, ScriptSuperClassGetComponent));
@@ -836,22 +824,13 @@ namespace Acorn
 		v8pp::module mathModule(m_Isolate);
 
 		v8pp::class_<glm::vec2> vec2(m_Isolate);
-		vec2.ctor<float, float>()
-			.set("x", &glm::vec2::x)
-			.set("y", &glm::vec2::y);
+		vec2.ctor<float, float>().set("x", &glm::vec2::x).set("y", &glm::vec2::y);
 
 		v8pp::class_<glm::vec3> vec3(m_Isolate);
-		vec3.ctor<float, float, float>()
-			.set("x", &glm::vec3::x)
-			.set("y", &glm::vec3::y)
-			.set("z", &glm::vec3::z);
+		vec3.ctor<float, float, float>().set("x", &glm::vec3::x).set("y", &glm::vec3::y).set("z", &glm::vec3::z);
 
 		v8pp::class_<glm::vec4> vec4(m_Isolate);
-		vec4.ctor<float, float, float, float>()
-			.set("x", &glm::vec4::x)
-			.set("y", &glm::vec4::y)
-			.set("z", &glm::vec4::z)
-			.set("w", &glm::vec4::w);
+		vec4.ctor<float, float, float, float>().set("x", &glm::vec4::x).set("y", &glm::vec4::y).set("z", &glm::vec4::z).set("w", &glm::vec4::w);
 
 		mathModule.set("vec2", vec2);
 		mathModule.set("vec3", vec3);
@@ -876,18 +855,13 @@ namespace Acorn
 		v8pp::module componentModule(m_Isolate);
 
 		v8pp::class_<Components::Tag> tag(m_Isolate);
-		tag.ctor<std::string>()
-			.set("TagName", &Components::Tag::TagName)
-			.auto_wrap_objects(true);
+		tag.ctor<std::string>().set("TagName", &Components::Tag::TagName).auto_wrap_objects(true);
 
 		v8pp::class_<Components::RigidBody2d> rigidBody2d(m_Isolate);
-		rigidBody2d.ctor<>()
-			.set("AddForce", &Components::RigidBody2d::AddForce)
-			.auto_wrap_objects(true);
+		rigidBody2d.ctor<>().set("AddForce", &Components::RigidBody2d::AddForce).auto_wrap_objects(true);
 
 		// v8pp::class_<Physics2D::Collider> collider(m_Isolate);
-		// collider
-		// 	.set("Offset", v8pp::property_(&Physics2D::Collider::GetOffset, &Physics2D::Collider::SetOffset))
+		//collider// 	.set("Offset", v8pp::property_(&Physics2D::Collider::GetOffset, &Physics2D::Collider::SetOffset))
 		// 	.set("IsInside", &Physics2D::Collider::IsInside)
 		// 	.auto_wrap_objects(true);
 
@@ -957,7 +931,7 @@ namespace Acorn
 		std::unordered_map<std::string, std::string> parameters;
 		for (auto& parameter : m_Parameters)
 		{
-			std::string val = boost::apply_visitor(StringVisitor(), parameter.second);
+			std::string val				= boost::apply_visitor(StringVisitor(), parameter.second);
 			parameters[parameter.first] = val;
 		}
 		return parameters;
@@ -1009,4 +983,4 @@ namespace Acorn
 		}
 		return boost::get<std::string>(m_Parameters[parameterName]);
 	}
-}
+} // namespace Acorn

@@ -14,13 +14,23 @@ let Test = class Test extends ScriptSuperClass {
 
 		let test = new Vec2(1, 0);
 		print(test.lengthSquared());
+		print(test[0]);
+		test[1] = 2;
+		print(test[1]);
+		try {
+			print(test[2]);
+		} catch (e) {
+			print(e);
+		}
 		let test3 = new Vec3(1, 1, 1);
 		print(test3.length());
+		print(test3[0]);
+		print(test3[1]);
 		print(test3.lengthSquared());
 	}
 	OnUpdate() {
 		let [x, y] = Input.GetMousePosition();
-		print(`Mouse position: ${x}, ${y}`);
+		// print(`Mouse position: ${x}, ${y}`);
 		// if (this.#boxCollider.IsInside(new math.vec2(x, y))) {
 		//     print("Is Inside!");
 		//     this.#spriteRenderer.Color = new math.vec4(1, 0, 0, 1);

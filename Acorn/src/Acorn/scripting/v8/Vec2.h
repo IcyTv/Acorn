@@ -21,5 +21,27 @@ namespace Acorn::Scripting::V8 {
 		double  LengthSquared() const {
 			return x * x + y * y;
 		}
+
+		double IndexedGet(uint32_t index) const {
+			if (index == 0) {
+				return x;
+			}
+			if (index == 1) {
+				return y;
+			}
+			throw std::out_of_range("index out of range");
+		}
+
+		double IndexedSet(uint32_t index, double value) {
+			if (index == 0) {
+				x = value;
+				return x;
+			}
+			if (index == 1) {
+				y = value;
+				return y;
+			}
+			throw std::out_of_range("index out of range");
+		}
 	};
 }

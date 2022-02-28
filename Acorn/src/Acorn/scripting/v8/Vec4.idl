@@ -1,9 +1,11 @@
-interface Vec2
+interface Vec3
 {
-    constructor(double x, double y);
+    constructor(double x, double y, double z, double w);
 
     attribute double x;
     attribute double y;
+    attribute double z;
+    attribute double w;
 
     getter double (unsigned long index);
     setter void (unsigned long index, double value);

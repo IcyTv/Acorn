@@ -252,7 +252,6 @@ namespace Acorn::IDL
 
 		for (auto& arg : constructor.Parameters)
 		{
-			std::cout << arg.Name << ": " << arg.Type->Name << std::endl;
 			data["constructor_args"].push_back({
 				{ "type", arg.Type->Name },
 				{ "v8_type", ToV8Type(arg.Type) },
@@ -271,6 +270,9 @@ namespace Acorn::IDL
 
 		for (auto& func : interface.Functions)
 		{
+			if(func.Name.empty())
+				continue;
+
 			inja::json methodData;
 			methodData["name"]			 = func.Name;
 			methodData["args"]			 = inja::json::array();
@@ -287,9 +289,43 @@ namespace Acorn::IDL
 				methodData["args"].push_back(argData);
 			}
 
-			std::cout << "Method: " << methodData << std::endl;
-
 			data["methods"].push_back(methodData);
+		}
+
+		if(interface.IndexedPropertyGetter)
+		{
+			auto getter = *interface.IndexedPropertyGetter;
+			// https://webidl.spec.whatwg.org/#idl-indexed-properties
+			// An indexed property must be of signature: (unsinged long index) -> T
+			assert(getter.Parameters.size() == 1);
+			assert(getter.Parameters[0].Type->Name == "unsigned long");
+
+			// This also means, we don't neeed to pass the arguments to the template,
+			// since they are predefined
+			data["indexed_property_getter"] = {
+				{ "return_type", getter.ReturnType->Name },
+				{ "return_v8_type", ToV8Type(getter.ReturnType) },
+			};
+		} else {
+			data["indexed_property_getter"] = false;
+		}
+
+		if(interface.IndexedPropertySetter)
+		{
+			auto setter = *interface.IndexedPropertySetter;
+			// https://webidl.spec.whatwg.org/#idl-indexed-properties
+			// An indexed property must be of signature: (unsinged long index, T value) -> W
+			assert(setter.Parameters.size() == 2);
+			assert(setter.Parameters[0].Type->Name == "unsigned long");
+
+			data["indexed_property_setter"] = {
+				{ "return_type", setter.ReturnType->Name },
+				{ "return_v8_type", ToV8Type(setter.ReturnType) },
+				{ "value_type", setter.Parameters[1].Type->Name },
+				{ "value_v8_type", ToV8Type(setter.Parameters[1].Type) },
+			};
+		} else {
+			data["indexed_property_setter"] = false;
 		}
 
 		generator.Add(data);

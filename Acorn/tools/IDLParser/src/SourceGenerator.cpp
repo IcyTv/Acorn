@@ -145,6 +145,8 @@ namespace Acorn::IDL
 
 		m_Environment.add_callback("cpp_to_v8", CppToV8Callback);
 		m_Environment.add_callback("v8_to_cpp", V8ToCppCallback);
+
+		m_Environment.set_trim_blocks(true);
 	}
 
 	void SourceGenerator::Add(std::string_view name, std::string_view value)

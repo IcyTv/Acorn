@@ -6,6 +6,9 @@ interface Vec3
     attribute double y;
     attribute double z;
 
+    getter double (unsigned long index);
+    setter void (unsigned long index, double value);
+
     double length();
     double lengthSquared();
 };
