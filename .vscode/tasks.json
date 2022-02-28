@@ -43,6 +43,25 @@
 			}
 		},
 		{
+			"label": "Build IDLParser",
+			"type": "process",
+			"command": "meson",
+			"args": [
+				"compile",
+				"-C",
+				"builddir",
+				"IDLParser"
+			],
+			"problemMatcher": {
+				"base": "$msCompile",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}",
+				],
+			},
+			"group": "build",
+		},
+		{
 			"label": "Clang Tidy",
 			"type": "process",
 			"command": "clang-tidy",

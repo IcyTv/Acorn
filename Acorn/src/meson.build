@@ -62,6 +62,22 @@ if v8.found()
 	]
 endif
 
+idl_files = files(
+    'Acorn/scripting/v8/Vec2.idl',
+    'Acorn/scripting/v8/Vec3.idl',
+)
+
+fs = import('fs')
+
+foreach idl_file: idl_files
+    # run_command(idl_parser, tpl_file, '-I', '-H')
+    message('Generating bindings for @0@'.format(idl_file))
+    new_file = configure_file(input: idl_file, output: fs.name(idl_file), copy: true)
+    message('Generated bindings for @0@'.format(new_file))
+    generated = idl_generator.process(new_file)
+    sources += generated
+endforeach
+
 libacorn = library('acorn', 
 	sources, 
 	include_directories: inc,
