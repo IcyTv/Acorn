@@ -15,7 +15,7 @@ cmake = import('cmake')
 threads = dependency('threads')
 
 # 'Adding v8 first, because it is the most expensive'
-v8 = dependency('v8', required: get_option('v8'), allow_fallback: true)
+v8 = dependency('v8', required: get_option('v8'), fallback: ['v8', 'v8_dep'])
 
 if not v8.found()
 	add_project_arguments('-DNO_SCRIPTING', language: 'cpp')
