@@ -1,9 +1,9 @@
 AccessModifierOffset: -8
-AlignAfterOpenBracket: BlockIndent
+AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: true
 AlignConsecutiveBitFields: true
 AlignConsecutiveMacros: true
-AlignEscapedNewlinesLeft: false
+#AlignEscapedNewlinesLeft: false
 AlignOperands: false
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
