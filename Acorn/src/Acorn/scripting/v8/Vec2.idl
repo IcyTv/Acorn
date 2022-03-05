@@ -10,4 +10,6 @@ interface Vec2
 
     double length();
     double lengthSquared();
+
+	Vec2 normalize();
 };
