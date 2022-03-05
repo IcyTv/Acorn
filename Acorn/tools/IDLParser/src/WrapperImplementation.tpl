@@ -9,219 +9,89 @@
  * For more Information on the license, see the LICENSE.md file
  */
 
-#include "{{ name }}Wrapper.h"
+#include "{{ wrapper_name }}.h"
 
 #include <string_view>
 #include <string>
 
+#include <v8pp/class.hpp>
+#include <v8pp/convert.hpp>
+
 namespace Acorn::Scripting::V8
 {
-	static void Construct{{ name }}(const v8::FunctionCallbackInfo<v8::Value>& args)
+	void {{ wrapper_name }}::Bind(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> global)
 	{
-		auto isolate = args.GetIsolate();
-
-		//TODO support multiple constructors
-		if(!args.IsConstructCall())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Constructor cannot be called as a function.").ToLocalChecked()));
-		}
-
-		if(args.Length() != {{ length(constructor_args) }})
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Constructor expects {{ length(constructor_args) }} arguments.").ToLocalChecked()));
-		}
-
-		v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
-
-## for arg in constructor_args
-		if(!args[{{ loop.index1 - 1 }}]->Is{{ arg.v8_type }}())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Argument {{ loop.index1 }} is not a {{ arg.v8_type }}.").ToLocalChecked()));
-		}
-		auto arg{{ loop.index1 }} = v8::Local<v8::{{ arg.v8_type }}>::Cast(args[{{ loop.index1 - 1 }}])->Value();
+		v8pp::class_<{{ name }}> classDef(isolate);
+		//TODO readonly
+		classDef
+			.auto_wrap_objects()
+## for constructor in constructors
+			.ctor<{{ join(constructor.cpp_args, ", ") }}>()
 ## endfor
-
-		//Create object
-		{{ name }}* obj = new {{ name }}({{ join_with_range(", ", "arg{}", length(constructor_args)) }});
-
-		args.This()->SetInternalField(0, v8::External::New(args.GetIsolate(), obj));
-	}
-
+		{% if inherit %}
+			.inherit<{{ inherit }}>()
+		{% endif %}
+## for property in properties
+		{% if property.virtual %}
+			.set("{{ property.name }}", &{{ name }}::Get{{ to_pascal_case(property.name) }}, &{{ name }}::Set{{ to_pascal_case(property.name) }})
+		{% else %}
+			.set("{{ property.name }}", &{{ name }}::{{ property.name }}, {{ property.readonly }})
+		{% endif %}
+## endfor
 ## for method in methods
-	static void {{ name }}{{ to_pascal_case(method.name) }}(const v8::FunctionCallbackInfo<v8::Value>& args)
-	{
-		v8::Isolate* isolate = args.GetIsolate();
-		v8::HandleScope scope(isolate);
-
-		if(args.Length() != {{ length(method.args) }})
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ method.name }} expects {{ length(method.args) }} arguments.").ToLocalChecked()));
-		}
-
-		{{ name }}* obj = {{ name }}Wrapper::Unwrap(args.This());
-
-		if(obj == nullptr)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ name }} is null.").ToLocalChecked()));
-		}
-
-## for arg in method.args
-		if(!args[{{ loop.index1 - 1 }}]->Is{{ arg.v8_type }}())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Argument {{ loop.index1 }} is not a {{ arg.v8_type }}.").ToLocalChecked()));
-		}
-		auto arg{{ loop.index1 }} = v8::Local<v8::{{ arg.v8_type }}>::Cast(args[{{ loop.index1 - 1 }}])->Value();
+			.set("{{ method.name }}", &{{ name }}::{{ to_pascal_case(method.name) }})
 ## endfor
+			;
 
-		//Call method
-		auto result = obj->{{ to_pascal_case(method.name) }}({{ join_with_range(", ", "arg{}", length(method.args)) }});
-		auto returnV8Value = v8::{{ method.return_v8_type }}::New(isolate, result);
+		v8::Local<v8::FunctionTemplate> tpl = classDef.js_function_template();
 
-		args.GetReturnValue().Set(returnV8Value);
-	}
-## endfor
+		{% if indexed_property_getter %}
+		tpl->PrototypeTemplate()->SetIndexedPropertyHandler(
+			[](uint32_t index, const v8::PropertyCallbackInfo<v8::Value>& info) {
+				v8::Isolate* isolate = info.GetIsolate();
+				auto ret = v8pp::class_<{{ name }}>::unwrap_object(isolate, info.This())->IndexedGet(index);
+				info.GetReturnValue().Set(v8pp::to_v8(isolate, ret));
 
-## for accessor in attributes
-	static void Get{{ to_pascal_case(accessor.name) }}(v8::Local<v8::String> _property, const v8::PropertyCallbackInfo<v8::Value>& info)
-	{
-		v8::Isolate* isolate = info.GetIsolate();
-
-		{{ name }}* obj = {{ name }}Wrapper::Unwrap(info.This());
-
-		if(obj == nullptr)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ name }} is null.").ToLocalChecked()));
-			return;
-		}
-
-		auto result = obj->{{ accessor.name }};
-		auto returnV8Value = v8::{{ accessor.v8_type }}::New(isolate, result);
-
-		info.GetReturnValue().Set(returnV8Value);
-	}
-
-	static void Set{{ to_pascal_case(accessor.name) }}(v8::Local<v8::String> _property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-	{
-		v8::Isolate* isolate = info.GetIsolate();
-
-		{{ name }}* obj = {{ name }}Wrapper::Unwrap(info.This());
-
-		if(obj == nullptr)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ name }} is null.").ToLocalChecked()));
-			return;
-		}
-
-		if(!value->Is{{ accessor.v8_type }}())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ accessor.name }} is not a {{ accessor.v8_type }}.").ToLocalChecked()));
-		}
-
-		auto arg = v8::Local<v8::{{ accessor.v8_type }}>::Cast(value)->Value();
-
-		obj->{{ accessor.name }} = arg;
-	}
-
-## endfor
-
-
-{% if indexed_property_getter %}
-	static void {{ name }}IndexedGet(uint32_t index, const v8::PropertyCallbackInfo<v8::Value>& args)
-	{
-		v8::Isolate* isolate = args.GetIsolate();
-
-		{{ name }}* obj = {{ name }}Wrapper::Unwrap(args.This());
-
-		if(obj == nullptr)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ name }} is null.").ToLocalChecked()));
-			return;
-		}
-
-		try {
-			auto result = obj->IndexedGet(index);
-			auto returnV8Value = v8::{{ indexed_property_getter.return_v8_type }}::New(isolate, result);
-
-			args.GetReturnValue().Set(returnV8Value);
-		} catch(std::out_of_range&) {
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Index out of range.").ToLocalChecked()));
-		}
-	}
-{% endif %}
-
-{% if indexed_property_setter %}
-	static void {{ name }}IndexedSet(uint32_t index, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
-	{
-		v8::Isolate* isolate = info.GetIsolate();
-
-		{{ name }}* obj = {{ name }}Wrapper::Unwrap(info.This());
-
-		if(obj == nullptr)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "{{ name }} is null.").ToLocalChecked()));
-			return;
-		}
-
-		if(!value->Is{{ indexed_property_setter.value_v8_type }}())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Argument for indexed set is not a {{ indexed_property_setter.value_v8_type }}.").ToLocalChecked()));
-		}
-
-		auto arg = v8::Local<v8::{{ indexed_property_setter.value_v8_type }}>::Cast(value)->Value();
-
-		try {
-			obj->IndexedSet(index, arg);
-		} catch(std::out_of_range&) {
-			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Index out of range.").ToLocalChecked()));
-		}
-	}
-
-{% endif %}
-
-
-	void {{ name }}Wrapper::Bind(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> global)
-	{
-		auto context = isolate->GetCurrentContext();
-		v8::Local<v8::FunctionTemplate> constructor = v8::FunctionTemplate::New(isolate, Construct{{ name }});
-		constructor->SetClassName(v8::String::NewFromUtf8(isolate, "{{ name }}").ToLocalChecked());
-		constructor->InstanceTemplate()->SetInternalFieldCount(1);
-
-## for accessor in attributes
-		constructor->InstanceTemplate()->SetAccessor(v8::String::NewFromUtf8(isolate, "{{ accessor.name }}").ToLocalChecked(), Get{{ to_pascal_case(accessor.name)}}, Set{{ to_pascal_case(accessor.name) }});
-## endfor
-
-## for method in methods
-		constructor->PrototypeTemplate()->Set(v8::String::NewFromUtf8(isolate, "{{ method.name }}").ToLocalChecked(), v8::FunctionTemplate::New(isolate, {{ name }}{{ to_pascal_case(method.name) }}));
-## endfor
-
-{% if indexed_property_getter %}
-		constructor->PrototypeTemplate()->SetIndexedPropertyHandler(
-			{{ name }}IndexedGet
-{% if indexed_property_setter %},
-			{{ name }}IndexedSet
-{% endif %}
+			},
+			{% if indexed_property_setter %}
+			[](uint32_t index, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info) {
+				v8::Isolate* isolate = info.GetIsolate();
+				v8pp::class_<{{ name }}>::unwrap_object(isolate, info.This())->IndexedSet(index, v8pp::from_v8<{{ indexed_property_setter.type }}>(isolate, value));
+			}
+			{% endif %}
 		);
-{% endif %}
+		{% endif %}
 
-		global->Set(v8::String::NewFromUtf8(isolate, "{{ name }}").ToLocalChecked(), constructor);
+		{% if named_property_getter %}
+		tpl->PrototypeTemplate()->SetNamedPropertyHandler(
+			[](v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info) {
+				auto ret = v8pp::class_<{{ name }}>::unwrap_object(isolate, info.This())->NamedGet(v8pp::from_v8<std::string>(isolate, name));
+				return v8pp::convert(isolate, ret);
+			},
+			{% if named_property_setter %}
+			[](v8::Isolate* isolate, v8::Local<v8::Object> self, v8::Local<v8::Name> name, v8::Local<v8::Value> value) {
+				v8pp::class_<{{ name }}>::unwrap_object(isolate, info.This())->NamedSet(v8pp::from_v8<std::string>(isolate, name), v8pp::from_v8<{{ named_property_setter.type }}>(isolate, value));
+			}
+			{% endif %}
+		);
+		{% endif %}
+
+		global->Set(v8pp::to_v8(isolate, "{{ name }}"), tpl);
 	}
 
-	{{ name }}* {{ name }}Wrapper::Unwrap(v8::Handle<v8::Object> obj)
+	{{ name }}& {{ wrapper_name }}::Unwrap(v8::Local<v8::Object> obj)
 	{
-		v8::Local<v8::Value> value = obj->GetInternalField(0);
-		if(value->IsExternal())
-		{
-			return static_cast<{{ name }}*>(v8::Local<v8::External>::Cast(value)->Value());
-		}
-		return nullptr;
+		v8::Isolate* isolate = v8::Isolate::GetCurrent();
+		return Unwrap(isolate, obj);
 	}
 
-	v8::Local<v8::Object> {{ name }}Wrapper::Wrap(v8::Isolate* isolate, {{ name }}* obj)
+	{{ name }}& {{ wrapper_name }}::Unwrap(v8::Isolate* isolate, v8::Local<v8::Object> obj)
 	{
-		v8::EscapableHandleScope scope(isolate);
-		v8::Local<v8::Object> result = v8::Object::New(isolate);
-		v8::Local<v8::External> external = v8::External::New(isolate, obj);
-		result->SetInternalField(0, external);
-		return scope.Escape(result);
+		return v8pp::from_v8<{{ name }}&>(isolate, obj);
+	}
+
+	v8::Local<v8::Object> {{ wrapper_name }}::Wrap(v8::Isolate* isolate, {{ name }}* obj)
+	{
+		return v8pp::class_<{{ name }}>::reference_external(isolate, obj);
 	}
 }

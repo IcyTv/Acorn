@@ -12,6 +12,8 @@
 
 namespace Acorn::IDL
 {
+	std::string ToPascalCase(std::string_view str);
+
 	class SourceGenerator
 	{
 		public:
@@ -24,6 +26,12 @@ namespace Acorn::IDL
 			void Append(std::string_view tpl);
 			void Append(const inja::Template& tpl);
 			void AppendFile(const std::filesystem::path& path);
+
+			template<typename T>
+			void AddCallback(std::string_view name, T&& callback)
+			{
+				m_Environment.add_callback(name, std::forward<T>(callback));
+			}
 
 			std::string Generate() const;
 

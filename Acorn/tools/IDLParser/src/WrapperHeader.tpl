@@ -25,7 +25,8 @@ namespace Acorn::Scripting::V8
 public:
         friend class {{ name }};
 		static void Bind(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> global);
-		static {{ name }}* Unwrap(v8::Handle<v8::Object> obj);
+		static {{ name }}& Unwrap(v8::Local<v8::Object> obj);
+		static {{ name }}& Unwrap(v8::Isolate* isolate, v8::Local<v8::Object> obj);
 		static v8::Local<v8::Object> Wrap(v8::Isolate* isolate, {{ name }}* obj);
 	};
 

@@ -7,26 +7,15 @@ let Test = class Test extends ScriptSuperClass {
 	#isPressing = false;
 	#initialPosition = new math.vec2(0, 0);
 	OnCreate() {
-		this.#rigidBody = this.GetComponent(ComponentTypes.RigidBody2d);
-		this.#spriteRenderer = this.GetComponent(ComponentTypes.SpriteRenderer);
-		this.#boxCollider = this.GetComponent(ComponentTypes.BoxCollider2d);
-		this.#origColor = this.#spriteRenderer.Color;
+		// this.#rigidBody = this.GetComponent(ComponentTypes.RigidBody2d);
+		// this.#spriteRenderer = this.GetComponent(ComponentTypes.SpriteRenderer);
+		// this.#boxCollider = this.GetComponent(ComponentTypes.BoxCollider2d);
+		// this.#origColor = this.#spriteRenderer.Color;
 
 		let test = new Vec2(1, 0);
-		print(test.lengthSquared());
-		print(test[0]);
+		print(`Length Squard: ${test.lengthSquared()}`);
 		test[1] = 2;
-		print(test[1]);
-		try {
-			print(test[2]);
-		} catch (e) {
-			print(e);
-		}
-		let test3 = new Vec3(1, 1, 1);
-		print(test3.length());
-		print(test3[0]);
-		print(test3[1]);
-		print(test3.lengthSquared());
+		print(`Vec2 Normalized ${test.normalize()}`);
 	}
 	OnUpdate() {
 		let [x, y] = Input.GetMousePosition();

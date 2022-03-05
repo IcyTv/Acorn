@@ -68,7 +68,7 @@ namespace Acorn::IDL
 		}
 	}
 
-	static std::string toPascalCase(std::string_view str)
+	std::string ToPascalCase(std::string_view str)
 	{
 		std::string result;
 		result.reserve(str.size());
@@ -116,7 +116,7 @@ namespace Acorn::IDL
 					throw new std::runtime_error("to_pascal_case expects 1 argument");
 
 				auto str = args.at(0)->get<std::string>();
-				return toPascalCase(str);
+				return ToPascalCase(str);
 			}
 		);
 
@@ -143,10 +143,18 @@ namespace Acorn::IDL
 			}
 		);
 
+		m_Environment.add_void_callback("dbgln", [](const inja::Arguments& args) -> void
+		{
+			for(const auto& arg : args)
+			{
+				std::cout << arg->get<std::string>() << std::endl;
+			}
+		});
+
 		m_Environment.add_callback("cpp_to_v8", CppToV8Callback);
 		m_Environment.add_callback("v8_to_cpp", V8ToCppCallback);
 
-		m_Environment.set_trim_blocks(true);
+		// m_Environment.set_trim_blocks(true);
 	}
 
 	void SourceGenerator::Add(std::string_view name, std::string_view value)
