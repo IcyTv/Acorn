@@ -36,6 +36,7 @@ sources = files(
 	'Acorn/templates/OrthographicCameraController.cpp',
 	'Acorn/utils/FileUtils.cpp',
 	'Acorn/utils/MathUtils.cpp',
+	'Acorn/utils/md5.cpp',
 	'Acorn/utils/PlatformCapabilities.cpp',
 	'platform/opengl/OpenGLBuffer.cpp',
 	'platform/opengl/OpenGLContext.cpp',
