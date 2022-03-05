@@ -6,7 +6,6 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
-#include <openssl/md5.h>
 #include <yaml-cpp/yaml.h>
 
 #ifdef AC_PLATFORM_WINDOWS
@@ -103,17 +102,6 @@ namespace Acorn::Utils
 			AC_PROFILE_FUNCTION();
 
 			ZoneText(filePath.c_str(), filePath.length());
-			// std::ifstream file(filePath);
-			// std::stringstream buffer;
-			// if (file)
-			// {
-			// 	buffer << file.rdbuf();
-			// }
-			// else
-			// {
-			// 	AC_CORE_ASSERT(false, "Failed to open file!");
-			// }
-			// return buffer.str();
 
 			FILE* file = fopen(filePath.c_str(), "rb");
 			AC_CORE_ASSERT(file, "Failed to read file {}!", filePath);
@@ -151,45 +139,49 @@ namespace Acorn::Utils
 		std::string MD5HashFilePath(const std::string& filePath)
 		{
 			AC_PROFILE_FUNCTION();
-			std::basic_ifstream<unsigned char> file(filePath);
+			std::basic_ifstream<char> file(filePath);
 			file.seekg(0, std::ios::end);
 			size_t fileSize = file.tellg();
 			AC_CORE_ASSERT(fileSize < ACORN_MAX_SHADER_FILE_SIZE, "Shader file is too large to hash!");
 			file.seekg(0, std::ios::beg);
-			unsigned char outBuf[16]; // MD5 digest size
-			std::vector<unsigned char> fileBuf(fileSize);
+			// unsigned char outBuf[16]; // MD5 digest size
+			std::vector<char> fileBuf(fileSize);
 
 			if (!file.read(fileBuf.data(), fileSize))
 			{
 				AC_CORE_ASSERT(false, "Failed to read file!");
 			}
 
-			MD5(fileBuf.data(), fileSize, outBuf);
-			// std::array<char, 16> result = ConstexprHashes::md5(fileBuf);
+			std::string data(fileBuf.data(), fileSize);
 
-			std::stringstream buffer;
-			buffer << std::hex;
-			for (int i = 0; i < 16; i++)
-			{
-				buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
-			}
-			return buffer.str();
+			std::string out = md5(data);
+
+			// std::stringstream buffer;
+			// buffer << std::hex;
+			// for (int i = 0; i < 16; i++)
+			// {
+			// 	buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
+			// }
+			// return buffer.str();
+			return out;
 		}
 
 		std::string MD5HashString(const std::string& data)
 		{
 			AC_PROFILE_FUNCTION();
-			unsigned char outBuf[16]; // MD5 digest size
-			MD5(reinterpret_cast<const unsigned char*>(data.c_str()), data.size(), outBuf);
+			// unsigned char outBuf[16]; // MD5 digest size
+			// MD5(reinterpret_cast<const unsigned char*>(data.c_str()), data.size(), outBuf);
 
-			std::stringstream buffer;
-			buffer << std::hex;
-			for (int i = 0; i < 16; i++)
-			{
-				buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
-			}
-			return buffer.str();
-			return "";
+			// std::stringstream buffer;
+			// buffer << std::hex;
+			// for (int i = 0; i < 16; i++)
+			// {
+			// 	buffer << std::setw(2) << std::setfill('0') << (unsigned int)outBuf[i];
+			// }
+			// return buffer.str();
+			// return "";
+
+			return md5(data);
 		}
 
 		std::string ResolveResPath(const std::string& filePath)
