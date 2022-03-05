@@ -1,3 +1,12 @@
+
+/*
+ * Copyright (c) 2022 Michael Finger
+ *
+ * SPDX-License-Identifier: Apache-2.0 with Commons Clause
+ *
+ * For more Information on the license, see the LICENSE.md file
+ */
+
 #include "acpch.h"
 
 #include "ecs/components/V8Script.h"
@@ -171,14 +180,7 @@ public:
 
 	V8Types ToV8Type(TsType type)
 	{
-		if (type == TsType::Number)
-			return V8Types::Number;
-		else if (type == TsType::String)
-			return V8Types::String;
-		else if (type == TsType::Boolean)
-			return V8Types::Boolean;
-		else if (type == TsType::BigInt)
-			return V8Types::Number; // TODO
+		// TODO
 		// else if (type == "object")
 		// 	return V8Types::Object;
 		// else if (type == "function")
@@ -189,8 +191,14 @@ public:
 		// 	return V8Types::Null;
 		// else if (type == "array")
 		// 	return V8Types::Array;
-		else
-			return V8Types::Unknown;
+		switch (type)
+		{
+		case TsType::Number: return V8Types::Number;
+		case TsType::String: return V8Types::String;
+		case TsType::Boolean: return V8Types::Boolean;
+		case TsType::BigInt: return V8Types::Number;
+		default: return V8Types::Unknown;
+		}
 	}
 
 	using V8Transform = v8pp::class_<Components::Transform>;
@@ -503,7 +511,7 @@ public:
 	{
 		AC_PROFILE_FUNCTION();
 
-		for (auto it : m_Scripts)
+		for (auto* it : m_Scripts)
 		{
 			it->Dispose();
 		}
@@ -546,6 +554,44 @@ public:
 		V8Engine::instance().RemoveScript(this);
 
 		s_Scripts.erase(s_Scripts.find(m_TSFilePath));
+	}
+
+	static void ReportException(v8::Isolate* isolate, v8::TryCatch* try_catch)
+	{
+		v8::HandleScope handleScope(isolate);
+		v8::String::Utf8Value exception(isolate, try_catch->Exception());
+		std::string exceptionString(*exception);
+		v8::Local<v8::Message> message = try_catch->Message();
+		if (message.IsEmpty())
+		{
+			// V8 didn't provide any extra information about this error; just
+			// print the exception.
+			AC_CORE_ERROR("{0}", exceptionString);
+		}
+		else
+		{
+			// Print (filename):(line number): (message).
+			v8::String::Utf8Value filename(isolate, message->GetScriptOrigin().ResourceName());
+			v8::Local<v8::Context> context(isolate->GetCurrentContext());
+			std::string filenameString(*filename);
+			int lineNumber = message->GetLineNumber(context).FromJust();
+			AC_CORE_ERROR("{0}:{1}:{2}", filenameString, lineNumber, exceptionString);
+			// Print line of source code.
+			v8::String::Utf8Value sourceline(isolate, message->GetSourceLine(context).ToLocalChecked());
+			std::string sourcelineString(*sourceline);
+			AC_CORE_ERROR("{0}", sourcelineString);
+			// Print wavy underline (GetUnderline is deprecated).
+			int start = message->GetStartColumn(context).FromJust();
+			int end	  = message->GetEndColumn(context).FromJust();
+			AC_CORE_ERROR("{: >{}}{:^>{}}", "", start, "^", end - start);
+			v8::Local<v8::Value> v8StackTraceString;
+			if (try_catch->StackTrace(context).ToLocal(&v8StackTraceString) && v8StackTraceString->IsString() && v8::Local<v8::String>::Cast(v8StackTraceString)->Length() > 0)
+			{
+				v8::String::Utf8Value stack_trace(isolate, v8StackTraceString);
+				std::string stackTraceString(*stack_trace);
+				AC_CORE_ERROR("{0}", stackTraceString);
+			}
+		}
 	}
 
 	// TODO ts->js filename interop
@@ -664,7 +710,8 @@ public:
 				auto ret							 = OnCreateFunc->Call(context, instance, 0, nullptr);
 				if (ret.IsEmpty() && trycatch.HasCaught())
 				{
-					AC_CORE_ERROR("[V8]: Exception {}", v8pp::from_v8<std::string>(m_Isolate, trycatch.Message()->Get()));
+					ReportException(m_Isolate, &trycatch);
+					// AC_CORE_ERROR("[V8] ({}): Exception {}", stacktrace, v8pp::from_v8<std::string>(m_Isolate, trycatch.Message()->Get()));
 				}
 				else if (ret.IsEmpty())
 				{
@@ -745,36 +792,38 @@ public:
 		AC_CORE_ASSERT(m_Isolate != nullptr, "V8 Isolate is null!");
 
 		v8::Isolate::Scope isolate_scope(m_Isolate);
-		v8::HandleScope handle_scope(m_Isolate);
-
-		v8::Local<v8::Context> context = v8::Local<v8::Context>::New(m_Isolate, m_Context);
-
-		v8::Context::Scope context_scope(context);
 		{
-			AC_CORE_ASSERT(!m_OnUpdate.IsEmpty(), "V8 OnUpdate is null!");
-			AC_CORE_ASSERT(!m_Class.IsEmpty(), "V8 Script Instance is null!");
-			AC_CORE_ASSERT(!context.IsEmpty(), "V8 Context is null!");
+			v8::HandleScope handle_scope(m_Isolate);
 
-			v8::Local<v8::Value> time = v8::Number::New(m_Isolate, ts.GetSeconds());
+			v8::Local<v8::Context> context = v8::Local<v8::Context>::New(m_Isolate, m_Context);
 
-			v8::Local<v8::Value> args[1]	 = { time };
-			v8::Local<v8::Function> onUpdate = v8::Local<v8::Function>::New(m_Isolate, m_OnUpdate);
-			v8::Local<v8::Object> instance	 = v8::Local<v8::Object>::New(m_Isolate, m_Class);
-			v8::TryCatch tryCatch(m_Isolate);
-			v8::MaybeLocal<v8::Value> res = onUpdate->Call(context, instance, 1, args);
-
-			if (tryCatch.HasCaught())
+			v8::Context::Scope context_scope(context);
 			{
-				if (!tryCatch.Message().IsEmpty())
-					AC_CORE_ERROR("[V8]: Error on Update: {}", v8pp::from_v8<std::string>(m_Isolate, tryCatch.Message()->Get()));
-				else
-					AC_CORE_ERROR("[V8]: Unknown Error on Update");
+				AC_CORE_ASSERT(!m_OnUpdate.IsEmpty(), "V8 OnUpdate is null!");
+				AC_CORE_ASSERT(!m_Class.IsEmpty(), "V8 Script Instance is null!");
+				AC_CORE_ASSERT(!context.IsEmpty(), "V8 Context is null!");
+
+				v8::Local<v8::Value> time = v8::Number::New(m_Isolate, ts.GetSeconds());
+
+				v8::Local<v8::Value> args[1]	 = { time };
+				v8::Local<v8::Function> onUpdate = v8::Local<v8::Function>::New(m_Isolate, m_OnUpdate);
+				v8::Local<v8::Object> instance	 = v8::Local<v8::Object>::New(m_Isolate, m_Class);
+				v8::TryCatch tryCatch(m_Isolate);
+				v8::MaybeLocal<v8::Value> res = onUpdate->Call(context, instance, 1, args);
+
+				if (tryCatch.HasCaught())
+				{
+					if (!tryCatch.Message().IsEmpty())
+						AC_CORE_ERROR("[V8]: Error on Update: {}", v8pp::from_v8<std::string>(m_Isolate, tryCatch.Message()->Get()));
+					else
+						AC_CORE_ERROR("[V8]: Unknown Error on Update");
+				}
+
+				AC_CORE_ASSERT(!res.IsEmpty(), "V8 OnUpdate failed!");
+				AC_CORE_ASSERT(res.ToLocalChecked()->IsUndefined(), "V8 OnUpdate returned a value!");
+
+				m_LastExecutionTime = timer.ElapsedMillis();
 			}
-
-			AC_CORE_ASSERT(!res.IsEmpty(), "V8 OnUpdate failed!");
-			AC_CORE_ASSERT(res.ToLocalChecked()->IsUndefined(), "V8 OnUpdate returned a value!");
-
-			m_LastExecutionTime = timer.ElapsedMillis();
 		}
 	}
 
