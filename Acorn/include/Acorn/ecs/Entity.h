@@ -3,12 +3,14 @@
 #include "core/Core.h"
 
 #include "Scene.h"
-#include "components/Components.h"
+#include "core/UUID.h"
+// #include "components/Components.h"
 
 #include <entt/entt.hpp>
 
 namespace Acorn
 {
+
 	class Entity
 	{
 	public:
@@ -74,13 +76,15 @@ namespace Acorn
 		 */
 		void MoveTransform(const glm::mat4& deltaMatrix);
 
-		UUID GetUUID() { return GetComponent<Components::ID>().UUID; }
-		std::string GetName() { return GetComponent<Components::Tag>().TagName; }
+		UUID& GetUUID();
+		std::string GetName();
 
 		operator bool() const { return m_EntityHandle != entt::null; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 		operator entt::entity() const { return m_EntityHandle; }
 		bool operator==(const Entity& other) const { return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene; }
+
+		bool IsValid() const { return m_EntityHandle != entt::null && m_Scene != nullptr; }
 
 	private:
 		entt::entity m_EntityHandle{entt::null};

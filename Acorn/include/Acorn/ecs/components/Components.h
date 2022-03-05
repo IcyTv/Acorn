@@ -17,11 +17,12 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <magic_enum.hpp>
+#include "ecs/Entity.h"
 
 namespace Acorn
 {
 	class ScriptableEntity;
-	class Entity;
+	// class Entity;
 	namespace Components
 	{
 		struct ID
@@ -267,12 +268,12 @@ namespace Acorn
 
 		struct ParentRelationship
 		{
-			int Parent = -1; // TODO pointer is invalid
+			Entity Parent;
 
 			ParentRelationship() = default;
 			ParentRelationship(const ParentRelationship&) = default;
 
-			ParentRelationship(int parent)
+			ParentRelationship(Entity parent)
 				: Parent(parent) {}
 		};
 
@@ -282,7 +283,6 @@ namespace Acorn
 
 			ChildRelationship() = default;
 			ChildRelationship(const ChildRelationship&) = default;
-
 			void AddEntity(Entity parent, Entity child, Ref<Scene> scene);
 			void RemoveEntity(Entity entity);
 			void Clear();

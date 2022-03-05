@@ -2,7 +2,7 @@
 #include "ecs/components/Components.h"
 #include "ecs/components/TSCompiler.h"
 #ifndef NO_SCRIPTING
-	#include "ecs/components/V8Script.h"
+#include "ecs/components/V8Script.h"
 #endif // !NO_SCRIPTING
 
 #include <filesystem>
@@ -18,14 +18,11 @@ namespace Acorn
 {
 	constexpr size_t TAG_SIZE = 256;
 
-	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
-		: m_Context(context)
-	{
-	}
+	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context) : m_Context(context) {}
 
 	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context)
 	{
-		m_Context = context;
+		m_Context		   = context;
 		m_SelectionContext = {};
 	}
 
@@ -40,7 +37,7 @@ namespace Acorn
 
 		for (auto entityID : view)
 		{
-			Entity entity{entityID, m_Context.get()};
+			Entity entity{ entityID, m_Context.get() };
 
 			DrawEntityNode(entity);
 		}
@@ -70,12 +67,12 @@ namespace Acorn
 
 			if (payload != nullptr)
 			{
-				Entity child = *(Entity*)payload->Data;
+				Entity child = *(Entity*) payload->Data;
 				AC_CORE_INFO("Moving {} to root", child.GetName());
 				if (child.HasComponent<Components::ParentRelationship>())
 				{
 					auto& parentComp = child.GetComponent<Components::ParentRelationship>();
-					Entity parent = Entity{parentComp.Parent, m_Context.get()};
+					Entity parent	 = parentComp.Parent;
 					AC_CORE_ASSERT(parent.HasComponent<Components::ChildRelationship>(), "Parent does not have any children.");
 					auto& childComp = parent.GetComponent<Components::ChildRelationship>();
 					childComp.RemoveEntity(child);
@@ -109,7 +106,7 @@ namespace Acorn
 
 			if (payload != nullptr)
 			{
-				auto path = (const wchar_t*)payload->Data;
+				auto path = (const wchar_t*) payload->Data;
 				std::filesystem::path fsPath(path);
 
 				m_SelectionContext.AddComponent<Components::JSScript>(fsPath.string());
@@ -127,14 +124,11 @@ namespace Acorn
 		AC_PROFILE_FUNCTION();
 		std::string& tag = entity.GetComponent<Components::Tag>().TagName;
 
-		ImGuiTreeNodeFlags flags =
-			ImGuiTreeNodeFlags_OpenOnArrow |
-			ImGuiTreeNodeFlags_OpenOnDoubleClick |
-			ImGuiTreeNodeFlags_SpanAvailWidth |
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth |
 			((!entity.HasComponent<Components::ChildRelationship>() || entity.GetComponent<Components::ChildRelationship>().Empty()) ? ImGuiTreeNodeFlags_Leaf : 0) |
 			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 
-		bool opened = ImGui::TreeNodeEx((void*)(intptr_t)(uint32_t)entity, flags, "%s", tag.c_str());
+		bool opened = ImGui::TreeNodeEx((void*) (intptr_t) (uint32_t) entity, flags, "%s", tag.c_str());
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
@@ -150,7 +144,7 @@ namespace Acorn
 			if (payload != nullptr)
 			{
 				AC_CORE_INFO("DragDropTarget called");
-				Entity* target = (Entity*)payload->Data;
+				Entity* target = (Entity*) payload->Data;
 				if (target->GetUUID() != entity.GetUUID())
 				{
 					if (!entity.HasComponent<Components::ChildRelationship>())
@@ -211,7 +205,7 @@ namespace Acorn
 	static bool DrawVec3Control(std::string_view label, glm::vec3& vec, float resetValue = 0.0f, float columnWidth = 100.0f)
 	{
 		AC_PROFILE_FUNCTION();
-		ImGuiIO& io = ImGui::GetIO();
+		ImGuiIO& io	  = ImGui::GetIO();
 		auto boldFont = io.Fonts->Fonts[0];
 
 		bool changed = false;
@@ -222,25 +216,23 @@ namespace Acorn
 		// ImGui::Text("%s", label.c_str());
 		// ImGui::NextColumn();
 		// Acorn::GUI::BeginTable(label);
-		Acorn::GUI::Item(
-			label,
+		Acorn::GUI::Item(label,
 			[&]()
 			{
 				ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-				float lineHeight =
-					GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-				ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
+				float lineHeight  = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+				ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.9f, 0.2f, 0.2f, 1.0f});
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 				ImGui::PushFont(boldFont);
 				if (ImGui::Button("X", buttonSize))
 				{
 					changed = true;
-					vec.x = resetValue;
+					vec.x	= resetValue;
 				}
 				ImGui::PopFont();
 				ImGui::PopStyleColor(3);
@@ -250,14 +242,14 @@ namespace Acorn
 				ImGui::PopItemWidth();
 				ImGui::SameLine();
 
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3f, 0.8f, 0.3f, 1.0f});
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 				ImGui::PushFont(boldFont);
 				if (ImGui::Button("Y", buttonSize))
 				{
 					changed = true;
-					vec.y = resetValue;
+					vec.y	= resetValue;
 				}
 				ImGui::PopFont();
 				ImGui::PopStyleColor(3);
@@ -267,13 +259,13 @@ namespace Acorn
 				ImGui::PopItemWidth();
 				ImGui::SameLine();
 
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.2f, 0.35f, 0.9f, 1.0f});
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 				ImGui::PushFont(boldFont);
 				if (ImGui::Button("Z", buttonSize))
 				{
-					vec.z = resetValue;
+					vec.z	= resetValue;
 					changed = true;
 				}
 				ImGui::PopFont();
@@ -298,11 +290,7 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		constexpr ImGuiTreeNodeFlags flags =
-			ImGuiTreeNodeFlags_DefaultOpen |
-			ImGuiTreeNodeFlags_SpanAvailWidth |
-			ImGuiTreeNodeFlags_FramePadding |
-			ImGuiTreeNodeFlags_Framed |
-			ImGuiTreeNodeFlags_AllowItemOverlap;
+			ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
 
 		if (entity.HasComponent<T>())
 		{
@@ -310,12 +298,12 @@ namespace Acorn
 
 			float contentRegionX = ImGui::GetContentRegionAvailWidth();
 
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4, 4});
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 
 			ImGui::Separator();
 
-			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, "%s", label.data());
+			bool open = ImGui::TreeNodeEx((void*) typeid(T).hash_code(), flags, "%s", label.data());
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(1))
 			{
@@ -325,7 +313,7 @@ namespace Acorn
 			ImGui::PopStyleVar();
 
 			ImGui::SameLine(contentRegionX - lineHeight);
-			if (ImGui::Button("+", ImVec2{lineHeight, lineHeight}))
+			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
 			{
 				ImGui::OpenPopup("ComponentSettings");
 			}
@@ -451,8 +439,8 @@ namespace Acorn
 
 		ImGui::PopItemWidth();
 
-		DrawComponent<Components::Transform>(
-			"Transform", entity, [](auto& transformComponent)
+		DrawComponent<Components::Transform>("Transform", entity,
+			[](auto& transformComponent)
 			{
 				DrawVec3Control("Position"sv, transformComponent.Translation);
 				glm::vec3 rotation = glm::degrees(transformComponent.Rotation);
@@ -460,25 +448,24 @@ namespace Acorn
 				{
 					transformComponent.Rotation = glm::radians(rotation);
 				}
-				DrawVec3Control("Scale"sv, transformComponent.Scale, 1.0f); });
+				DrawVec3Control("Scale"sv, transformComponent.Scale, 1.0f);
+			});
 
-		DrawComponent<Components::CameraComponent>(
-			"Camera", entity, [](auto& cameraComponent)
+		DrawComponent<Components::CameraComponent>("Camera", entity,
+			[](auto& cameraComponent)
 			{
 				auto& camera = cameraComponent.Camera;
 
 				Acorn::GUI::Checkbox("##Primary Camera"sv, cameraComponent.Primary);
 
 				auto projection = camera.GetProjectionType();
-				if(Acorn::GUI::Combo("##Projection Type"sv, projection, {
-					{SceneCamera::ProjectionType::Orthographic, "Orthographic"sv},
-					{SceneCamera::ProjectionType::Perspective, "Perspective"sv} }))
+				if (Acorn::GUI::Combo("##Projection Type"sv, projection,
+						{ { SceneCamera::ProjectionType::Orthographic, "Orthographic"sv }, { SceneCamera::ProjectionType::Perspective, "Perspective"sv } }))
 				{
 					camera.SetProjectionType(projection);
 				}
 
-				if (camera.GetProjectionType() ==
-					SceneCamera::ProjectionType::Orthographic)
+				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
 				{
 					Acorn::GUI::Drag("##Size"sv, camera.OrthographicSize(), 0.1f);
 					Acorn::GUI::Drag("##Near Plane"sv, camera.OrthographicNearClip(), 0.1f);
@@ -496,10 +483,11 @@ namespace Acorn
 
 					Acorn::GUI::Drag("##Near Plane"sv, camera.PerspectiveNearClip(), 0.1f);
 					Acorn::GUI::Drag("##Far Plane"sv, camera.PerspectiveFarClip(), 0.1f);
-				} });
+				}
+			});
 
-		DrawComponent<Components::SpriteRenderer>(
-			"Sprite Renderer", entity, [&](Components::SpriteRenderer& spriteRenderer)
+		DrawComponent<Components::SpriteRenderer>("Sprite Renderer", entity,
+			[&](Components::SpriteRenderer& spriteRenderer)
 			{
 				Acorn::GUI::ColorEdit("##Color"sv, spriteRenderer.Color);
 				// Texture
@@ -534,7 +522,7 @@ namespace Acorn
 
 					if (payload != nullptr)
 					{
-						auto path = (const wchar_t*)payload->Data;
+						auto path = (const wchar_t*) payload->Data;
 						std::filesystem::path fsPath(path);
 						spriteRenderer.Texture = Texture2d::Create(fsPath.string());
 					}
@@ -542,25 +530,28 @@ namespace Acorn
 					ImGui::EndDragDropTarget();
 				}
 
-					// ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic); 
+				// ImGui::DragFloat("Tiling Factor", &spriteRenderer.TilingFactor, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 				if (spriteRenderer.Texture)
-					Acorn::GUI::Drag("##Tiling Factor", spriteRenderer.TilingFactor, 0.1f); });
+					Acorn::GUI::Drag("##Tiling Factor", spriteRenderer.TilingFactor, 0.1f);
+			});
 
-		DrawComponent<Components::CircleRenderer>(
-			"Circle Renderer", entity, [&](Components::CircleRenderer& circleRenderer)
+		DrawComponent<Components::CircleRenderer>("Circle Renderer", entity,
+			[&](Components::CircleRenderer& circleRenderer)
 			{
 				Acorn::GUI::ColorEdit("##Color", circleRenderer.Color);
 				// ImGui::DragFloat("Radius", &circleRenderer.Radius, 0.1f, 0.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 				// ImGui::DragFloat("Thickness", &circleRenderer.Thickness, 0.01f, 0.0f, 1.0f, "%.3f");
 				// ImGui::DragFloat("Fade", &circleRenderer.Fade, 0.00025f, 0.0f, 1.0f, "%.6f");
 				Acorn::GUI::Drag("##Fade", circleRenderer.Fade, 0.01f);
-				Acorn::GUI::Drag("##Thickness", circleRenderer.Thickness, 0.1f); });
+				Acorn::GUI::Drag("##Thickness", circleRenderer.Thickness, 0.1f);
+			});
 
 #ifndef NO_SCRIPTING
-		DrawComponent<Components::JSScript>(
-			"JS Script", entity, [&](Components::JSScript& jsScript)
+		DrawComponent<Components::JSScript>("JS Script", entity,
+			[&](Components::JSScript& jsScript)
 			{
-				char scriptName[256] = {0};
+				// TODO style
+				char scriptName[256] = { 0 };
 				if (jsScript.Script && jsScript.Script->GetFilePath().size() > 0)
 				{
 					strcpy_s(scriptName, jsScript.Script->GetFilePath().c_str());
@@ -573,7 +564,7 @@ namespace Acorn
 
 					if (payload != nullptr)
 					{
-						auto path = (const wchar_t*)payload->Data;
+						auto path = (const wchar_t*) payload->Data;
 						std::filesystem::path fsPath(path);
 						jsScript.LoadScript(fsPath.string());
 					}
@@ -587,7 +578,7 @@ namespace Acorn
 					jsScript.LoadScript(scriptName);
 				}
 
-	#if 0
+#if 0
 				if (jsScript.Script)
 				{
 					TSScriptData scriptData = jsScript.Script->GetScriptData();
@@ -632,14 +623,15 @@ namespace Acorn
 					}
 					ImGui::PopID();
 				}
-	#endif
+#endif
 			});
 #endif
-		DrawComponent<Components::RigidBody2d>(
-			"RigidBody", entity, [&](Components::RigidBody2d& rigidBody)
-			{ 
+		DrawComponent<Components::RigidBody2d>("RigidBody", entity,
+			[&](Components::RigidBody2d& rigidBody)
+			{
 				using namespace Components;
-				Acorn::GUI::Combo("##Body Type", rigidBody.Type, {{RigidBody2d::BodyType::Static, "Static"}, {RigidBody2d::BodyType::Dynamic, "Dynamic"}, {RigidBody2d::BodyType::Kinematic, "Kinematic"}});
+				Acorn::GUI::Combo("##Body Type", rigidBody.Type,
+					{ { RigidBody2d::BodyType::Static, "Static" }, { RigidBody2d::BodyType::Dynamic, "Dynamic" }, { RigidBody2d::BodyType::Kinematic, "Kinematic" } });
 
 				ImGui::Separator();
 
@@ -650,18 +642,21 @@ namespace Acorn
 				Acorn::GUI::Drag("##Density"sv, rigidBody.Density, 0.01f, 0.0f, 1.0f, "%.3f"sv);
 				Acorn::GUI::Drag("##Friction"sv, rigidBody.Friction, 0.01f, 0.0f, 1.0f, "%.3f"sv);
 				Acorn::GUI::Drag("##Restitution"sv, rigidBody.Restitution, 0.01f, 0.0f, 1.0f, "%.3f"sv);
-				Acorn::GUI::Drag("##Restitution Threshold"sv, rigidBody.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f"sv); });
+				Acorn::GUI::Drag("##Restitution Threshold"sv, rigidBody.RestitutionThreshold, 0.01f, 0.0f, 1.0f, "%.3f"sv);
+			});
 
-		DrawComponent<Components::BoxCollider2d>(
-			"BoxCollider", entity, [&](Components::BoxCollider2d& collider)
+		DrawComponent<Components::BoxCollider2d>("BoxCollider", entity,
+			[&](Components::BoxCollider2d& collider)
 			{
 				Acorn::GUI::Drag("##Size"sv, collider.GetSize());
-				Acorn::GUI::Drag("##Offset"sv, collider.GetOffset()); });
+				Acorn::GUI::Drag("##Offset"sv, collider.GetOffset());
+			});
 
-		DrawComponent<Components::CircleCollider2d>(
-			"CircleCollider", entity, [&](Components::CircleCollider2d& collider)
+		DrawComponent<Components::CircleCollider2d>("CircleCollider", entity,
+			[&](Components::CircleCollider2d& collider)
 			{
 				Acorn::GUI::Drag("##Radius"sv, collider.GetRadius(), 0.01f, 0.0f, 10.0f, "%.2f"sv);
-				Acorn::GUI::Drag("##Offset"sv, collider.GetOffset(), 0.01f, -10.0f, 10.0f, "%.2f"sv); });
+				Acorn::GUI::Drag("##Offset"sv, collider.GetOffset(), 0.01f, -10.0f, 10.0f, "%.2f"sv);
+			});
 	}
-}
+} // namespace Acorn

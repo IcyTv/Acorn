@@ -2,6 +2,8 @@
 
 #include "ecs/Entity.h"
 
+#include "ecs/components/Components.h"
+
 namespace Acorn
 {
 
@@ -34,6 +36,16 @@ namespace Acorn
 				child.MoveTransform(deltaMatrix);
 			}
 		}
+	}
+
+	UUID& Entity::GetUUID()
+	{ 
+		return GetComponent<Components::ID>().UUID; 
+	}
+
+	std::string Entity::GetName()
+	{ 
+		return GetComponent<Components::Tag>().TagName; 
 	}
 
 }

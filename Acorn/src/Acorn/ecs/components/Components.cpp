@@ -1,6 +1,5 @@
 #include "acpch.h"
 
-#include "ecs/Entity.h"
 #include "ecs/components/Components.h"
 
 namespace Acorn::Components
@@ -12,11 +11,9 @@ namespace Acorn::Components
 		Entities.push_back(child);
 		if (child.HasComponent<ParentRelationship>())
 		{
-			Entity origParent{child.GetComponent<ParentRelationship>().Parent, scene.get()};
-			origParent.GetComponent<Components::ChildRelationship>().RemoveEntity(child);
-			// child.GetComponent<ParentRelationship>().Parent = (int)(uint32_t)parent;
+			child.GetComponent<ParentRelationship>().Parent.GetComponent<Components::ChildRelationship>().RemoveEntity(child);
 		}
-		child.AddComponent<ParentRelationship>((int)(uint32_t)parent);
+		child.AddComponent<ParentRelationship>(parent);
 	}
 
 	void ChildRelationship::RemoveEntity(Entity entity)
