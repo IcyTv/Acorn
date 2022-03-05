@@ -1,3 +1,12 @@
+
+/*
+ * Copyright (c) 2022 Michael Finger
+ *
+ * SPDX-License-Identifier: Apache-2.0 with Commons Clause
+ *
+ * For more Information on the license, see the LICENSE.md file
+ */
+
 #pragma once
 
 #include "core/Core.h"
@@ -55,8 +64,19 @@ namespace Acorn
 
 		static v8::MaybeLocal<v8::Module> callResolve(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer);
 		static void callMeta(v8::Local<v8::Context> context, v8::Local<v8::Module> module, v8::Local<v8::Object> meta);
-		static v8::MaybeLocal<v8::Promise> callDynamic(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions);
+		static v8::MaybeLocal<v8::Promise> callDynamic(
+			v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions);
+
+		static void BindCommonJSRequire(v8::Local<v8::Context> context, v8::Local<v8::Object> global);
+		static void CommonJSRequire(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 		static void BindImport(v8::Isolate* isolate);
+
+		static std::vector<intptr_t> ExternalRefs()
+		{
+			return {
+				reinterpret_cast<intptr_t>(&V8Import::CommonJSRequire),
+			};
+		}
 	};
 }

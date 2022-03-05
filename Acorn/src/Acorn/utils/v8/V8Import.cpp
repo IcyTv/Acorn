@@ -1,3 +1,12 @@
+
+/*
+ * Copyright (c) 2022 Michael Finger
+ *
+ * SPDX-License-Identifier: Apache-2.0 with Commons Clause
+ *
+ * For more Information on the license, see the LICENSE.md file
+ */
+
 #include "Tracy.hpp"
 #include "acpch.h"
 
@@ -144,16 +153,7 @@ namespace Acorn
 			// vcode = v8pp::to_v8(cx->GetIsolate(), code);
 			vcode = v8::String::NewFromUtf8(cx->GetIsolate(), code.c_str(), v8::NewStringType::kInternalized).ToLocalChecked();
 		}
-		v8::ScriptOrigin origin(
-			v8::String::NewFromUtf8(cx->GetIsolate(), name).ToLocalChecked(),
-			v8::Integer::New(cx->GetIsolate(), 0),
-			v8::Integer::New(cx->GetIsolate(), 0),
-			v8::False(cx->GetIsolate()),
-			v8::Local<v8::Integer>(),
-			v8::Local<v8::Value>(),
-			v8::False(cx->GetIsolate()),
-			v8::False(cx->GetIsolate()),
-			v8::True(cx->GetIsolate()));
+		v8::ScriptOrigin origin(cx->GetIsolate(), v8::String::NewFromUtf8(cx->GetIsolate(), name).ToLocalChecked());
 
 		v8::Context::Scope context_scope(cx);
 
@@ -402,24 +402,121 @@ namespace Acorn
 	{
 		AC_PROFILE_FUNCTION();
 		v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
-		v8::MaybeLocal<v8::Promise> maybePromise = resolver->GetPromise();
+		v8::MaybeLocal<v8::Promise> maybePromise  = resolver->GetPromise();
 
 		v8::String::Utf8Value name(context->GetIsolate(), specifier);
-		v8::Local<v8::Module> mod = checkModule(loadModule(Utils::File::ReadFile(*name), *name, context), context);
+		v8::Local<v8::Module> mod	  = checkModule(loadModule(Utils::File::ReadFile(*name), *name, context), context);
 		v8::Local<v8::Value> retValue = execModule(mod, context, true);
 
 		resolver->Resolve(context, retValue).Check();
 		return maybePromise;
 	}
 
+	static std::filesystem::path ResolvePath(std::string_view modulePath)
+	{
+		// FIXME
+		AC_PROFILE_FUNCTION();
+		std::filesystem::path path(modulePath);
+		if (std::filesystem::exists(path))
+		{
+			return path;
+		}
+		else
+		{
+			path = Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") / path;
+			if (std::filesystem::exists(path))
+			{
+				return path;
+			}
+			else
+			{
+				AC_CORE_ERROR("Failed to resolve path {}", modulePath);
+				throw std::runtime_error("Failed to resolve path");
+			}
+		}
+	}
+
+	// http://wiki.commonjs.org/wiki/Modules/1.1.1
+	void V8Import::CommonJSRequire(const v8::FunctionCallbackInfo<v8::Value>& args)
+	{
+		// FIXME implement to spec
+		AC_PROFILE_FUNCTION();
+
+		v8::Isolate* isolate	   = args.GetIsolate();
+		v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
+
+		v8::Local<v8::String> modulePath;
+		if (args.Length() == 1 && args[0]->IsString())
+		{
+			modulePath = args[0]->ToString(ctx).ToLocalChecked();
+		}
+		else
+		{
+			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Require takes a string argument").ToLocalChecked()));
+		}
+
+		std::filesystem::path path = ResolvePath(v8pp::from_v8<std::string>(ctx->GetIsolate(), modulePath));
+
+		v8::ScriptOrigin origin(modulePath);
+		v8::ScriptCompiler::Source source(v8pp::to_v8(ctx->GetIsolate(), Utils::File::ReadFile(path.string())), origin);
+		v8::Local<v8::Script> script  = v8::ScriptCompiler::Compile(ctx, &source).ToLocalChecked();
+		v8::Local<v8::Value> retValue = script->Run(ctx).ToLocalChecked();
+
+		// FIXME replace asserts with isolate errors?
+		AC_CORE_ASSERT(!retValue.IsEmpty(), "Failed to load module");
+
+		v8::MaybeLocal<v8::Value> maybeModule = ctx->Global()->Get(ctx, v8::String::NewFromUtf8(ctx->GetIsolate(), "module").ToLocalChecked());
+		v8::Local<v8::Value> module;
+		if (!maybeModule.ToLocal(&module))
+		{
+			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Failed to get module object for CommonJS module").ToLocalChecked()));
+		}
+
+		AC_CORE_ASSERT(module->IsObject(), "'module' is not an object");
+
+		v8::Local<v8::Object> moduleObject = module->ToObject(ctx).ToLocalChecked();
+
+		v8::MaybeLocal<v8::Value> maybeExports = moduleObject->Get(ctx, v8::String::NewFromUtf8(ctx->GetIsolate(), "exports").ToLocalChecked());
+		v8::Local<v8::Value> exports;
+		if (!maybeExports.ToLocal(&exports))
+		{
+			// TODO should we actually throw here? or just return undefined? or an empty object?
+			isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Failed to get exports object for CommonJS module").ToLocalChecked()));
+		}
+
+		AC_CORE_ASSERT(exports->IsObject(), "'exports' is not an object");
+
+		v8::Local<v8::Object> exportsObject = exports->ToObject(ctx).ToLocalChecked();
+
+		args.GetReturnValue().Set(exportsObject);
+	}
+
+	void V8Import::BindCommonJSRequire(v8::Local<v8::Context> context, v8::Local<v8::Object> global)
+	{
+		AC_PROFILE_FUNCTION();
+		v8::Isolate* isolate					= context->GetIsolate();
+		v8::Local<v8::String> requireName		= v8::String::NewFromUtf8(isolate, "require").ToLocalChecked();
+		v8::Local<v8::Function> requireFunction = v8::Function::New(context, CommonJSRequire, v8::Local<v8::Value>(), 0, v8::ConstructorBehavior::kThrow).ToLocalChecked();
+		global->Set(context, requireName, requireFunction).Check();
+
+		v8::Local<v8::String> moduleName   = v8::String::NewFromUtf8(isolate, "module").ToLocalChecked();
+		v8::Local<v8::Object> moduleObject = v8::Object::New(isolate);
+		moduleObject->Set(context, v8::String::NewFromUtf8(isolate, "exports").ToLocalChecked(), v8::Object::New(isolate)).Check();
+		global->Set(context, moduleName, moduleObject).Check();
+	}
+
 	void V8Import::BindImport(v8::Isolate* isolate)
 	{
 		AC_PROFILE_FUNCTION();
 		// TODO use synthetic module to bind module.export?
+
 		//  Binding dynamic import() callback
 		isolate->SetHostImportModuleDynamicallyCallback(callDynamic);
 
 		// Binding metadata loader callback
 		isolate->SetHostInitializeImportMetaObjectCallback(callMeta);
+
+		// Bind CommonJS require
+		BindCommonJSRequire(isolate->GetCurrentContext(), isolate->GetCurrentContext()->Global());
 	}
 }
