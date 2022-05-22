@@ -109,7 +109,7 @@ namespace Acorn
 				auto path = (const wchar_t*) payload->Data;
 				std::filesystem::path fsPath(path);
 
-				m_SelectionContext.AddComponent<Components::JSScript>(fsPath.string());
+				m_SelectionContext.AddComponent<Components::JSScript>(m_SelectionContext, fsPath.string());
 				// jsScript.LoadScript(fsPath.string());
 			}
 
@@ -566,7 +566,7 @@ namespace Acorn
 					{
 						auto path = (const wchar_t*) payload->Data;
 						std::filesystem::path fsPath(path);
-						jsScript.LoadScript(fsPath.string());
+						jsScript.LoadScript(entity, fsPath.string());
 					}
 
 					ImGui::EndDragDropTarget();
@@ -575,7 +575,7 @@ namespace Acorn
 
 				if (ImGui::Button("Load Script"))
 				{
-					jsScript.LoadScript(scriptName);
+					jsScript.LoadScript(entity, scriptName);
 				}
 
 #if 0

@@ -174,6 +174,7 @@ namespace Acorn::IDL
 			m_Lexer.consume_specific(',');
 		}
 		ConsumeWhitespace();
+
 		return extendedAttributes;
 	}
 

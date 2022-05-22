@@ -1,0 +1,16 @@
+[Extend]
+interface Global {
+	void test();
+};
+
+enum ComponentTypes {
+	"Tag",
+	"Transform",
+	"SpriteRenderer",
+	"Camera",
+	"NativeScript",
+	"V8Script",
+	"RigidBody2d",
+	"BoxCollider2d",
+	"CircleCollider2d"
+};

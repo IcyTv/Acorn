@@ -1,0 +1,154 @@
+/// <reference path="../declarations.d.ts"/>
+
+import ts from "./typescript";
+
+//Based on https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#using-the-type-checker
+
+
+interface DocEntry {
+    name?: string;
+    fileName?: string;
+    documentation?: string;
+    type?: string;
+    constructors?: DocEntry[];
+    parameters?: DocEntry[];
+    returnType?: string;
+}
+
+export let documentation: DocEntry[];
+try {
+    /** Generate documentation for all classes in a set of .ts files */
+    function generateDocumentation(
+        fileNames: string[],
+        options: ts.CompilerOptions
+    ): DocEntry[] {
+        // Build a program using the set of root file names in fileNames
+        const compilerHost: ts.CompilerHost = {
+            getSourceFile: (fileName: string, languageVersion: ts.ScriptTarget, onError?: (message: string) => void) => {
+                const source = AcornFileSystem.ReadFile(fileName);
+                if (source === undefined) {
+                    if (onError) {
+                        print(`Error reading file ${fileName}`);
+                        onError(`Unable to read file: ${fileName}`);
+                    }
+                    return undefined;
+                }
+                return ts.createSourceFile(fileName, source, languageVersion, /*setParentNodes */ true);
+
+            },
+            getDefaultLibFileName: (defaultLibOptions: ts.CompilerOptions) => "res/scripts/builtins/" + ts.getDefaultLibFileName(defaultLibOptions),
+            writeFile: () => { }, // do nothing
+            getCurrentDirectory: () => "res/scripts/builtins/",
+            getDirectories: (path: string) => [],
+            fileExists: (fileName: string) => {
+                return AcornFileSystem.FileExists(fileName);
+            },
+            readFile: (fileName: string) => {
+                return AcornFileSystem.ReadFile(fileName);
+            },
+            getCanonicalFileName: (fileName: string) => fileName,
+            useCaseSensitiveFileNames: () => true,
+            getNewLine: () => "\n",
+            getEnvironmentVariable: () => "" // do nothing
+        };
+        let program = ts.createProgram(fileNames, options, compilerHost);
+
+        // Get the checker, we will use it to find more about classes
+        let checker = program.getTypeChecker();
+        let output: DocEntry[] = [];
+
+        // Visit every sourceFile in the program
+        for (const sourceFile of program.getSourceFiles()) {
+            if (!sourceFile.isDeclarationFile) {
+                // Walk the tree to search for classes
+                ts.forEachChild(sourceFile, visit);
+            }
+        }
+
+        return output;
+
+        /** visit nodes finding exported classes */
+        function visit(node: ts.Node) {
+            // Only consider exported nodes
+            if (!isNodeExported(node)) {
+                return;
+            }
+
+            if (ts.isClassDeclaration(node) && node.name) {
+                // This is a top level class, get its symbol
+                let symbol = checker.getSymbolAtLocation(node.name);
+                if (symbol) {
+                    output.push(serializeClass(symbol));
+                }
+            } else if (ts.isModuleDeclaration(node)) {
+                // This is a namespace, visit its children
+                ts.forEachChild(node, visit);
+            } else if (ts.isPropertyDeclaration(node)) {
+                let symbol = checker.getSymbolAtLocation(node.name);
+                if (symbol) {
+                    output[output.length - 1].parameters.push(serializeSymbol(symbol));
+                }
+            }
+            // else if(ts.isMethodDeclaration(node)) {
+            //     let symbol = checker.getSymbolAtLocation(node.name);
+            //     if (symbol) {
+
+            //     }
+            // }
+
+        }
+
+        /** Serialize a symbol into a json object */
+        function serializeSymbol(symbol: ts.Symbol): DocEntry {
+            return {
+                name: symbol.getName(),
+                documentation: ts.displayPartsToString(symbol.getDocumentationComment(checker)),
+                type: checker.typeToString(
+                    checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!)
+                )
+            };
+        }
+
+        /** Serialize a class symbol information */
+        function serializeClass(symbol: ts.Symbol) {
+            let details = serializeSymbol(symbol);
+
+            // Get the construct signatures
+            let constructorType = checker.getTypeOfSymbolAtLocation(
+                symbol,
+                symbol.valueDeclaration!
+            );
+            details.constructors = constructorType
+                .getConstructSignatures()
+                .map(serializeSignature);
+            details.parameters = [];
+            return details;
+        }
+
+        /** Serialize a signature (call or construct) */
+        function serializeSignature(signature: ts.Signature) {
+            return {
+                parameters: signature.parameters.map(serializeSymbol),
+                returnType: checker.typeToString(signature.getReturnType()),
+                documentation: ts.displayPartsToString(signature.getDocumentationComment(checker))
+            };
+        }
+
+        /** True if this is visible outside this file, false otherwise */
+        function isNodeExported(node: ts.Node): boolean {
+            return (
+                (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0 ||
+                (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
+            );
+        }
+    }
+
+
+    documentation = generateDocumentation(["res/scripts/test.ts"], {
+        target: ts.ScriptTarget.Latest,
+        module: ts.ModuleKind.ESNext,
+        moduleResolution: ts.ModuleResolutionKind.Classic,
+    });
+} catch (e) {
+    print(e);
+}

@@ -394,7 +394,7 @@ namespace Acorn
 		}
 
 		std::ofstream fout(filePath);
-		AC_CORE_ASSERT(fout, "Failed to open file for writing!");
+		AC_CORE_ASSERT(!!fout, "Failed to open file for writing!");
 
 		fout << out.c_str();
 		fout.close();
@@ -497,7 +497,7 @@ namespace Acorn
 				{
 					auto& jsScript = deserializedEntity.AddComponent<Components::JSScript>();
 
-					jsScript.LoadScript(jsScriptComponent["Path"].as<std::string>());
+					jsScript.LoadScript(deserializedEntity, jsScriptComponent["Path"].as<std::string>());
 				}
 #endif // !NO_SCRIPT
 

@@ -19,6 +19,7 @@
 #include <v8.h>
 #include <yaml-cpp/node/node.h>
 #include <yaml-cpp/yaml.h>
+#include <nlohmann/json.hpp>
 
 namespace YAML
 {
@@ -85,6 +86,7 @@ namespace Acorn
 {
 
 	V8Import::CompilerData V8Import::s_Data;
+	std::unordered_map<int, std::filesystem::path> s_ModulePaths;
 
 	void V8Import::Init()
 	{
@@ -99,11 +101,6 @@ namespace Acorn
 		if (config["v8"]["moduleCache"].IsDefined())
 		{
 			s_Data.CompileCache = config["v8"]["moduleCache"].as<std::unordered_map<std::string, Acorn::ModuleData>>();
-
-			for (const auto& [key, value] : s_Data.CompileCache)
-			{
-				AC_CORE_INFO("V8: Loaded module cache: {0}", key);
-			}
 		}
 		else
 		{
@@ -133,19 +130,15 @@ namespace Acorn
 
 	// V8Import::CompilerData s_Data;
 
-	v8::MaybeLocal<v8::Module> V8Import::loadModule(const std::string& code, const char* name, v8::Local<v8::Context> cx)
+	v8::MaybeLocal<v8::Module> V8Import::LoadModule(const std::string& code, const char* name, v8::Local<v8::Context> cx)
 	{
 		AC_PROFILE_FUNCTION();
-		AC_CORE_TRACE("Loading {}", name);
+		// AC_CORE_TRACE("Loading {}", name);
 
 		ModuleType type = ModuleType::ES6;
-		// if (code.find("module.exports") != std::string::npos)
-		// {
-		// 	type = ModuleType::CommonJS;
-		// }
 
 		std::string md5Hash = Utils::File::MD5HashString(code);
-		AC_CORE_TRACE("MD5HashString {} {}", name, md5Hash);
+		// AC_CORE_TRACE("MD5HashString {} {}", name, md5Hash);
 
 		v8::Local<v8::String> vcode;
 		{
@@ -153,7 +146,7 @@ namespace Acorn
 			// vcode = v8pp::to_v8(cx->GetIsolate(), code);
 			vcode = v8::String::NewFromUtf8(cx->GetIsolate(), code.c_str(), v8::NewStringType::kInternalized).ToLocalChecked();
 		}
-		v8::ScriptOrigin origin(cx->GetIsolate(), v8::String::NewFromUtf8(cx->GetIsolate(), name).ToLocalChecked());
+		v8::ScriptOrigin origin(cx->GetIsolate(), v8::String::NewFromUtf8(cx->GetIsolate(), name).ToLocalChecked(), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true);
 
 		v8::Context::Scope context_scope(cx);
 
@@ -179,7 +172,7 @@ namespace Acorn
 				// NOTE this is a lot faster at -O0, but maybe ifstream is just as fast at -O3?
 				err = fopen_s(&cacheFile, cachePath.string().c_str(), "rb");
 
-				AC_CORE_ASSERT(cacheFile, "Could not open cache file!");
+				AC_CORE_ASSERT(!!cacheFile, "Could not open cache file!");
 				AC_CORE_ASSERT(err == 0, "Could not open cache file!");
 
 				fseek(cacheFile, 0, SEEK_END);
@@ -273,60 +266,154 @@ namespace Acorn
 		}
 	}
 
-	v8::MaybeLocal<v8::Module> V8Import::callResolve(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer)
+	static v8::MaybeLocal<v8::Module> LoadModuleFromPath(const std::filesystem::path& path, v8::Local<v8::Context> context)
 	{
-		AC_PROFILE_FUNCTION();
-		v8::Local<v8::FixedArray> moduleRequests = referrer->GetModuleRequests();
-		v8::Local<v8::ModuleRequest> request = moduleRequests->Get(context, 0).As<v8::ModuleRequest>();
-		v8::Local<v8::String> requestSpecifier = request->GetSpecifier();
-		std::string requestPathStr = v8pp::from_v8<std::string>(context->GetIsolate(), requestSpecifier);
-		std::filesystem::path requestPath = requestPathStr;
-		requestPath = requestPath.parent_path();
+		auto fsPath = std::filesystem::weakly_canonical(path);
 
-		v8::String::Utf8Value str(context->GetIsolate(), specifier);
+		AC_CORE_ASSERT(std::filesystem::exists(fsPath), "File {} does not exist!", fsPath.string());
+		std::string fileContents		  = Acorn::Utils::File::ReadFile(fsPath.string());
+		v8::MaybeLocal<v8::Module> module = V8Import::LoadModule(fileContents, fsPath.string().c_str(), context);
+		if(!module.IsEmpty())
+		{
+			v8::Local<v8::Module> mod = module.ToLocalChecked();
+			s_ModulePaths[mod->ScriptId()] = fsPath;
+			return module;
+		}
+		AC_CORE_ERROR("Failed to load module {}", fsPath.string());
+		AC_ASSERT_NOT_REACHED();
+		return v8::MaybeLocal<v8::Module>();
 
-		std::filesystem::path path(*str);
-
-		AC_CORE_INFO("Resolving {}", path.string());
-
-		if (!path.has_extension() || path.extension() != ".js")
-		{
-			path += ".js";
-		}
-
-		if (std::filesystem::exists(path))
-		{
-			return loadModule(Utils::File::ReadFile(*str), *str, context);
-		}
-		else if (std::filesystem::exists(Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + path.string()))
-		{
-			// TODO get module path and look for siblings/resolve path from it
-			std::filesystem::path newPath = Acorn::Utils::File::ResolveResPath("res/scripts/builtins/");
-			newPath /= path;
-
-			return loadModule(Utils::File::ReadFile(newPath.string()), *str, context);
-		}
-		else if (std::filesystem::exists(requestPath / path))
-		{
-			return loadModule(Utils::File::ReadFile((requestPath / path).string()), *str, context);
-		}
-		else if (std::filesystem::exists(Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + (requestPath / path).string()))
-		{
-			return loadModule(Utils::File::ReadFile(Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + (requestPath / path).string()), *str, context);
-		}
-		else
-		{
-			// TODO if folder check for index.js
-			AC_CORE_TRACE("Tried {}", path.string());
-			AC_CORE_TRACE("Tried {}", Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + path.string());
-			AC_CORE_TRACE("Tried {}", requestPath / path);
-			AC_CORE_TRACE("Tried {}", Acorn::Utils::File::ResolveResPath("res/scripts/builtins/") + (requestPath / path).string());
-			AC_CORE_ASSERT(false, "Failed to load module");
-			return v8::MaybeLocal<v8::Module>();
-		}
 	}
 
-	v8::Local<v8::Module> V8Import::checkModule(v8::MaybeLocal<v8::Module> maybeModule, v8::Local<v8::Context> cx)
+	v8::MaybeLocal<v8::Module> V8Import::CallResolve(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer)
+	{
+		AC_PROFILE_FUNCTION();
+//		v8::Local<v8::FixedArray> moduleRequests = referrer->GetModuleRequests();
+//		v8::Local<v8::ModuleRequest> request = moduleRequests->Get(context, 0).As<v8::ModuleRequest>();
+//		v8::Local<v8::String> requestSpecifier = request->GetSpecifier();
+//		std::string requestPathStr = v8pp::from_v8<std::string>(context->GetIsolate(), requestSpecifier);
+//		std::filesystem::path requestPath = requestPathStr;
+//		requestPath = requestPath.parent_path();
+
+		// Get the path of the referrer
+
+		v8::String::Utf8Value str(context->GetIsolate(), specifier);
+		std::string specifierStr = *str;
+
+//		std::optional<std::filesystem::path> referrerPath;
+//		auto it = s_ModulePaths.find(referrer->ScriptId());
+//		if(it != s_ModulePaths.end())
+//			referrerPath = it->second;
+
+		// AC_CORE_TRACE("Resolving {}", specifierStr);
+		std::filesystem::path path(specifierStr);
+
+		std::filesystem::path resPath = Acorn::Utils::File::ResolveResPath("res/scripts/builtins/");
+
+		// https://nodejs.org/api/modules.html#modules_all_together
+		if(specifierStr.starts_with("/"))
+		{
+			// Absolute path
+			// TODO check if is js file...?
+			AC_CORE_ASSERT(std::filesystem::exists(path), "File {} does not exist!", specifierStr);
+
+			return LoadModuleFromPath(path, context);
+		}
+		if(specifierStr.starts_with("./") || specifierStr.starts_with("../"))
+		{
+			// Relative resolution
+			std::filesystem::path referrerPath = s_ModulePaths[referrer->ScriptId()];
+			AC_CORE_ASSERT(!referrerPath.empty(), "Could not find referrer path!");
+			std::filesystem::path resolvedPath = referrerPath.parent_path() / path;
+
+			if(!resolvedPath.has_extension())
+				resolvedPath.replace_extension(".js");
+
+			return LoadModuleFromPath(resolvedPath, context);
+		}
+		// Include from the node_modules folder in builtins
+		std::filesystem::path nodeModulesPath = s_ModulePaths[referrer->ScriptId()].parent_path();
+		std::error_code err;
+		nodeModulesPath = std::filesystem::canonical(nodeModulesPath, err);
+		AC_CORE_ASSERT(!err, "Could not canonicalize node modules path {}!\n{}", nodeModulesPath.string(), err.message());
+		// AC_CORE_TRACE("Checking node_modules path {}", nodeModulesPath.string());
+		AC_CORE_ASSERT(!nodeModulesPath.empty(), "Could not find referrer path!");
+		// It is possible to require specific files or submodules distributed with a module by including a path suffix after the module name.
+		// For instance require('example-module/path/to/file') would resolve path/to/file relative to where example-module is located.
+		// The suffixed path follows the same module resolution semantics.
+		// Node.js will not append node_modules to a path already ending in node_modules.
+		while(nodeModulesPath.parent_path().has_parent_path())
+		{
+			// Node.js starts at the directory of the current module, and adds /node_modules, and attempts to load the module from that location
+			nodeModulesPath = nodeModulesPath / "node_modules";
+			// AC_CORE_TRACE("Trying to resolve module {}", nodeModulesPath.string());
+			if(std::filesystem::exists(nodeModulesPath / specifierStr / "package.json"))
+			{
+				// Now we have to resolve the module inside the node_modules folder
+				std::ifstream packageFile(nodeModulesPath / specifierStr / "package.json");
+				AC_CORE_ASSERT(!!packageFile, "Failed to open package.json file for module {}", specifierStr);
+				nlohmann::json packageJson;
+				packageFile >> packageJson;
+				packageFile.close();
+				// First try to get the `module` property, then the `main` property
+				// Either of those have to exist, otherwise we can't resolve the module
+				// FIXME I don't know if this is actually correct (i.e. if you can have a package.json without a module/main property)
+				auto modulePath = packageJson.value("module", packageJson["main"]);
+				AC_CORE_ASSERT(modulePath.is_string());
+				std::filesystem::path resolvedPath = nodeModulesPath / specifierStr / modulePath.get<std::string>();
+				AC_CORE_ASSERT(std::filesystem::exists(resolvedPath), "File {} does not exist!", resolvedPath.string());
+				return LoadModuleFromPath(resolvedPath, context);
+			}
+			// Double parent, because otherwise we would loop by removing node_modules only
+			nodeModulesPath = nodeModulesPath.parent_path().parent_path();
+		}
+
+		AC_ASSERT_NOT_REACHED();
+		return v8::MaybeLocal<v8::Module>();
+
+//		std::vector paths {
+//			path,
+//			resPath / path,
+//			modulePath,
+//			resPath / modulePath,
+//			resPath / "node_modules" / path,
+//			resPath / "node_modules" / modulePath,
+//		};
+
+//		if(referrerPath)
+//			paths.push_back((*referrerPath).parent_path() / path);
+
+//		AC_CORE_INFO("Resolving {}", path.string());
+//
+//		for(const auto& p : paths)
+//		{
+//			if (std::filesystem::exists(p))
+//			{
+//				auto fsPath = std::filesystem::canonical(p);
+//				AC_CORE_INFO("Found {}", fsPath.string());
+//				std::string file = Acorn::Utils::File::ReadFile(fsPath.string());
+//				v8::MaybeLocal<v8::Module> module = V8Import::loadModule(file, fsPath.string().c_str(), context);
+//				if(!module.IsEmpty())
+//				{
+//					v8::Local<v8::Module> mod = module.ToLocalChecked();
+//					s_ModulePaths[mod->ScriptId()] = fsPath;
+//					return module;
+//				}
+//				AC_CORE_ERROR("Failed to load module {}", fsPath.string());
+//				return v8::MaybeLocal<v8::Module>();
+//			}
+//		}
+//
+//		AC_CORE_ERROR("Could not find module {}", path.string());
+//		for(const auto& p: paths)
+//		{
+//			AC_CORE_WARN("Tried {}", p.string());
+//		}
+//		AC_ASSERT_NOT_REACHED();
+//		return v8::MaybeLocal<v8::Module>();
+	}
+
+	v8::Local<v8::Module> V8Import::CheckModule(v8::MaybeLocal<v8::Module> maybeModule, v8::Local<v8::Context> cx)
 	{
 		AC_PROFILE_FUNCTION();
 		v8::HandleScope handle_scope(cx->GetIsolate());
@@ -337,7 +424,7 @@ namespace Acorn
 			throw std::runtime_error("Failed to load module");
 		}
 
-		v8::Maybe<bool> result = mod->InstantiateModule(cx, callResolve);
+		v8::Maybe<bool> result = mod->InstantiateModule(cx, CallResolve);
 
 		AC_CORE_INFO("IsSourceText {}; IsSynthetic {}", mod->IsSourceTextModule(), mod->IsSyntheticModule());
 
@@ -349,7 +436,7 @@ namespace Acorn
 		return mod;
 	}
 
-	v8::Local<v8::Value> V8Import::execModule(v8::Local<v8::Module> mod, v8::Local<v8::Context> cx, bool nsObject)
+	v8::Local<v8::Value> V8Import::ExecModule(v8::Local<v8::Module> mod, v8::Local<v8::Context> cx, bool nsObject)
 	{
 		// TODO speed up
 		AC_PROFILE_FUNCTION();
@@ -380,7 +467,7 @@ namespace Acorn
 			return retVal;
 	}
 
-	void V8Import::callMeta(v8::Local<v8::Context> context, v8::Local<v8::Module> module, v8::Local<v8::Object> meta)
+	void V8Import::CallMeta(v8::Local<v8::Context> context, v8::Local<v8::Module> module, v8::Local<v8::Object> meta)
 	{
 		AC_PROFILE_FUNCTION();
 
@@ -394,7 +481,7 @@ namespace Acorn
 			.Check();
 	}
 
-	v8::MaybeLocal<v8::Promise> V8Import::callDynamic(
+	v8::MaybeLocal<v8::Promise> V8Import::CallDynamic(
 		v8::Local<v8::Context> context,
 		v8::Local<v8::ScriptOrModule> referrer,
 		v8::Local<v8::String> specifier,
@@ -405,8 +492,8 @@ namespace Acorn
 		v8::MaybeLocal<v8::Promise> maybePromise  = resolver->GetPromise();
 
 		v8::String::Utf8Value name(context->GetIsolate(), specifier);
-		v8::Local<v8::Module> mod	  = checkModule(loadModule(Utils::File::ReadFile(*name), *name, context), context);
-		v8::Local<v8::Value> retValue = execModule(mod, context, true);
+		v8::Local<v8::Module> mod	  = CheckModule(LoadModule(Utils::File::ReadFile(*name), *name, context), context);
+		v8::Local<v8::Value> retValue = ExecModule(mod, context, true);
 
 		resolver->Resolve(context, retValue).Check();
 		return maybePromise;
@@ -511,12 +598,27 @@ namespace Acorn
 		// TODO use synthetic module to bind module.export?
 
 		//  Binding dynamic import() callback
-		isolate->SetHostImportModuleDynamicallyCallback(callDynamic);
+		isolate->SetHostImportModuleDynamicallyCallback(CallDynamic);
 
 		// Binding metadata loader callback
-		isolate->SetHostInitializeImportMetaObjectCallback(callMeta);
+		isolate->SetHostInitializeImportMetaObjectCallback(CallMeta);
 
 		// Bind CommonJS require
 		BindCommonJSRequire(isolate->GetCurrentContext(), isolate->GetCurrentContext()->Global());
+	}
+
+	void V8Import::AddModulePath(int moduleId, const std::filesystem::path& path)
+	{
+		s_ModulePaths[moduleId] = path;
+	}
+
+	v8::Local<v8::Module> V8Import::ResolveBuiltin(v8::Local<v8::Context> context, std::string_view specifier, std::string_view nodeModulesPath)
+	{
+		AC_PROFILE_FUNCTION();
+		std::filesystem::path path(nodeModulesPath);
+		path /= specifier;
+		v8::MaybeLocal<v8::Module> mod = LoadModuleFromPath(path, context);
+		AC_CORE_ASSERT(!mod.IsEmpty(), "Failed to load builtin module {} from: {}", specifier, path.string());
+		return mod.ToLocalChecked();
 	}
 }

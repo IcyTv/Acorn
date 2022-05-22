@@ -12,7 +12,10 @@ sources = files(
 tpl_files = files(
     'src/WrapperHeader.tpl',
     'src/WrapperImplementation.tpl',
-    'src/Enum.tpl',
+    'src/ExtendHeader.tpl',
+    'src/ExtendImplementation.tpl',
+    'src/EnumHeader.tpl',
+	'src/EnumImplementation.tpl',
 )
 
 boost = dependency('boost')
@@ -20,6 +23,7 @@ args = dependency('args')
 inja = dependency('inja')
 fmt = dependency('fmt')
 magic_enum = dependency('magic_enum')
+json = dependency('nlohmann_json')
 
 fs = import('fs')
 
@@ -36,12 +40,13 @@ endforeach
 idl_parser = executable('IDLParser',
     sources,
     include_directories: inc,
-    dependencies: [args, inja, fmt, boost, magic_enum],
+    dependencies: [args, inja, fmt, boost, magic_enum, json],
     link_depends: configured_templates,
 )
 
 idl_generator = generator(idl_parser,
     output: ['@BASENAME@Wrapper.h', '@BASENAME@Wrapper.cpp'],
-    arguments: ['-I', '-H', '@INPUT@', '-vvv', '-o', '@OUTPUT0@', '-o', '@OUTPUT1@'],
+    # TODO: change to something where we don't care about the build directory
+    arguments: ['-I', '-H', '@INPUT@', '-o', '@OUTPUT0@', '-o', '@OUTPUT1@', '-m', 'Acorn/src/mappingData.json'],
     depends: idl_parser,
 )

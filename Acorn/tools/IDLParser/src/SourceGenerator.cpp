@@ -1,7 +1,7 @@
 #include "SourceGenerator.h"
 
-#include <magic_enum.hpp>
 #include <fmt/format.h>
+#include <magic_enum.hpp>
 
 #include <filesystem>
 #include <optional>
@@ -20,50 +20,43 @@ namespace Acorn::IDL
 
 	static std::string CppToV8Callback(inja::Arguments& args)
 	{
-		const auto& arg = args.at(0)->get<std::string>();
-		const auto& name = args.at(1)->get<std::string>();
+		const auto& arg					 = args.at(0)->get<std::string>();
+		const auto& name				 = args.at(1)->get<std::string>();
 		std::optional<KnownV8Types> type = magic_enum::enum_cast<KnownV8Types>(arg);
-		if(type)
+		if (type)
 		{
-			switch(*type)
+			switch (*type)
 			{
-				case KnownV8Types::Boolean:
-					return "v8::Boolean::New(isolate, name)";
-				case KnownV8Types::Number:
-					return "v8::Number::New(isolate, name)";
-				case KnownV8Types::String:
-					return "v8::String::NewFromUtf8(isolate, name)";
-				case KnownV8Types::Object:
-					return "v8::Object::New(isolate)";
-				case KnownV8Types::Array:
-					return "v8::Array::New(isolate)";
-				case KnownV8Types::Function:
-					return "v8::Function::New(isolate, name)";
+			case KnownV8Types::Boolean: return "v8::Boolean::New(isolate, name)";
+			case KnownV8Types::Number: return "v8::Number::New(isolate, name)";
+			case KnownV8Types::String: return "v8::String::NewFromUtf8(isolate, name)";
+			case KnownV8Types::Object: return "v8::Object::New(isolate)";
+			case KnownV8Types::Array: return "v8::Array::New(isolate)";
+			case KnownV8Types::Function: return "v8::Function::New(isolate, name)";
 			}
-		} else {
+		}
+		else
+		{
 			throw std::runtime_error(fmt::format("Unknown V8 type: {}", arg));
 		}
-
 	}
 
 	static std::string V8ToCppCallback(inja::Arguments& args)
 	{
 		static const char* PATTERN = "v8::Local<v8::{0}>::Cast({1}).Value()";
 
-		const auto& arg = args.at(0)->get<std::string>();
-		const auto& name = args.at(1)->get<std::string>();
+		const auto& arg					 = args.at(0)->get<std::string>();
+		const auto& name				 = args.at(1)->get<std::string>();
 		std::optional<KnownV8Types> type = magic_enum::enum_cast<KnownV8Types>(arg);
-		if(type)
+		if (type)
 		{
-			switch(*type)
+			switch (*type)
 			{
-				case KnownV8Types::Boolean:
-					return fmt::format(PATTERN, "Boolean", name);
-				case KnownV8Types::Number:
-					return fmt::format(PATTERN, "Number", name);
-				default:
-					//TODO
-					return "";
+			case KnownV8Types::Boolean: return fmt::format(PATTERN, "Boolean", name);
+			case KnownV8Types::Number: return fmt::format(PATTERN, "Number", name);
+			default:
+				// TODO
+				return "";
 			}
 		}
 	}
@@ -83,7 +76,7 @@ namespace Acorn::IDL
 			}
 
 			// Ignore already uppercased characters
-			if(isupper(c))
+			if (isupper(c))
 			{
 				result += c;
 				continue;
@@ -103,13 +96,11 @@ namespace Acorn::IDL
 		return result;
 	}
 
-	SourceGenerator::SourceGenerator(std::string templatePath)
-		: m_Environment(templatePath)
+	SourceGenerator::SourceGenerator(std::string templatePath) : m_Environment(templatePath)
 	{
 		std::cerr << "Template path: " << templatePath << std::endl;
 
-		m_Environment.add_callback(
-			"to_pascal_case",
+		m_Environment.add_callback("to_pascal_case",
 			[](inja::Arguments& args)
 			{
 				if (args.size() != 1)
@@ -117,11 +108,9 @@ namespace Acorn::IDL
 
 				auto str = args.at(0)->get<std::string>();
 				return ToPascalCase(str);
-			}
-		);
+			});
 
-		m_Environment.add_callback(
-			"join_with_range",
+		m_Environment.add_callback("join_with_range",
 			[](inja::Arguments& args)
 			{
 				if (args.size() != 3)
@@ -140,16 +129,16 @@ namespace Acorn::IDL
 				}
 
 				return ss.str();
-			}
-		);
+			});
 
-		m_Environment.add_void_callback("dbgln", [](const inja::Arguments& args) -> void
-		{
-			for(const auto& arg : args)
+		m_Environment.add_void_callback("dbgln",
+			[](const inja::Arguments& args) -> void
 			{
-				std::cout << arg->get<std::string>() << std::endl;
-			}
-		});
+				for (const auto& arg : args)
+				{
+					std::cout << arg->get<std::string>() << std::endl;
+				}
+			});
 
 		m_Environment.add_callback("cpp_to_v8", CppToV8Callback);
 		m_Environment.add_callback("v8_to_cpp", V8ToCppCallback);

@@ -1,0 +1,11 @@
+interface Transform {
+	constructor(Vec3 Translation);
+	constructor(Vec3 Translation, Vec3 Rotation);
+	constructor(Vec3 Translation, Vec3 Rotation, Vec3 Scale);
+
+	attribute Vec3 Translation;
+	attribute Vec3 Rotation;
+	attribute Vec3 Scale;
+
+	Mat4 getTransform();
+};

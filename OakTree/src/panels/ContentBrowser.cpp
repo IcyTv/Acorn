@@ -52,7 +52,7 @@ namespace Acorn
 
 		if (!std::filesystem::exists(m_CurrentPath))
 		{
-			AC_CORE_ASSERT(false, "File does not exist, {}", m_CurrentPath.string());
+			AC_ASSERT(false, "File does not exist, {}");
 		}
 
 		if (!s_TextureLoadQueue.empty())

@@ -178,6 +178,7 @@ namespace Acorn::IDL
 		}
 
 		assert(false || !"Not Reached");
+		return {};
 	}
 
 	bool Utf16View::validate(size_t& valid_code_units) const

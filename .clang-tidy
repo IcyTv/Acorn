@@ -49,3 +49,5 @@ CheckOptions:
     value: 's_'
   - key: readability-identifier-naming.StaticVariableCase
     value: 'CamelCase'
+  - key: readability-redundant-access-specifiers.CheckFirstDeclaration
+    value: 'false'

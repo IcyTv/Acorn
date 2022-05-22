@@ -5,6 +5,8 @@
 #include <args.hxx>
 #include <boost/exception/diagnostic_information.hpp>
 
+#include <nlohmann/json.hpp>
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -21,6 +23,7 @@ int main(int argc, const char* argv[])
 
 	args::Flag headerMode(parser, "header", "Generates the wrapper .h file.", { 'H', "header" });
 	args::Flag implementationMode(parser, "implementation", "Generates the wrapper .cpp file.", { 'I', "implementation" });
+	args::ValueFlag<std::filesystem::path> mappingPath(parser, "mapping", "Path to the a file mapping builtin types to custom names.", { 'm', "mapping" });
 	args::ValueFlagList<std::string> outputPath(parser, "output", "Output path for the generated files.", { 'o', "output" });
 	args::Positional<std::filesystem::path> path(parser, "IDL File", "The IDL file to parse.", args::Options::Required);
 	args::Positional<std::filesystem::path> importBasePath(parser, "Import Base Path", "The base path to use for imports.");
@@ -53,8 +56,6 @@ int main(int argc, const char* argv[])
 	}
 
 	auto filePath = path.Get();
-
-	std::cout << "Parsing " << filePath << std::endl;
 
 	std::ifstream file(filePath);
 	if (!file)
@@ -149,11 +150,19 @@ int main(int argc, const char* argv[])
 		programLocation = programLocation.parent_path();
 		std::string templatePath = programLocation.string() + "/";
 
+		nlohmann::json mappingJson;
+		if(mappingPath.Matched())
+		{
+			std::ifstream mappingFile(mappingPath.Get());
+			assert(mappingFile);
+			mappingFile >> mappingJson;
+		}
+
 		if (headerMode.Get())
-			Acorn::IDL::GenerateHeader(*interface, headerPath, templatePath);
+			Acorn::IDL::GenerateHeader(*interface, headerPath, templatePath, mappingJson);
 
 		if (implementationMode.Get())
-			Acorn::IDL::GenerateImplementation(*interface, implementationPath, templatePath);
+			Acorn::IDL::GenerateImplementation(*interface, implementationPath, templatePath, mappingJson);
 
 	}
 	catch (const std::exception& e)

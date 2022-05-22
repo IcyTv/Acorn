@@ -54,4 +54,6 @@ acorn-project.yaml
 # for the IntelliJ, Android Studio and CLion versions of the plugin.
 /.ijwb/
 /.aswb/
-/.clwb/
+!/*.idl
+
+res/scripts/node_modules

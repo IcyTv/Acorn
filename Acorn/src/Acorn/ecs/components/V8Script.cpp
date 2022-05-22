@@ -23,9 +23,6 @@
 #include "utils/v8/V8Import.h"
 #include "v8pp/ptr_traits.hpp"
 
-#include "Vec2Wrapper.h"
-#include "Vec3Wrapper.h"
-
 #include <boost/variant/detail/apply_visitor_delayed.hpp>
 #include <boost/variant/get.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -46,14 +43,15 @@
 #include <v8.h>
 
 #include <v8pp/class.hpp>
-// #include <v8pp/context.hpp>
 #include <v8pp/convert.hpp>
 #include <v8pp/module.hpp>
 #include <v8pp/object.hpp>
 
-// #include <FileWatch.hpp>
-
 #include "ecs/components/V8Script_internals.h"
+#include "utils/v8/V8GlmConversions.h"
+
+#include "TransformWrapper.h"
+#include "GlobalWrapper.h"
 
 #define COMPONENT_SWITCH_HAS(name) COMPONENT_SWITCH_HAS2(name, name)
 
@@ -112,7 +110,6 @@ struct v8pp::convert<Acorn::KeyCode>
 			return false;
 		if (value->IsNumber())
 		{
-			// Attention: We cannot envorce integers, so we just assume
 			int enumNumber = v8pp::from_v8<int>(isolate, value);
 			return magic_enum::enum_contains<Acorn::KeyCode>(enumNumber);
 		}
@@ -203,6 +200,7 @@ public:
 
 	using V8Transform = v8pp::class_<Components::Transform>;
 	using V8Vec3	  = v8pp::class_<glm::vec3>;
+	using namespace Acorn::Scripting::V8;
 
 	// static v8::Handle<v8::Object> transform_ref;
 
@@ -218,265 +216,6 @@ public:
 		BoxCollider2d	 = 7,
 		CircleCollider2d = 8,
 	};
-
-	class ScriptSuperClass : public ScriptableEntity
-	{
-public:
-		~ScriptSuperClass() {}
-	};
-
-	static void Print(const v8::FunctionCallbackInfo<v8::Value>& args)
-	{
-		AC_PROFILE_FUNCTION();
-		std::stringstream ss;
-		v8::HandleScope handle_scope(args.GetIsolate());
-		for (int i = 0; i < args.Length(); i++)
-		{
-			v8::String::Utf8Value str(args.GetIsolate(), args[i]);
-			std::string s(*str);
-			ss << s << " ";
-		}
-		AC_CORE_INFO("[V8]: {0}", ss.str());
-	}
-
-	static void ScriptSuperClassConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
-	{
-		AC_PROFILE_FUNCTION();
-		v8::Isolate* isolate = args.GetIsolate();
-		if (!args.IsConstructCall())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Cannot call constructor as function")));
-			return;
-		}
-
-		ScriptSuperClass* obj = new ScriptSuperClass();
-
-		args.This()->SetInternalField(0, v8::External::New(isolate, obj));
-	}
-
-	static void ScriptSuperClassHasComponent(const v8::FunctionCallbackInfo<v8::Value>& args)
-	{
-		AC_PROFILE_FUNCTION();
-		v8::Isolate* isolate = args.GetIsolate();
-		v8::HandleScope handle_scope(isolate);
-
-		if (args.Length() != 1)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Wrong number of arguments")));
-			return;
-		}
-
-		if (!args[0]->IsUint32())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Only Accepts a number")));
-			return;
-		}
-
-		uint16_t component = args[0]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
-		auto componentEnum = magic_enum::enum_cast<ComponentsEnum>(component);
-		if (!componentEnum.has_value())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component")));
-			return;
-		}
-
-		ScriptSuperClass* obj = static_cast<ScriptSuperClass*>(v8::Local<v8::External>::Cast(args.This()->GetInternalField(0))->Value());
-		switch (componentEnum.value())
-		{
-			COMPONENT_SWITCH_HAS(Tag)
-			COMPONENT_SWITCH_HAS(Transform)
-			COMPONENT_SWITCH_HAS(SpriteRenderer)
-			COMPONENT_SWITCH_HAS2(Camera, CameraComponent)
-			COMPONENT_SWITCH_HAS(NativeScript)
-			COMPONENT_SWITCH_HAS(RigidBody2d)
-			COMPONENT_SWITCH_HAS(BoxCollider2d)
-		default: isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component"))); break;
-		}
-	}
-
-	static void ScriptSuperClassGetComponent(const v8::FunctionCallbackInfo<v8::Value>& args)
-	{
-		AC_PROFILE_FUNCTION();
-		v8::Isolate* isolate = args.GetIsolate();
-		// v8::HandleScope handle_scope(isolate);
-
-		if (args.Length() != 1)
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Wrong number of arguments")));
-			return;
-		}
-
-		if (!args[0]->IsUint32())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Only Accepts a number")));
-			return;
-		}
-
-		AC_CORE_TRACE("Getting Component, {}", args[0]->Uint32Value(isolate->GetCurrentContext()).ToChecked());
-
-		uint16_t component = args[0]->Uint32Value(isolate->GetCurrentContext()).ToChecked();
-		auto componentEnum = magic_enum::enum_cast<ComponentsEnum>(component);
-		if (!componentEnum.has_value())
-		{
-			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component")));
-			return;
-		}
-
-		ScriptSuperClass* obj = static_cast<ScriptSuperClass*>(v8::Local<v8::External>::Cast(args.This()->GetInternalField(0))->Value());
-		switch (componentEnum.value())
-		{
-		case ComponentsEnum::Tag:
-		{
-			if (!obj->HasComponent<Components::Tag>())
-			{
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No Tag Component")));
-				return;
-			}
-			Components::Tag& tagComponent = obj->GetComponent<Components::Tag>();
-
-			try
-			{
-				v8::Local<v8::Object> tag = v8pp::class_<Components::Tag>::reference_external(isolate, &tagComponent);
-				args.GetReturnValue().Set(tag);
-			}
-			catch (const std::runtime_error& e)
-			{
-				AC_CORE_ERROR("{0}", e.what());
-			}
-		}
-		break;
-		case ComponentsEnum::Transform:
-		{
-			AC_CORE_TRACE("Getting Transform");
-			if (!obj->HasComponent<Components::Transform>())
-			{
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No Transform Component")));
-				return;
-			}
-			Components::Transform& transformComponent = obj->GetComponent<Components::Transform>();
-
-			try
-			{
-				// TODO figure out if we need to do this or if we can just class wrap
-				// At the moment, class wrap throws an exception "Cannot wrap c++ class"
-
-				v8::Local<v8::Value> pos_ref   = V8Vec3::reference_external(isolate, &transformComponent.Translation);
-				v8::Local<v8::Value> rot_ref   = V8Vec3::reference_external(isolate, &transformComponent.Rotation);
-				v8::Local<v8::Value> scale_ref = V8Vec3::reference_external(isolate, &transformComponent.Scale);
-
-				v8::Local<v8::Object> obj = v8::Object::New(isolate);
-				v8pp::set_option(isolate, obj, "Position", pos_ref);
-				v8pp::set_option(isolate, obj, "Rotation", rot_ref);
-				v8pp::set_option(isolate, obj, "Scale", scale_ref);
-
-				args.GetReturnValue().Set(obj);
-			}
-			catch (std::runtime_error& e)
-			{
-				AC_CORE_ERROR("{0}", e.what());
-			}
-		}
-		break;
-		case ComponentsEnum::SpriteRenderer:
-		{
-			if (!obj->HasComponent<Components::SpriteRenderer>())
-			{
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No SpriteRenderer Component")));
-				return;
-			}
-			Components::SpriteRenderer& spriteRendererComponent = obj->GetComponent<Components::SpriteRenderer>();
-
-			try
-			{
-				v8::Local<v8::Object> obj = v8::Object::New(isolate);
-
-				v8::Local<v8::Value> color_ref = v8pp::class_<glm::vec4>::reference_external(isolate, &spriteRendererComponent.Color);
-
-				v8pp::set_option(isolate, obj, "Color", color_ref);
-
-				args.GetReturnValue().Set(obj);
-			}
-			catch (std::runtime_error& e)
-			{
-				AC_CORE_ERROR("{0}", e.what());
-			}
-		}
-		break;
-		// TODO others
-		case ComponentsEnum::RigidBody2d:
-		{
-			if (!obj->HasComponent<Components::RigidBody2d>())
-			{
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No RigidBody2d Component")));
-				return;
-			}
-
-			Components::RigidBody2d& rigidBody2dComponent = obj->GetComponent<Components::RigidBody2d>();
-			try
-			{
-				v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, rigidBody2dComponent);
-
-				AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert RigidBody2d");
-
-				args.GetReturnValue().Set(v8Obj);
-			}
-			catch (std::runtime_error& e)
-			{
-				AC_CORE_ERROR("{0}", e.what());
-			}
-		}
-		break;
-		case ComponentsEnum::BoxCollider2d:
-		{
-			if (!obj->HasComponent<Components::BoxCollider2d>())
-			{
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No BoxCollider2d Component")));
-				return;
-			}
-
-			Components::BoxCollider2d& boxCollider2dComponent = obj->GetComponent<Components::BoxCollider2d>();
-
-			try
-			{
-				v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, boxCollider2dComponent);
-
-				AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert BoxCollider2d");
-
-				args.GetReturnValue().Set(v8Obj);
-			}
-			catch (std::runtime_error& e)
-			{
-				AC_CORE_ERROR("{0}", e.what());
-			}
-		}
-		break;
-		case ComponentsEnum::CircleCollider2d:
-		{
-			if (!obj->HasComponent<Components::CircleCollider2d>())
-			{
-				isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "No CircleCollider2d Component")));
-				return;
-			}
-
-			Components::CircleCollider2d& circleCollider2dComponent = obj->GetComponent<Components::CircleCollider2d>();
-
-			try
-			{
-				v8::Local<v8::Object> v8Obj = v8pp::to_v8(isolate, circleCollider2dComponent);
-
-				AC_CORE_ASSERT(!v8Obj.IsEmpty(), "Failed to convert CircleCollider2d");
-
-				args.GetReturnValue().Set(v8Obj);
-			}
-			catch (std::runtime_error& e)
-			{
-				AC_CORE_ERROR("{0}", e.what());
-			}
-		}
-		break;
-		default: isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid Component"))); break;
-		}
-	}
 
 	//===============================================================================================//
 	//											V8Engine											 //
@@ -495,7 +234,7 @@ public:
 		V8Import::Init();
 		// std::string const v8_flags = "--turbo_instruction_scheduling --native-code-counters --expose_gc --print_builtin_code --print_code_verbose --profile_deserialization
 		// --serialization_statistics --random-seed 314159265"; v8::V8::SetFlagsFromString(v8_flags.data(), (int)v8_flags.length());
-		v8::V8::SetFlagsFromString("--random-seed 314159265");
+		v8::V8::SetFlagsFromString("--stack_trace_on_illegal --abort_on_uncaught_exception");
 
 		ApplicationCommandLineArgs args = Application::Get().GetCommandLineArgs();
 		v8::V8::InitializeICUDefaultLocation(args.Args[0]);
@@ -525,40 +264,42 @@ public:
 	}
 
 	//===============================================================================================//
-	//											V8Script											 //
+	//                                    Static Functions                                           //
 	//===============================================================================================//
 
-	// TODO allow empty methods!
-	// TODO add support for other Scripting Methods (onDestroy, onKeyDown,...)
-	// TODO add support for async methods? -> If return type is async, add it to a queue that gets resolved after/during other scripts?
-	V8Script::V8Script()
+	template<class T, void (T::*func)(const v8::FunctionCallbackInfo<v8::Value>&)>
+	static void JsFunctionTemplate(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
-		// V8Script(std::string("res/scripts/test.ts"));
+		T* obj = static_cast<T*>(args.This()->GetAlignedPointerFromInternalField(0));
+		if(obj != nullptr)
+			(obj->*func)(args);
+		else
+			AC_CORE_WARN("JsFunctionTemplate: Object is nullptr");
 	}
 
-	V8Script::V8Script(const std::string& filePath) : m_Isolate(NULL)
+	static void Print(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
-		AC_CORE_ASSERT(filePath.ends_with(".ts"), "Script must be a typescript file!");
-		m_TSFilePath = filePath;
-		m_JSFilePath = filePath.substr(0, filePath.length() - 2) + "js";
-
-		s_Scripts.emplace(m_TSFilePath, this);
-
-		m_Data = TSCompiler::Compile(m_TSFilePath);
-	}
-
-	V8Script::~V8Script()
-	{
-		m_Isolate->Dispose();
-		m_Isolate = nullptr;
-		V8Engine::instance().RemoveScript(this);
-
-		s_Scripts.erase(s_Scripts.find(m_TSFilePath));
+		AC_PROFILE_FUNCTION();
+		std::stringstream ss;
+		v8::HandleScope handle_scope(args.GetIsolate());
+		for (int i = 0; i < args.Length(); i++)
+		{
+			v8::String::Utf8Value str(args.GetIsolate(), args[i]);
+			std::string s(*str);
+			ss << s << " ";
+		}
+		AC_CORE_INFO("[V8]: {0}", ss.str());
 	}
 
 	static void ReportException(v8::Isolate* isolate, v8::TryCatch* try_catch)
 	{
 		v8::HandleScope handleScope(isolate);
+		if(!try_catch->HasCaught())
+		{
+			AC_CORE_ERROR("Uncaught exception");
+			AC_ASSERT_NOT_REACHED();
+			return;
+		}
 		v8::String::Utf8Value exception(isolate, try_catch->Exception());
 		std::string exceptionString(*exception);
 		v8::Local<v8::Message> message = try_catch->Message();
@@ -592,6 +333,70 @@ public:
 				AC_CORE_ERROR("{0}", stackTraceString);
 			}
 		}
+		AC_CORE_BREAK();
+	}
+
+
+	//===============================================================================================//
+	//											V8Script											 //
+	//===============================================================================================//
+
+	// TODO allow empty methods!
+	// TODO add support for other Scripting Methods (onDestroy, onKeyDown,...)
+	// TODO add support for async methods? -> If return type is async, add it to a queue that gets resolved after/during other scripts?
+	V8Script::V8Script(Entity entity)
+		: m_Entity(entity)
+	{
+		// V8Script(std::string("res/scripts/test.ts"));
+	}
+
+	V8Script::V8Script(Entity entity, const std::string& filePath) : m_Isolate(NULL), m_Entity(entity)
+	{
+		AC_CORE_ASSERT(filePath.ends_with(".ts"), "Script must be a typescript file!");
+		m_TSFilePath = filePath;
+		m_JSFilePath = filePath.substr(0, filePath.length() - 2) + "js";
+
+		s_Scripts.emplace(m_TSFilePath, this);
+
+		m_Data = TSCompiler::Compile(m_TSFilePath);
+	}
+
+	V8Script::~V8Script()
+	{
+		m_Isolate->Dispose();
+		m_Isolate = nullptr;
+		V8Engine::instance().RemoveScript(this);
+
+		s_Scripts.erase(s_Scripts.find(m_TSFilePath));
+	}
+
+	void V8Script::GetComponent(const v8::FunctionCallbackInfo<v8::Value>& args) {
+		AC_PROFILE_FUNCTION();
+		v8::Isolate* isolate = args.GetIsolate();
+		if(args.Length() != 1)
+		{
+			isolate->ThrowException(v8::Exception::TypeError(v8pp::to_v8(isolate, "Invalid arguments")));
+			return;
+		}
+
+		v8::EscapableHandleScope handle_scope(isolate);
+
+		Acorn::Scripting::V8::ComponentTypes type = v8pp::from_v8<Acorn::Scripting::V8::ComponentTypes>(isolate, args[0]);
+		AC_CORE_TRACE("GetComponent: {}", magic_enum::enum_name(type));
+
+
+		void* ptr = nullptr;
+		switch (type)
+		{
+		case Acorn::Scripting::V8::ComponentTypes::Transform:
+			args.GetReturnValue().Set(TransformWrapper::Wrap(isolate, &m_Entity.GetComponent<Transform>()));
+			break;
+		case Acorn::Scripting::V8::ComponentTypes::Tag:
+			ptr = (void*)&m_Entity.GetComponent<Acorn::Components::Tag>();
+			break;
+		default:
+			isolate->ThrowException(v8::Exception::ReferenceError(v8pp::to_v8(isolate, "Unknown component type")));
+		}
 	}
 
 	// TODO ts->js filename interop
@@ -614,13 +419,9 @@ public:
 
 		std::string md5Hash = Utils::File::MD5HashString(sourceCode);
 
-		// m_Data = TSCompiler::Compile(m_Isolate, m_TSFilePath);
-
 		AC_CORE_TRACE("TSCompilation succeeded");
 
 		AC_CORE_ASSERT(std::filesystem::exists(m_JSFilePath), "Failed to find compiled script!");
-
-		// m_SnapshotCreator = CreateScope<v8::SnapshotCreator>(m_Isolate, nullptr, snapshot);
 
 		v8::Isolate::Scope isolate_scope(m_Isolate);
 		// Block for destroying handle scope before creating startup blob
@@ -630,88 +431,148 @@ public:
 
 			v8::Local<v8::Context> context = CreateShellContext();
 
-			// m_SnapshotCreator->SetDefaultContext(context);
+			context->Global()->Set(context, v8pp::to_v8(m_Isolate, "global"), context->Global());
 
 			AC_CORE_TRACE("Serialized Context!");
 
-			// m_Context = context;
-			// m_Context.Reset(m_Isolate, context);
 			m_Context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(m_Isolate, context);
-			// m_Context = context;
 
 			AC_CORE_ASSERT(!context.IsEmpty(), "Failed to create V8 context!");
 			// Enter the context for compiling and running the hello world script.
 			v8::Context::Scope context_scope(context);
 			{
-				// Create a string containing the JavaScript source code.
-				v8::Local<v8::String> source = v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
-				// Compile the source code.
-				v8::Local<v8::Script> script = v8::Script::Compile(context, source).ToLocalChecked();
 
 				v8::TryCatch trycatch(m_Isolate);
-				v8::MaybeLocal<v8::Value> v = script->Run(context);
-				if (v.IsEmpty())
+				V8Import::BindCommonJSRequire(context, context->Global());
+				V8Import::BindImport(m_Isolate);
+				// Create a string containing the JavaScript source code.
+				v8::Local<v8::String> source = v8::String::NewFromUtf8(m_Isolate, sourceCode.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
+				v8::Local<v8::String> resource = v8pp::to_v8(m_Isolate, m_JSFilePath);
+
+				v8::ScriptOrigin origin(resource, 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true);
+
+				// Compile the source code.
+				v8::ScriptCompiler::Source scriptSource(source, origin);
+				v8::Local<v8::Module> script = v8::ScriptCompiler::CompileModule(m_Isolate, &scriptSource).ToLocalChecked();
+
+				if(script->GetStatus() == v8::Module::kErrored)
 				{
-					std::string msg = v8pp::from_v8<std::string>(m_Isolate, trycatch.Exception());
-					AC_CORE_ERROR("[V8]: Failed to run script: {0}", msg);
+					auto exception = script->GetException();
+					AC_CORE_ERROR("{0}", *v8::String::Utf8Value(m_Isolate, exception));
+					ReportException(m_Isolate, &trycatch);
+					return;
 				}
 
-				v8::Local<v8::Value> moduleObject	   = context->Global()->Get(context, v8::String::NewFromUtf8(m_Isolate, "module").ToLocalChecked()).ToLocalChecked();
-				v8::Local<v8::Object> module		   = v8::Local<v8::Object>::Cast(moduleObject);
-				v8::MaybeLocal<v8::Value> maybeExports = module->Get(context, v8::String::NewFromUtf8(m_Isolate, "exports").ToLocalChecked());
+				V8Import::AddModulePath(script->ScriptId(), m_JSFilePath);
 
-				AC_CORE_ASSERT(!maybeExports.IsEmpty(), "Failed to get module exports!");
+				auto maybeInstantiated = script->InstantiateModule(context, V8Import::CallResolve);
+				AC_CORE_ASSERT(maybeInstantiated.IsJust() && maybeInstantiated.ToChecked(), "Failed to instantiate module!");
 
-				v8::Local<v8::Value> exports = maybeExports.ToLocalChecked();
-
-				AC_CORE_ASSERT(exports->IsFunction(), "[V8]: Wrong Export Type!");
-
-				v8::Local<v8::Function> classObj = v8::Local<v8::Function>::Cast(exports);
-
-				m_Name						   = v8pp::from_v8<std::string>(m_Isolate, classObj->GetDebugName());
-				v8::Local<v8::Object> instance = classObj->NewInstance(context).ToLocalChecked();
-				ScriptSuperClass* obj		   = (ScriptSuperClass*) instance->GetInternalField(0).As<v8::External>()->Value();
-				obj->m_Entity				   = entity;
-
-				for (auto& params : m_Parameters)
+				if(trycatch.HasCaught())
 				{
-					v8::Local<v8::String> name = v8pp::to_v8(m_Isolate, params.first);
-
-					v8::Local<v8::Value> value;
-					if (params.second.type() == typeid(float))
-					{
-						value = v8pp::to_v8<float>(m_Isolate, boost::get<float>(params.second));
-					}
-					else if (params.second.type() == typeid(bool))
-					{
-						value = v8pp::to_v8<bool>(m_Isolate, boost::get<bool>(params.second));
-					}
-					else if (params.second.type() == typeid(std::string))
-					{
-						value = v8pp::to_v8<std::string>(m_Isolate, boost::get<std::string>(params.second));
-					}
-					else
-					{
-						AC_CORE_FATAL("[V8]: Unknown parameter type!");
-						AC_CORE_BREAK();
-					}
-
-					v8::Maybe<bool> result = instance->Set(context, name, value);
-					AC_CORE_ASSERT(result.IsJust(), "Failed to set parameter {}!", params.first);
+					ReportException(m_Isolate, &trycatch);
+					return;
 				}
 
-				m_Class.Reset(m_Isolate, instance);
+				v8::MaybeLocal<v8::Value> v = script->Evaluate(context);
+				if(script->GetStatus() == v8::Module::kErrored)
+				{
+					auto exception = script->GetException();
+					AC_CORE_ERROR("{0}", *v8::String::Utf8Value(m_Isolate, exception));
+					AC_ASSERT_NOT_REACHED();
+					return;
+				}
+				AC_CORE_ASSERT(script->GetStatus() == v8::Module::kEvaluated, "Failed to evaluate module!");
+				auto module = v.ToLocalChecked();
+				AC_CORE_ASSERT(module->IsPromise(), "Module export is not a promise!");
 
-				v8::Local<v8::Function> OnUpdatefunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnUpdate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
+				auto promise = v8::Local<v8::Promise>::Cast(module);
+				AC_CORE_ASSERT(promise->State() == v8::Promise::kFulfilled, "Module export failed, because the promise couldn't be fulfilled!");
+				auto maybe = promise->Result();
+				if(trycatch.HasCaught())
+				{
+					ReportException(m_Isolate, &trycatch);
+					return;
+				}
+				AC_CORE_ASSERT(!maybe.IsEmpty(), "Failed to get module export!");
 
-				m_OnUpdate.Reset(m_Isolate, OnUpdatefunc);
+				auto ns = script->GetModuleNamespace();
+				AC_CORE_ASSERT(!ns.IsEmpty(), "Failed to get module namespace!");
+				AC_CORE_ASSERT(ns->IsObject(), "Module namespace is not an object!");
 
-				v8::Local<v8::Function> OnCreateFunc = instance->Get(context, v8::String::NewFromUtf8(m_Isolate, "OnCreate").ToLocalChecked()).ToLocalChecked().As<v8::Function>();
-				auto ret							 = OnCreateFunc->Call(context, instance, 0, nullptr);
+				auto nsObject = v8::Local<v8::Object>::Cast(ns);
+
+				auto defaultExport = nsObject->Get(context, v8pp::to_v8(m_Isolate, "default")).ToLocalChecked();
+				AC_CORE_ASSERT(defaultExport->IsFunction(), "Default export is not a function!");
+				v8::Local<v8::Function> classObj = v8::Local<v8::Function>::Cast(defaultExport);
+
+				AC_CORE_ASSERT(classObj->IsConstructor());
+
+				AC_CORE_TRACE("Class Object Name: {}", *v8::String::Utf8Value(m_Isolate, classObj->GetName()));
+
+				m_Name = v8pp::from_v8<std::string>(m_Isolate, classObj->GetDebugName());
+
+				auto obj = classObj->NewInstanceWithSideEffectType(context, 0, nullptr, v8::SideEffectType::kHasSideEffectToReceiver).ToLocalChecked().As<v8::Object>();
+				v8::Local<v8::Object> instance = obj.As<v8::Object>();
+				AC_CORE_ASSERT(instance->IsObject(), "Failed to create instance!");
+				auto protoStr = instance->ObjectProtoToString(context).ToLocalChecked();
+				AC_CORE_TRACE("Class Object Prototype: {}", *v8::String::Utf8Value(m_Isolate, protoStr));
+
+				{
+//					Acorn::Scripting::V8::ScriptSuperClass* superClass = v8pp::class_<Acorn::Scripting::V8::ScriptSuperClass>::unwrap_object(m_Isolate, instance);
+//					AC_CORE_ASSERT(!!superClass, "Every script must inherit from ScriptSuperClass!");
+//					superClass->SetEntity(entity);
+
+					// Acorn::Scripting::V8::ScriptSuperClass& superClass = ScriptSuperClassWrapper::Unwrap(m_Isolate, instance);
+					// superClass.SetEntity(entity);
+				}
+
+				m_Class.Reset(m_Isolate, classObj);
+
+				v8::Local<v8::Object> prototype = instance->GetPrototype().As<v8::Object>();
+				AC_CORE_ASSERT(prototype->IsObject(), "Prototype is not an object!");
+
+				auto keys = prototype->GetPropertyNames(context).ToLocalChecked();
+				AC_CORE_TRACE("Prototype: ");
+				for(uint32_t i = 0; i < keys->Length(); i++)
+				{
+					auto key = keys->Get(context, i).ToLocalChecked();
+					auto name = v8pp::from_v8<std::string>(m_Isolate, key);
+					AC_CORE_TRACE("\t{0}", name);
+				}
+
+				auto instanceKeys = instance->GetPropertyNames(context).ToLocalChecked();
+				AC_CORE_TRACE("Instance: ");
+				for(uint32_t i = 0; i < instanceKeys->Length(); i++)
+				{
+					auto key = instanceKeys->Get(context, i).ToLocalChecked();
+					auto name = v8pp::from_v8<std::string>(m_Isolate, key);
+					AC_CORE_TRACE("\t{0}", name);
+				}
+
+				auto keys2 = instance->GetOwnPropertyNames(context).ToLocalChecked();
+				AC_CORE_TRACE("Instance: ");
+				for(uint32_t i = 0; i < keys2->Length(); i++)
+				{
+					auto key = keys2->Get(context, i).ToLocalChecked();
+					auto name = v8pp::from_v8<std::string>(m_Isolate, key);
+					AC_CORE_TRACE("\t{0}", name);
+				}
+
+				// TODO make optional
+				v8::Local<v8::Function> onUpdateFunc = instance->Get(context, v8pp::to_v8(m_Isolate, "onUpdate")).ToLocalChecked().As<v8::Function>();
+				AC_CORE_ASSERT(onUpdateFunc->IsFunction());
+				AC_CORE_TRACE("OnUpdate: {}", v8pp::from_v8<std::string>(m_Isolate, onUpdateFunc->TypeOf(m_Isolate)));
+				m_OnUpdate.Reset(m_Isolate, onUpdateFunc);
+
+				v8::Local<v8::Function> onCreateFunc = prototype->Get(context, v8pp::to_v8(m_Isolate, "onCreate")).ToLocalChecked().As<v8::Function>();
+				AC_CORE_ASSERT(onCreateFunc->IsFunction(), "Script must implement OnCreate!");
+				AC_CORE_TRACE("OnCreate: {}", v8pp::from_v8<std::string>(m_Isolate, onCreateFunc->TypeOf(m_Isolate)));
+				auto ret = onCreateFunc->Call(context, instance, 0, nullptr);
+
 				if (ret.IsEmpty() && trycatch.HasCaught())
 				{
 					ReportException(m_Isolate, &trycatch);
-					// AC_CORE_ERROR("[V8] ({}): Exception {}", stacktrace, v8pp::from_v8<std::string>(m_Isolate, trycatch.Message()->Get()));
 				}
 				else if (ret.IsEmpty())
 				{
@@ -719,27 +580,8 @@ public:
 					AC_CORE_BREAK();
 				}
 
-				// OnDestroy
-				//...
 			}
 		}
-
-		// v8::StartupData serializedData = m_SnapshotCreator->CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kClear);
-
-		// AC_CORE_ASSERT(serializedData.data != nullptr, "Failed to create snapshot!");
-		// AC_CORE_ASSERT(serializedData.raw_size > 0, "Failed to create snapshot!");
-
-		// AC_CORE_INFO("Writing Snapshot to {}", snapshotPath.string());
-
-		// std::ofstream out(snapshotPath.string(), std::ios::binary);
-
-		// AC_CORE_ASSERT(out, "Failed to write snapshot");
-
-		// out.write(reinterpret_cast<const char*>(serializedData.data), serializedData.raw_size);
-
-		// out.close();
-
-		// AC_CORE_INFO("Snapshot written to {}", snapshotPath.string());
 	}
 
 	void V8Script::Dispose()
@@ -813,10 +655,11 @@ public:
 
 				if (tryCatch.HasCaught())
 				{
-					if (!tryCatch.Message().IsEmpty())
-						AC_CORE_ERROR("[V8]: Error on Update: {}", v8pp::from_v8<std::string>(m_Isolate, tryCatch.Message()->Get()));
-					else
-						AC_CORE_ERROR("[V8]: Unknown Error on Update");
+//					if (!tryCatch.Message().IsEmpty())
+//						AC_CORE_ERROR("[V8]: Error on Update: {}", v8pp::from_v8<std::string>(m_Isolate, tryCatch.Message()->Get()));
+//					else
+//						AC_CORE_ERROR("[V8]: Unknown Error on Update");
+					ReportException(m_Isolate, &tryCatch);
 				}
 
 				AC_CORE_ASSERT(!res.IsEmpty(), "V8 OnUpdate failed!");
@@ -830,109 +673,27 @@ public:
 	v8::Local<v8::Context> V8Script::CreateShellContext()
 	{
 		AC_PROFILE_FUNCTION();
+		AC_CORE_ASSERT(m_Isolate, "Invalid Isolate");
+		AC_CORE_ASSERT(!m_Isolate->IsDead(), "Invalid Isolate");
+
+		v8::EscapableHandleScope handleScope(m_Isolate);
 		v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(m_Isolate);
 		global->Set(v8::String::NewFromUtf8(m_Isolate, "print", v8::NewStringType::kNormal).ToLocalChecked(), v8::FunctionTemplate::New(m_Isolate, Print));
 
-		v8::Local<v8::ObjectTemplate> componentsEnum = v8::ObjectTemplate::New(m_Isolate);
-		constexpr auto& components					 = magic_enum::enum_values<ComponentsEnum>();
-		for (const auto& component : components)
-		{
-			componentsEnum->Set(v8pp::to_v8(m_Isolate, magic_enum::enum_name(component)), v8pp::to_v8(m_Isolate, magic_enum::enum_integer(component)));
-		}
+		Acorn::Scripting::V8::GlobalWrapper::Bind(m_Isolate, global);
+		Acorn::Scripting::V8::BindComponentTypes(m_Isolate, global);
+		Acorn::Scripting::V8::TransformWrapper::Bind(m_Isolate, global);
 
-		// TODO switch out with string names?
-		global->Set(v8pp::to_v8(m_Isolate, "ComponentTypes"), componentsEnum);
+		auto createFuncTemplate = v8::FunctionTemplate::New(m_Isolate, &JsFunctionTemplate<V8Script, &V8Script::GetComponent>);
+		global->Set(v8pp::to_v8(m_Isolate, "GetComponent"), createFuncTemplate);
 
-		v8::Local<v8::ObjectTemplate> module = v8::ObjectTemplate::New(m_Isolate);
-		module->Set(v8pp::to_v8(m_Isolate, "exports"), v8::ObjectTemplate::New(m_Isolate));
-
-		global->Set(v8pp::to_v8(m_Isolate, "module"), module);
-
-		v8::Local<v8::FunctionTemplate> constructor = v8::FunctionTemplate::New(m_Isolate, ScriptSuperClassConstructor);
-		v8::Local<v8::ObjectTemplate> instance		= constructor->InstanceTemplate();
-		instance->SetInternalFieldCount(1);
-		constructor->PrototypeTemplate()->Set(v8pp::to_v8(m_Isolate, "HasComponent"), v8::FunctionTemplate::New(m_Isolate, ScriptSuperClassHasComponent));
-		constructor->PrototypeTemplate()->Set(v8pp::to_v8(m_Isolate, "GetComponent"), v8::FunctionTemplate::New(m_Isolate, ScriptSuperClassGetComponent));
-		global->Set(v8pp::to_v8(m_Isolate, "ScriptSuperClass"), constructor);
-
-		DeclareTypes(global);
-
-		Acorn::Scripting::V8::Vec2Wrapper::Bind(m_Isolate, global);
-		Acorn::Scripting::V8::Vec3Wrapper::Bind(m_Isolate, global);
+		global->SetInternalFieldCount(1);
 
 		v8::Local<v8::Context> context = v8::Context::New(m_Isolate, nullptr, global);
 
+		context->Global()->SetAlignedPointerInInternalField(0, (void*)this);
 
-		return context;
-	}
-
-	void V8Script::DeclareTypes(v8::Local<v8::ObjectTemplate>& global)
-	{
-		AC_PROFILE_FUNCTION();
-		v8::HandleScope handle_scope(m_Isolate);
-		v8pp::module mathModule(m_Isolate);
-
-		v8pp::class_<glm::vec2> vec2(m_Isolate);
-		vec2.ctor<float, float>().set("x", &glm::vec2::x).set("y", &glm::vec2::y);
-
-		v8pp::class_<glm::vec3> vec3(m_Isolate);
-		vec3.ctor<float, float, float>().set("x", &glm::vec3::x).set("y", &glm::vec3::y).set("z", &glm::vec3::z);
-
-		v8pp::class_<glm::vec4> vec4(m_Isolate);
-		vec4.ctor<float, float, float, float>().set("x", &glm::vec4::x).set("y", &glm::vec4::y).set("z", &glm::vec4::z).set("w", &glm::vec4::w);
-
-		mathModule.set("vec2", vec2);
-		mathModule.set("vec3", vec3);
-		mathModule.set("vec4", vec4);
-
-		global->Set(v8pp::to_v8(m_Isolate, "math"), mathModule.impl());
-
-		v8pp::class_<Input> inputClass(m_Isolate);
-		inputClass.set("IsKeyPressed", &Input::IsKeyPressed)
-			.set("IsMouseButtonPressed", &Input::IsMouseButtonPressed)
-			.set("GetMouseX", &Input::GetMouseX)
-			.set("GetMouseY", &Input::GetMouseY)
-			.set("GetMousePosition", &Input::GetMousePosition);
-
-		global->Set(v8pp::to_v8(m_Isolate, "Input"), inputClass.js_function_template());
-
-		v8pp::class_<internals::Utils> utilsClass(m_Isolate);
-		utilsClass.set("TranslateMousePosition", &internals::Utils::TranslateMousePosition);
-
-		global->Set(v8pp::to_v8(m_Isolate, "Utils"), utilsClass.js_function_template());
-
-		v8pp::module componentModule(m_Isolate);
-
-		v8pp::class_<Components::Tag> tag(m_Isolate);
-		tag.ctor<std::string>().set("TagName", &Components::Tag::TagName).auto_wrap_objects(true);
-
-		v8pp::class_<Components::RigidBody2d> rigidBody2d(m_Isolate);
-		rigidBody2d.ctor<>().set("AddForce", &Components::RigidBody2d::AddForce).auto_wrap_objects(true);
-
-		// v8pp::class_<Physics2D::Collider> collider(m_Isolate);
-		//collider// 	.set("Offset", v8pp::property_(&Physics2D::Collider::GetOffset, &Physics2D::Collider::SetOffset))
-		// 	.set("IsInside", &Physics2D::Collider::IsInside)
-		// 	.auto_wrap_objects(true);
-
-		// v8pp::class_<Components::BoxCollider2d> boxCollider(m_Isolate);
-		// boxCollider.ctor<>()
-		// 	.inherit<Physics2D::Collider>()
-		// 	.set("Size", v8pp::property_(&Components::BoxCollider2d::GetSize, &Components::BoxCollider2d::SetSize))
-		// 	.auto_wrap_objects(true);
-
-		// v8pp::class_<Components::CircleCollider2d> circleCollider(m_Isolate);
-		// circleCollider.ctor<>()
-		// 	.inherit<Physics2D::Collider>()
-		// 	.set("Radius", v8pp::property_(&Components::CircleCollider2d::GetRadius, &Components::CircleCollider2d::SetRadius))
-		// 	.auto_wrap_objects(true);
-
-		componentModule.set("Tag", tag);
-		componentModule.set("RigidBody2d", rigidBody2d);
-		// componentModule.set("Collider", collider); // TODO move to physics module?
-		// componentModule.set("BoxCollider2d", boxCollider);
-		// componentModule.set("CircleCollider2d", circleCollider);
-
-		global->Set(v8pp::to_v8(m_Isolate, "Components"), componentModule.impl());
+		return handleScope.Escape(context);
 	}
 
 	template <typename T>
@@ -944,7 +705,7 @@ public:
 	template <>
 	void V8Script::SetValue<bool>(std::string parameterName, bool value)
 	{
-		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
+		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter");
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::Boolean, "Tried to set invalid parameter");
 		// m_Parameters[parameterName] = value;
@@ -953,7 +714,7 @@ public:
 
 	void V8Script::SetValue<float>(std::string parameterName, float value)
 	{
-		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
+		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter");
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::Number, "Tried to set invalid parameter");
 		// m_Parameters[parameterName] = value;
@@ -962,7 +723,7 @@ public:
 	template <>
 	void V8Script::SetValue<std::string>(std::string parameterName, std::string value)
 	{
-		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter")
+		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to set invalid parameter");
 		AC_CORE_TRACE("Setting {}", value);
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::String, "Tried to set invalid parameter");
@@ -994,7 +755,7 @@ public:
 	template <>
 	bool& V8Script::GetValue<bool>(std::string parameterName)
 	{
-		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter")
+		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter");
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::Boolean, "Tried to get invalid parameter for type boolean");
 		if (!m_Parameters.contains(parameterName))
@@ -1008,7 +769,7 @@ public:
 	template <>
 	float& V8Script::GetValue<float>(std::string parameterName)
 	{
-		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter")
+		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter");
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::Number, "Tried to get invalid parameter for type number");
 		if (!m_Parameters.contains(parameterName))
@@ -1022,7 +783,7 @@ public:
 	template <>
 	std::string& V8Script::GetValue<std::string>(std::string parameterName)
 	{
-		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter")
+		AC_CORE_ASSERT(m_Data.Fields.contains(parameterName), "Tried to get invalid parameter");
 		TSField field = m_Data.Fields[parameterName];
 		AC_ASSERT(field.Type == TsType::String, "Tried to get invalid parameter for type string");
 		if (!m_Parameters.contains(parameterName))

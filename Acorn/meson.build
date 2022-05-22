@@ -37,26 +37,15 @@ boost = dependency('boost')
 imgui = dependency('imgui', default_options: ['opengl=enabled', 'glfw=enabled', 'default_library=static'])
 magic_enum = dependency('magic_enum')
 openssl = dependency('openssl')
-# spirv_tools_dep = dependency('SPIRV-Tools', fallback: ['SPIRV-Tools', 'spirv_tools_dep'])
-# spirv_tools_opt_dep = dependency('SPIRV-Tools', fallback: ['SPIRV-Tools', 'spirv_tools_opt_dep'])
+json = dependency('nlohmann_json')
 
 spirv_cross = dependency('SPIRV-Cross', fallback: ['SPIRV-Cross', 'spirv_cross_dep'])
 spirv_headers_dep = dependency('SPIRV-Headers', fallback: ['SPIRV-Headers', 'spirv_headers_dep'])
 spvtools_dep = dependency('SPIRV-Tools', default_options: ['default_library=static'])
 spvtools_opt_dep = dependency('SPIRV-Tools-opt', fallback: ['SPIRV-Tools', 'spirv_tools_opt_dep'], default_options: ['default_library=static'])
-# spirv_tools_opts = cmake.subproject_options()
-# spirv_tools_opts.add_cmake_defines({'SPIRV_SKIP_TESTS': 'ON', 'SPIRV_SKIP_EXECUTABLES': 'ON'})
-# spirv_tools_proj = cmake.subproject('SPIRV-Tools', options: spirv_tools_opts)
-# spvtools_dep = spirv_tools_proj.dependency('SPIRV-Tools-shared')
-# spvtools_opt_dep = spirv_tools_proj.dependency('SPIRV-Tools-opt')
 
 glsllang_dep = dependency('glsllang', fallback: ['glslang', 'glslang_dep'], default_options: ['enable_hlsl=enabled', 'enable_opt=enabled'])
 
-
-# spirv_tools_proj = cmake.subproject('SPIRV-Tools')
-# spirv_tools_dep = spirv_tools_proj.dependency('SPIRV-Tools-shared')
-# spirv_tools_opt_dep = spirv_tools_proj.dependency('SPIRV-Tools-opt')
-# spirv_tools = spirv_tools_dep
 
 shaderc = dependency('shaderc', static : false, fallback : ['shaderc', 'shaderc_dep'], default_options: ['enable_nv_exts=disabled'])
 
@@ -71,30 +60,31 @@ entt = entt_subproject.dependency('EnTT')
 
 subdir('vendor')
 
-inc = include_directories('include', 'include/Acorn', 'src/pch')
+inc = include_directories('src', 'src/Acorn', 'src/pch')
 
 dependencies = [
-	threads, 
-	glm, 
-	opengl, 
-	glfw,
-	glad,
-	spdlog, 
-	fmt, 
-	yaml_cpp,
-	box2d,
 	boost,
+	box2d,
+	entt,
+	fmt,
+	glad,
+	glfw,
+	glm,
 	imgui,
 	imguizmo,
-	entt,
+	json,
+	magic_enum,
+	opengl,
+	openssl,
+	pfd,
+	shaderc,
+	spdlog,
 	spirv_cross,
 	spvtools_opt_dep,
-	tracy,
-	magic_enum,
 	stb_image,
-	shaderc,
-	openssl,
-	pfd
+	threads,
+	tracy,
+	yaml_cpp,
 ]
 
 if v8.found()
@@ -113,8 +103,6 @@ if host_machine.system() == 'windows'
 	]
 endif
 
-
-subdir('include')
 subdir('src')
 
 libacorn_dep = declare_dependency(include_directories: inc, link_with: libacorn, dependencies: dependencies)

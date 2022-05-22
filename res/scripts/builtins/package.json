@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@math.gl/core": "^3.5.7"
+  }
+}
